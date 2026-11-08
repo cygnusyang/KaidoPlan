@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KaidoPlan vs Linear or Todoist connected over MCP</title>
+<meta name="description" content="Task trackers now expose MCP servers, so an agent can file tickets. That solves capture. It does not compute a delivery date — here is the difference, and when the tracker is enough.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/compare/kaidoplan-vs-linear-todoist-mcp.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="KaidoPlan vs Linear or Todoist connected over MCP">
+<meta property="og:description" content="Task trackers now expose MCP servers, so an agent can file tickets. That solves capture. It does not compute a delivery date — here is the difference, and when the tracker is enough.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/compare/kaidoplan-vs-linear-todoist-mcp.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "KaidoPlan vs Linear or Todoist over MCP",
+  "description": "Task trackers now expose MCP servers, so an agent can file tickets. That solves capture. It does not compute a delivery date — here is the difference, and when the tracker is enough.",
+  "url": "https://kaidoplan.cygnusyang.top/compare/kaidoplan-vs-linear-todoist-mcp.html",
+  "datePublished": "2026-11-08",
+  "dateModified": "2026-11-08",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "KaidoPlan vs Linear or Todoist over MCP",
+      "item": "https://kaidoplan.cygnusyang.top/compare/kaidoplan-vs-linear-todoist-mcp.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can KaidoPlan sync tasks to Linear or Todoist?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. There is no two-way sync, and adding one would recreate the divergence problem above. The plan file is plain JSON and the CLI is scriptable, so an export based on a file you own is possible without a sync contract."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does KaidoPlan work for a team?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It is a single-user tool. The plan file can live in a shared repository, so a small team can read the same plan, but there are no roles, comments or notifications."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Comparison</p>
+<h1>KaidoPlan vs Linear or Todoist over MCP</h1>
+<p class="dek">Both let an agent create tasks. Only one of them can tell you whether the project still ends on the day you promised.</p>
+<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<h2>What a tracker with MCP gets right</h2>
+<p>Linear, Todoist and their peers solved capture and coordination years ago: fast entry, assignments, states, comments, notifications, mobile clients, and now an MCP server so an agent can file and update issues without a human copying text between windows. If your problem is "the agent's work never reaches the team's system of record", a tracker with MCP is the correct answer and KaidoPlan is not competing with it.</p>
+
+<h2>What is still missing</h2>
+<p>A tracker stores tasks. It does not schedule them. There is no project window to violate, no dependency graph to propagate, no slack to compute, and therefore no critical path — which means the one question a delivery date depends on is answered by whoever is most confident in the standup.</p>
+<table>
+<thead><tr><th></th><th>Linear / Todoist + MCP</th><th>KaidoPlan</th></tr></thead>
+<tbody>
+<tr><td>Primary job</td><td>Capture, assign, track states</td><td>Schedule: dependencies, dates, critical path</td></tr>
+<tr><td>Dependencies</td><td>Blocking links exist; they do not produce a schedule</td><td>Propagated forward and backward to produce dates and slack</td></tr>
+<tr><td>End date</td><td>Set by a human, tracked against</td><td>Computed from the graph, and re-computed when the graph changes</td></tr>
+<tr><td>Conflict detection</td><td>Overdue flags on individual items</td><td>Cycles, deadline conflicts, out-of-window tasks, blocked chains</td></tr>
+<tr><td>Where it lives</td><td>Vendor cloud, per-seat pricing</td><td>Local <code>.kaido</code> file, $9.99/year for one person</td></tr>
+<tr><td>Team features</td><td>Strong: comments, roles, notifications</td><td>None. It is a single-user planning tool.</td></tr>
+</tbody></table>
+
+<h2>The honest division of labour</h2>
+<p>Teams that ship on a date tend to use both, in one direction: the plan decides what the dates are, the tracker decides who is told about them. The plan is the arithmetic; the tracker is the notification system. What does not work is maintaining the date in both places by hand — the two copies diverge within a week, and the tracker wins because it is the one people open.</p>
+<p>For a solo developer or a two-person project, the tracker's team features are dead weight and the missing schedule is the whole problem. That is the case KaidoPlan is built for: one local file, a dependency graph, a computed end date.</p>
+
+<h2>When the tracker wins</h2>
+<ul>
+<li>You need comments, mentions and notifications across a team of five or more.</li>
+<li>The deadline is externally fixed and simply has to be tracked, not derived.</li>
+<li>You work across macOS, Windows and Linux, and a per-seat subscription is fine.</li>
+</ul>
+<p>If none of those apply and you are still maintaining dates by hand in a tracker, you are paying a subscription to store a number you cannot verify.</p>
+<h2>Questions this page does not answer</h2>
+<details><summary>Can KaidoPlan sync tasks to Linear or Todoist?</summary><p>No. There is no two-way sync, and adding one would recreate the divergence problem above. The plan file is plain JSON and the CLI is scriptable, so an export based on a file you own is possible without a sync contract.</p></details>
+<details><summary>Does KaidoPlan work for a team?</summary><p>It is a single-user tool. The plan file can live in a shared repository, so a small team can read the same plan, but there are no roles, comments or notifications.</p></details>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>30-day full-feature trial, no account and no card. After that the app drops to the free tier instead of switching off: full GUI planning, AI read access, 3 delivery-report exports per month. Pro is $9.99 per year and unlocks AI write-back.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../compare/kaidoplan-vs-handoff-md.html">KaidoPlan vs a HANDOFF.md file</a><span class="why">Comparison</span></li><li><a href="../features/scheduling.html">Scheduling and the critical path</a><span class="why">Features · 2 tools</span></li><li><a href="../qa/critical-path-for-ai-projects.html">What is a critical path, and why does an AI project need one?</a><span class="why">Answer</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script></body></html>

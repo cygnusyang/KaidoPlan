@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A project plan that is a file: .kaido, plain JSON, formatVersion 2</title>
+<meta name="description" content="project_create, project_open and project_save work on a single local .kaido file — plain JSON that diffs, validates and survives tool changes.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/features/project-files.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="A project plan that is a file: .kaido, plain JSON, formatVersion 2">
+<meta property="og:description" content="project_create, project_open and project_save work on a single local .kaido file — plain JSON that diffs, validates and survives tool changes.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/features/project-files.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "The plan is a file, not an account",
+  "description": "project_create, project_open and project_save work on a single local .kaido file — plain JSON that diffs, validates and survives tool changes.",
+  "url": "https://kaidoplan.cygnusyang.top/features/project-files.html",
+  "datePublished": "2026-11-08",
+  "dateModified": "2026-11-08",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "The plan is a file, not an account",
+      "item": "https://kaidoplan.cygnusyang.top/features/project-files.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I edit the file by hand?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It is plain JSON, so yes — and the app will load it. Keep the schema intact; the CLI and MCP tools are the safer path for structural changes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a sync service?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Put the file in whatever repository or backup you already trust."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Features · 3 tools</p>
+<h1>The plan is a file, not an account</h1>
+<p class="dek">Three tools, one object: a <code>.kaido</code> file you can copy, diff, back up and read without the app.</p>
+<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<h2>The three tools</h2>
+<table>
+<thead><tr><th>Tool</th><th>Does</th></tr></thead>
+<tbody>
+<tr><td><code>project_create</code></td><td>Creates a project. Optional <code>projectStart</code> / <code>projectEnd</code> (ISO 8601) set the window that scheduling and violation checks are measured against.</td></tr>
+<tr><td><code>project_open</code></td><td>Opens a <code>.kaido</code> file. Reports <code>formatVersion</code> and whether a save would upgrade the file.</td></tr>
+<tr><td><code>project_save</code></td><td>Saves to the open file, or acts as save-as when a path is given.</td></tr>
+</tbody></table>
+
+<h2>Why the format matters</h2>
+<p>The plan is plain JSON with a <code>formatVersion</code> field, currently 2. That single decision carries most of the properties people actually want:</p>
+<ul>
+<li><strong>It goes in the repository.</strong> Next to the code, reviewed in the same pull request, with one-line diffs when a date moves.</li>
+<li><strong>It outlives the tool.</strong> If this app disappears tomorrow, the plan is still a JSON document with a documented shape.</li>
+<li><strong>It is inspectable without permission.</strong> An agent, a script or a person with <code>jq</code> can read it. No export step, no API key.</li>
+<li><strong>It is local.</strong> No account, no sync, no server copy. The app's only unprompted network call is the update check.</li>
+</ul>
+
+<h2>What "formatVersion" buys you</h2>
+<p>When the schema changes, the app knows what it is reading and upgrades on save, reporting <code>upgradedFrom</code> once so the change is visible rather than silent. Older files open; newer files are not silently rewritten.</p>
+
+<h2>The project window is not metadata</h2>
+<p>Setting a start and an end date is what makes a task "outside the project window" detectable. Without a window, the violation checks have nothing to compare against, and the plan degrades into a list with dates attached.</p>
+<h2>Questions this page does not answer</h2>
+<details><summary>Can I edit the file by hand?</summary><p>It is plain JSON, so yes — and the app will load it. Keep the schema intact; the CLI and MCP tools are the safer path for structural changes.</p></details>
+<details><summary>Is there a sync service?</summary><p>No. Put the file in whatever repository or backup you already trust.</p></details>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>30-day full-feature trial, no account and no card. After that the app drops to the free tier instead of switching off: full GUI planning, AI read access, 3 delivery-report exports per month. Pro is $9.99 per year and unlocks AI write-back.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../qa/sync-plan-across-claude-code-sessions.html">How do I keep a project plan in sync across Claude Code sessions?</a><span class="why">Answer</span></li><li><a href="../features/cli.html">The command line</a><span class="why">Features · CLI</span></li><li><a href="../compare/kaidoplan-vs-handoff-md.html">KaidoPlan vs a HANDOFF.md file</a><span class="why">Comparison</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script></body></html>

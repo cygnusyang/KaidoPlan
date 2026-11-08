@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KaidoPlan vs a HANDOFF.md file for AI coding projects</title>
+<meta name="description" content="A markdown handoff file is how most AI coding projects carry context between sessions. Here is what it does well, what it cannot compute, and when the two should be used together.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/compare/kaidoplan-vs-handoff-md.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="KaidoPlan vs a HANDOFF.md file for AI coding projects">
+<meta property="og:description" content="A markdown handoff file is how most AI coding projects carry context between sessions. Here is what it does well, what it cannot compute, and when the two should be used together.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/compare/kaidoplan-vs-handoff-md.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "KaidoPlan vs a HANDOFF.md file",
+  "description": "A markdown handoff file is how most AI coding projects carry context between sessions. Here is what it does well, what it cannot compute, and when the two should be used together.",
+  "url": "https://kaidoplan.cygnusyang.top/compare/kaidoplan-vs-handoff-md.html",
+  "datePublished": "2026-11-08",
+  "dateModified": "2026-11-08",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "KaidoPlan vs a HANDOFF.md file",
+      "item": "https://kaidoplan.cygnusyang.top/compare/kaidoplan-vs-handoff-md.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can the agent update both?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. The plan is a local JSON file with a documented schema and an MCP surface; the handoff file is markdown. An agent can be told to keep dates in the plan and reasoning in the handoff file, which is usually the cleanest split."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is a plan file still readable in a pull request?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It diffs as JSON. A date change is a one-line diff, which is more reviewable than the same change described in a paragraph."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Comparison</p>
+<h1>KaidoPlan vs a HANDOFF.md file</h1>
+<p class="dek">A handoff file is the cheapest coordination mechanism that works. It is also the reason nobody notices the schedule has stopped adding up.</p>
+<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<h2>What a handoff file does well</h2>
+<p>A <code>HANDOFF.md</code> — or <code>CLAUDE.md</code>, or an <code>AGENTS.md</code> — is a plain file in the repository that tells the next session what is going on: what was finished, what is next, which decisions are settled. It costs nothing, it diffs, it survives tool changes, and every agent can read it. If the only problem you have is "the agent forgot what we did yesterday", a handoff file solves it and nothing else is needed.</p>
+
+<h2>What it cannot do</h2>
+<table>
+<thead><tr><th></th><th>HANDOFF.md</th><th>KaidoPlan</th></tr></thead>
+<tbody>
+<tr><td>Shape</td><td>Prose, written by whoever updated it last</td><td>Structured plan: tasks, groups, milestones, effort, dependencies</td></tr>
+<tr><td>Dates</td><td>Whatever the text says</td><td>Computed from dependencies, constraints and a project window</td></tr>
+<tr><td>Critical path</td><td>Not representable</td><td>Computed, with per-task slack</td></tr>
+<tr><td>Consistency</td><td>Contradictions are prose contradictions — nobody diffs them</td><td>Violations are listed: cycles, deadline conflicts, out-of-window tasks</td></tr>
+<tr><td>History</td><td>Git history of a narrative</td><td>Baselines: immutable schedule snapshots you can compare actuals against</td></tr>
+<tr><td>Cost</td><td>Free, zero setup</td><td>A macOS app, a file format, and ten minutes of setup</td></tr>
+</tbody></table>
+<p>The failure is structural rather than a matter of discipline. Prose has no edges, so nothing prevents a handoff file from saying "client integration starts 11-04" in one paragraph and "server implementation ends 11-06" in another. Both sentences are true to their author, and the plan they describe cannot happen. A graph makes that contradiction a violation you can list.</p>
+
+<h2>The overlap people miss</h2>
+<p>A handoff file is good at intent, and a plan is good at arithmetic. The mistake is asking one to do the other: a plan file full of design rationale is as unreadable as a WBS written in paragraphs. Keep the reasoning in <code>HANDOFF.md</code>, keep the dates and dependencies in the plan, and let the agent read both. KaidoPlan's plan is plain JSON, so an agent that can read a markdown file can read this one too — 21 MCP tools cover reading and writing it, and the CLI does the same from a shell.</p>
+
+<h2>When the handoff file wins</h2>
+<ul>
+<li>One person, one week, no external deadline. There is nothing to compute.</li>
+<li>The work is genuinely exploratory: you do not know the tasks yet, so a WBS would be fiction with dates attached.</li>
+<li>You are on Linux or Windows, where KaidoPlan does not run.</li>
+</ul>
+<p>If two of those three are false, the handoff file is carrying a schedule it cannot represent — and the first time you need to answer "can we still ship on the 21st" it will answer with a paragraph instead of a number.</p>
+<h2>Questions this page does not answer</h2>
+<details><summary>Can the agent update both?</summary><p>Yes. The plan is a local JSON file with a documented schema and an MCP surface; the handoff file is markdown. An agent can be told to keep dates in the plan and reasoning in the handoff file, which is usually the cleanest split.</p></details>
+<details><summary>Is a plan file still readable in a pull request?</summary><p>It diffs as JSON. A date change is a one-line diff, which is more reviewable than the same change described in a paragraph.</p></details>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>30-day full-feature trial, no account and no card. After that the app drops to the free tier instead of switching off: full GUI planning, AI read access, 3 delivery-report exports per month. Pro is $9.99 per year and unlocks AI write-back.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../compare/kaidoplan-vs-linear-todoist-mcp.html">KaidoPlan vs Linear or Todoist over MCP</a><span class="why">Comparison</span></li><li><a href="../guides/kaidoplan-quickstart.html">Set up a KaidoPlan plan in ten minutes</a><span class="why">Guide · 10 minutes</span></li><li><a href="../qa/sync-plan-across-claude-code-sessions.html">How do I keep a project plan in sync across Claude Code sessions?</a><span class="why">Answer</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script></body></html>

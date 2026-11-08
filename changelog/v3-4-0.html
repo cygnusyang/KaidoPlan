@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KaidoPlan v3.4.0 — one switch per MCP client</title>
+<meta name="description" content="v3.4.0, published 2026-11-07: per-client MCP switches that preserve your config file, a --mcp-stdio mode, a default-on loopback service and a persisted port.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/changelog/v3-4-0.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="KaidoPlan v3.4.0 — one switch per MCP client">
+<meta property="og:description" content="v3.4.0, published 2026-11-07: per-client MCP switches that preserve your config file, a --mcp-stdio mode, a default-on loopback service and a persisted port.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/changelog/v3-4-0.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "v3.4.0 — 2026-11-07",
+  "description": "v3.4.0, published 2026-11-07: per-client MCP switches that preserve your config file, a --mcp-stdio mode, a default-on loopback service and a persisted port.",
+  "url": "https://kaidoplan.cygnusyang.top/changelog/v3-4-0.html",
+  "datePublished": "2026-11-08",
+  "dateModified": "2026-11-08",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "v3.4.0 — 2026-11-07",
+      "item": "https://kaidoplan.cygnusyang.top/changelog/v3-4-0.html"
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Release · v3.4.0</p>
+<h1>v3.4.0 — 2026-11-07</h1>
+<p class="dek">Connecting an agent stopped being a copy-and-paste exercise, and the app became its own MCP server.</p>
+<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<p>This is the permanent page for v3.4.0. It is also the current public release.</p>
+
+<h2>Added</h2>
+<ul>
+<li><strong>One switch per MCP client.</strong> Claude Desktop, Claude Code, Cursor, Codex and WorkBuddy. The writer is text-level and preserving: it adds or removes only <code>mcpServers.kaidoplan</code> (Codex uses <code>[mcp_servers.kaidoplan]</code>) and leaves the rest of the file untouched, including CRLF line endings.</li>
+<li><strong>Visible per-client state.</strong> Connected, configuration needs updating (the endpoint or token in the config no longer matches), write failed with a reason and a retry, not connected, client not installed.</li>
+<li><strong><code>--mcp-stdio</code> mode.</strong> The app's own executable can be launched by a client as a stdio MCP server. The mode is intercepted early in launch, so no window appears and no Dock icon is added.</li>
+</ul>
+
+<h2>Changed</h2>
+<ul>
+<li><strong>MCP service on by default.</strong> The default flipped from off to on; an existing installation that had explicitly turned it off stays off, because only the default changed.</li>
+<li><strong>Port persistence.</strong> The first successful bind is stored and preferred on restart, falling back through 56 private ports when it is taken. The stored preference is not overwritten by a fallback.</li>
+<li><strong>Panel redesign.</strong> The old "copy this JSON yourself" block became the per-client switch list. A copy-configuration button remains as the manual path.</li>
+</ul>
+
+<h2>Notes</h2>
+<p>The service listens on the loopback address only, requires the token shown in the panel, and can reach only folders authorized there. Write tools remain gated by the Pro licence after the 30-day trial; a refusal happens before anything is written to disk.</p>
+<p><a href="/changelog.html">All release notes</a> · <a href="https://github.com/cygnusyang/KaidoPlan/releases/tag/v3.4.0">Download on GitHub</a></p>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>30-day full-feature trial, no account and no card. After that the app drops to the free tier instead of switching off: full GUI planning, AI read access, 3 delivery-report exports per month. Pro is $9.99 per year and unlocks AI write-back.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../features/mcp-clients.html">Connecting an agent</a><span class="why">Features · Integration</span></li><li><a href="../changelog.html">Release notes</a><span class="why">Changelog</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script></body></html>

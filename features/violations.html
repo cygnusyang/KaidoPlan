@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Violation checks: cycles, deadline conflicts, out-of-window tasks</title>
+<meta name="description" content="violations_list reports the four classes of scheduling error that a task list cannot see, each with a specific response. One tool, four failure modes.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/features/violations.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="Violation checks: cycles, deadline conflicts, out-of-window tasks">
+<meta property="og:description" content="violations_list reports the four classes of scheduling error that a task list cannot see, each with a specific response. One tool, four failure modes.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/features/violations.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Violation checks",
+  "description": "violations_list reports the four classes of scheduling error that a task list cannot see, each with a specific response. One tool, four failure modes.",
+  "url": "https://kaidoplan.cygnusyang.top/features/violations.html",
+  "datePublished": "2026-11-08",
+  "dateModified": "2026-11-08",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Violation checks",
+      "item": "https://kaidoplan.cygnusyang.top/features/violations.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does it check for resource over-allocation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The listed classes are cycle, deadline conflict, out-of-window task and blocked chain. Do not assume more than that without checking your own plan."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should violations block a commit?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "They can, if you run the CLI in CI. Whether to block is a policy decision — a cycle almost always should."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Features · 1 tool</p>
+<h1>Violation checks</h1>
+<p class="dek">The plan admits what is broken, on demand, in a list you can act on.</p>
+<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<h2>The four classes</h2>
+<table>
+<thead><tr><th>Violation</th><th>What it means</th></tr></thead>
+<tbody>
+<tr><td>Dependency cycle</td><td>Two or more tasks wait on each other, so the schedule cannot be computed.</td></tr>
+<tr><td>Deadline conflict</td><td>A task cannot finish by its constraint or the project end date.</td></tr>
+<tr><td>Task outside the project window</td><td>Scheduled to start before the project starts or end after it ends.</td></tr>
+<tr><td>Blocked chain</td><td>Work that cannot proceed because an upstream item is not moving.</td></tr>
+</tbody></table>
+
+<h2>Why a list beats a warning icon</h2>
+<p>A single red indicator tells you something is wrong and nothing else. A list is actionable: each entry names the tasks involved, so the response is a decision rather than an investigation. Break the cycle, move the date, cut the scope, or accept the slip deliberately.</p>
+<pre><code>kaidoplan violations --file plan.kaido</code></pre>
+
+<h2>In the workbench</h2>
+<p>The same checks surface in the app, inline with the plan, so a violation is visible while you are editing rather than at the end of a reporting cycle. Same data, same rules — the CLI and the app do not have separate opinions.</p>
+
+<h2>The honest limitation</h2>
+<p>These are consistency checks, not feasibility checks. A plan with no violations can still be undeliverable because every estimate is optimistic. Violations tell you the arithmetic holds; only history tells you the estimates were real.</p>
+<h2>Questions this page does not answer</h2>
+<details><summary>Does it check for resource over-allocation?</summary><p>The listed classes are cycle, deadline conflict, out-of-window task and blocked chain. Do not assume more than that without checking your own plan.</p></details>
+<details><summary>Should violations block a commit?</summary><p>They can, if you run the CLI in CI. Whether to block is a policy decision — a cycle almost always should.</p></details>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>30-day full-feature trial, no account and no card. After that the app drops to the free tier instead of switching off: full GUI planning, AI read access, 3 delivery-report exports per month. Pro is $9.99 per year and unlocks AI write-back.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../qa/ai-agent-marked-everything-done.html">The agent marked every task done — why did the deadline still slip?</a><span class="why">Answer</span></li><li><a href="../guides/delivery-check.html">A delivery check you can run in five minutes</a><span class="why">Guide · reproducible</span></li><li><a href="../features/scheduling.html">Scheduling and the critical path</a><span class="why">Features · 2 tools</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script></body></html>

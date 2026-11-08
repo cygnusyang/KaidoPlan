@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A delivery check you can run on an AI project in five minutes</title>
+<meta name="description" content="Four checks — schedule computation, critical path, violations and status write-back — that turn a plan full of done tasks into an answer about the delivery date. Runnable on any .kaido file.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/guides/delivery-check.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="A delivery check you can run on an AI project in five minutes">
+<meta property="og:description" content="Four checks — schedule computation, critical path, violations and status write-back — that turn a plan full of done tasks into an answer about the delivery date. Runnable on any .kaido file.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/guides/delivery-check.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "A delivery check you can run in five minutes",
+  "description": "Four checks — schedule computation, critical path, violations and status write-back — that turn a plan full of done tasks into an answer about the delivery date. Runnable on any .kaido file.",
+  "url": "https://kaidoplan.cygnusyang.top/guides/delivery-check.html",
+  "datePublished": "2026-11-08",
+  "dateModified": "2026-11-08",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "A delivery check you can run in five minutes",
+      "item": "https://kaidoplan.cygnusyang.top/guides/delivery-check.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How is this different from a burndown chart?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A burndown chart plots completed work against time. It cannot see that a dependency was never recorded, or that a completed task finished after the task that depended on it. The four checks read the dependency graph, not the totals."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does the check need the Pro licence?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Computing the schedule, reading the critical path and listing violations are read operations and work on the free tier. Only writing status back from an agent needs Pro."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Guide · reproducible</p>
+<h1>A delivery check you can run in five minutes</h1>
+<p class="dek">An agent that reports progress honestly can still leave you with a plan that no longer adds up. The check below does not ask anyone how it is going. It asks the plan.</p>
+<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<h2>Why a status report is not a delivery check</h2>
+<p>A status report answers "what is done". A delivery check answers "when does this finish, and what would have to be true for that to change". The two diverge exactly when it matters: every task says complete, and the end date has still moved, because something that was supposed to finish first finished late, or a dependency was never written down, or a task was scheduled before its predecessor ended.</p>
+<p>None of those are coding errors. They are arithmetic errors in the plan, and they are invisible in a chat transcript. So the check runs on the file, not on the narrative.</p>
+
+<h2>The four checks</h2>
+<h3>1. Does the schedule compute at all?</h3>
+<pre><code>kaidoplan schedule compute --file plan.kaido</code></pre>
+<p>This propagates the dependencies and returns each task's earliest and latest dates. If a dependency cycle exists, the schedule cannot be computed — which is the most useful possible failure, because it means the plan describes work that can never start.</p>
+
+<h3>2. Which chain sets the end date?</h3>
+<pre><code>kaidoplan schedule path --file plan.kaido</code></pre>
+<p>Critical path and slack. Zero-slack tasks decide the delivery date; everything else has room. This is the answer to "what should I worry about", and it usually contains two or three tasks, not fifteen.</p>
+
+<h3>3. What does the plan admit is broken?</h3>
+<pre><code>kaidoplan violations --file plan.kaido</code></pre>
+<p>Four classes come back, and each has exactly one correct response:</p>
+<table>
+<thead><tr><th>Violation</th><th>What it means</th><th>What to do</th></tr></thead>
+<tbody>
+<tr><td>Dependency cycle</td><td>The plan says A waits for B and B waits for A</td><td>Break the cycle. Nothing downstream of it is real.</td></tr>
+<tr><td>Deadline conflict</td><td>A task finishes after a constraint or the project end</td><td>Move the date, cut the scope, or move the constraint — decide deliberately.</td></tr>
+<tr><td>Task outside the project window</td><td>A task starts before the project starts or ends after it ends</td><td>Either the window is wrong or the task does not belong in this project.</td></tr>
+<tr><td>Blocked chain</td><td>Work that cannot proceed because an upstream item is stuck</td><td>This is the chain to escalate today, not the loudest task in the list.</td></tr>
+</tbody></table>
+
+<h3>4. Did the agent's write-back land?</h3>
+<pre><code>kaidoplan status batch --file plan.kaido --json</code></pre>
+<p>Bulk status writes return per-entry success and failure. A failing entry does not stop the rest, which is the right behaviour and also the reason you have to read the output: partial success looks like success from a distance.</p>
+
+<h2>Reading the result honestly</h2>
+<p>Three outcomes, three different conversations:</p>
+<ul>
+<li><strong>No violations and a named critical path.</strong> The plan is internally consistent. Whether it is achievable is a different question, and the answer is not in the file.</li>
+<li><strong>Violations that were already there last week.</strong> Nothing has changed, which means the check has become ritual. Fix one, then re-run.</li>
+<li><strong>Violations appeared after a write-back.</strong> An agent updated status without updating dates. This is the common case, and the reason status write-back and date review belong in the same loop.</li>
+</ul>
+
+<div class="callout"><span class="label">The one-sentence version</span>
+<p>Run the check whenever an agent changes the plan, and treat a violation the same way you treat a failing test: not as bad news, but as information that arrived early enough to be useful.</p></div>
+
+<h2>Doing it on a real repository</h2>
+<p>The plan is a file in your repo, so the check can be part of the pull request you were going to open anyway: run <code>violations</code>, paste the output, and if it is non-empty the change is not ready. That is the entire integration — no dashboard, no webhook, no account.</p>
+<p>If you want the same four checks without a terminal, the app's workbench shows violations inline and the critical path highlighted in the Gantt chart. Same numbers, different surface.</p>
+<h2>Questions this page does not answer</h2>
+<details><summary>How is this different from a burndown chart?</summary><p>A burndown chart plots completed work against time. It cannot see that a dependency was never recorded, or that a completed task finished after the task that depended on it. The four checks read the dependency graph, not the totals.</p></details>
+<details><summary>Does the check need the Pro licence?</summary><p>No. Computing the schedule, reading the critical path and listing violations are read operations and work on the free tier. Only writing status back from an agent needs Pro.</p></details>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>30-day full-feature trial, no account and no card. After that the app drops to the free tier instead of switching off: full GUI planning, AI read access, 3 delivery-report exports per month. Pro is $9.99 per year and unlocks AI write-back.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../guides/kaidoplan-quickstart.html">Set up a KaidoPlan plan in ten minutes</a><span class="why">Guide · 10 minutes</span></li><li><a href="../features/violations.html">Violation checks</a><span class="why">Features · 1 tool</span></li><li><a href="../features/baselines.html">Baselines and variance</a><span class="why">Features · 5 tools</span></li><li><a href="../qa/ai-agent-marked-everything-done.html">The agent marked every task done — why did the deadline still slip?</a><span class="why">Answer</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script></body></html>

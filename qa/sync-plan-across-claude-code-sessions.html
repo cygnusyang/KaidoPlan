@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How to keep a project plan in sync across Claude Code sessions</title>
+<meta name="description" content="Chat history is not a plan. The practical pattern is to keep the schedule in one local file that every session reads and writes, and to recompute dates after each write.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/qa/sync-plan-across-claude-code-sessions.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="How to keep a project plan in sync across Claude Code sessions">
+<meta property="og:description" content="Chat history is not a plan. The practical pattern is to keep the schedule in one local file that every session reads and writes, and to recompute dates after each write.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/qa/sync-plan-across-claude-code-sessions.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "How do I keep a project plan in sync across Claude Code sessions?",
+  "description": "Chat history is not a plan. The practical pattern is to keep the schedule in one local file that every session reads and writes, and to recompute dates after each write.",
+  "url": "https://kaidoplan.cygnusyang.top/qa/sync-plan-across-claude-code-sessions.html",
+  "datePublished": "2026-11-08",
+  "dateModified": "2026-11-08",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "How do I keep a project plan in sync across Claude Code sessions?",
+      "item": "https://kaidoplan.cygnusyang.top/qa/sync-plan-across-claude-code-sessions.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does it work without the app running?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes for reading and writing the file with the CLI, and for any tool that can parse JSON. The MCP server is the app's own surface and needs the app running."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can several sessions use the plan at once?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sequentially, yes — each write lands in the file. Concurrent writers are not coordinated, so treat the plan like a code file being edited: one session at a time."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Answer</p>
+<h1>How do I keep a project plan in sync across Claude Code sessions?</h1>
+<p class="dek">Short answer: stop keeping the plan in the conversation. Put it in a file, give the agent a documented way to read and write it, and recompute the schedule after every write.</p>
+<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<h2>Why sessions drift</h2>
+<p>Each Claude Code session starts with whatever context it was given and ends with a transcript. A plan that lives inside that transcript is lost or partially summarised at the boundary, so the next session rebuilds it from prose — and rebuilds it slightly differently. Two sessions later, two versions of the plan exist and neither is authoritative.</p>
+<p>The fix is not a better summary. It is separating the plan from the conversation:</p>
+<ol>
+<li><strong>A file owns the plan.</strong> Not a chat, not a scratchpad. One file in the repository, with a schema, that outlives every session.</li>
+<li><strong>The agent reads it at the start of a session.</strong> One tool call or one <code>cat</code>, not a hand-written recap.</li>
+<li><strong>The agent writes to it explicitly.</strong> Status, actual dates and new tasks go through defined operations rather than a paragraph asking a human to update a spreadsheet.</li>
+<li><strong>Dates get recomputed after the write.</strong> The reason to do 1–3 at all: a write that changes a date can create a conflict, and only a recomputation will say so.</li>
+</ol>
+
+<h2>What this looks like with KaidoPlan</h2>
+<p>The plan is a single <code>.kaido</code> file — plain JSON, <code>formatVersion</code> 2 — so a session can read it with nothing installed. With the app running, an MCP server exposes 21 tools over the same file: <code>task_list</code> and <code>project_summary</code> to read, <code>status_update</code> and <code>status_batch_update</code> to write back, <code>schedule_compute</code> and <code>violations_list</code> to check the arithmetic afterwards. The CLI covers the same ground when the app is closed.</p>
+<pre><code># start of session
+kaidoplan project summary --file plan.kaido
+# after the agent reports progress
+kaidoplan status batch --file plan.kaido --json
+kaidoplan violations --file plan.kaido</code></pre>
+<p>Because the file is in the repository, the plan's history is the commit history. A date that moved is a diff you can review, not a claim you have to take on trust.</p>
+
+<h2>The parts that are easy to get wrong</h2>
+<ul>
+<li><strong>Letting the agent invent dates.</strong> An agent that both plans and executes will optimistically compress durations. Keep the estimates human-owned.</li>
+<li><strong>Skipping the recompute.</strong> A status write without a schedule recompute is how a plan accumulates silent contradictions.</li>
+<li><strong>Keeping a second copy in the handoff file.</strong> Two sources of dates diverge; the file that gets opened more wins.</li>
+</ul>
+<h2>Questions this page does not answer</h2>
+<details><summary>Does it work without the app running?</summary><p>Yes for reading and writing the file with the CLI, and for any tool that can parse JSON. The MCP server is the app's own surface and needs the app running.</p></details>
+<details><summary>Can several sessions use the plan at once?</summary><p>Sequentially, yes — each write lands in the file. Concurrent writers are not coordinated, so treat the plan like a code file being edited: one session at a time.</p></details>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>30-day full-feature trial, no account and no card. After that the app drops to the free tier instead of switching off: full GUI planning, AI read access, 3 delivery-report exports per month. Pro is $9.99 per year and unlocks AI write-back.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../compare/kaidoplan-vs-handoff-md.html">KaidoPlan vs a HANDOFF.md file</a><span class="why">Comparison</span></li><li><a href="../features/mcp-clients.html">Connecting an agent</a><span class="why">Features · Integration</span></li><li><a href="../features/status-writeback.html">Status write-back</a><span class="why">Features · 2 tools</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script></body></html>

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KaidoPlan vs an Excel or Google Sheets Gantt chart</title>
+<meta name="description" content="A spreadsheet Gantt can hold dates and formulas, and plenty of projects ship on one. What it cannot do is stay correct when an agent edits it, which is the case that now matters.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/compare/kaidoplan-vs-excel-gantt.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="KaidoPlan vs an Excel or Google Sheets Gantt chart">
+<meta property="og:description" content="A spreadsheet Gantt can hold dates and formulas, and plenty of projects ship on one. What it cannot do is stay correct when an agent edits it, which is the case that now matters.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/compare/kaidoplan-vs-excel-gantt.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "KaidoPlan vs a spreadsheet Gantt",
+  "description": "A spreadsheet Gantt can hold dates and formulas, and plenty of projects ship on one. What it cannot do is stay correct when an agent edits it, which is the case that now matters.",
+  "url": "https://kaidoplan.cygnusyang.top/compare/kaidoplan-vs-excel-gantt.html",
+  "datePublished": "2026-11-08",
+  "dateModified": "2026-11-08",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "KaidoPlan vs a spreadsheet Gantt",
+      "item": "https://kaidoplan.cygnusyang.top/compare/kaidoplan-vs-excel-gantt.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I export back to CSV or a spreadsheet?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The plan is a plain JSON file, so any spreadsheet can be fed from it with a short script. Delivery-report export is a separate feature with a monthly limit on the free tier."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does it print a Gantt chart?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The app draws a Gantt in the workbench. It is not a replacement for a slide deck, and it does not try to be."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Comparison</p>
+<h1>KaidoPlan vs a spreadsheet Gantt</h1>
+<p class="dek">The spreadsheet was never the problem. The problem is that an agent cannot safely be the one editing it.</p>
+<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<h2>What a spreadsheet genuinely does well</h2>
+<p>A sheet with a date column and conditional formatting is a real Gantt for small projects. It is free, everyone can open it, the formulas are yours, and a project manager who knows the file can predict exactly how it behaves. Nothing below argues that this is unprofessional.</p>
+<p>Three things it does badly matter more than they used to:</p>
+<ul>
+<li><strong>A formula is not a scheduler.</strong> A sheet can subtract dates. Turning dependencies into earliest and latest start dates, propagating them through a chain, and computing slack is a graph algorithm that most sheets only approximate — usually by having a human look at it.</li>
+<li><strong>There is no schema.</strong> A moved column, a merged cell, or a date typed as text breaks the logic silently. The sheet does not fail; it reports a wrong date with full confidence.</li>
+<li><strong>An agent cannot safely write to it.</strong> This is the decisive one. The plan is now edited by Claude Code, Codex or a similar agent, and a spreadsheet is the worst possible target for programmatic edits: no schema, no validation, and a single misplaced row silently corrupts the schedule.</li>
+</ul>
+
+<h2>Side by side</h2>
+<table>
+<thead><tr><th></th><th>Spreadsheet Gantt</th><th>KaidoPlan</th></tr></thead>
+<tbody>
+<tr><td>Scheduling</td><td>Formulas you maintain</td><td>Forward/backward propagation, critical path, per-task slack</td></tr>
+<tr><td>Validation</td><td>Whatever you built, if anything</td><td>Cycles, deadline conflicts, out-of-window tasks listed as violations</td></tr>
+<tr><td>Machine editing</td><td>Fragile: cells, formats, merged ranges</td><td>Documented JSON with <code>formatVersion</code>, 21 MCP tools, CLI</td></tr>
+<tr><td>Diff in review</td><td>Binary-ish, noisy</td><td>Text JSON, one line per change</td></tr>
+<tr><td>Platform</td><td>Anywhere</td><td>macOS 14 or later</td></tr>
+<tr><td>Cost</td><td>Free to a subscription</td><td>Free tier; $9.99/year for AI write-back</td></tr>
+</tbody></table>
+
+<h2>When the spreadsheet wins</h2>
+<p>If the plan is edited by people only, on mixed operating systems, and someone enjoys maintaining the formulas, the sheet is fine — and moving it would cost more than it returns. The case for KaidoPlan begins the moment an agent writes to the plan, because then "cannot be silently corrupted" stops being a preference and becomes a requirement.</p>
+<p>Migration is not a project: export the task list, import it with <code>wbs_import</code>, add the dependencies, and let the schedule compute. The interesting output is not the chart. It is the list of date conflicts your sheet was already hiding.</p>
+<h2>Questions this page does not answer</h2>
+<details><summary>Can I export back to CSV or a spreadsheet?</summary><p>The plan is a plain JSON file, so any spreadsheet can be fed from it with a short script. Delivery-report export is a separate feature with a monthly limit on the free tier.</p></details>
+<details><summary>Does it print a Gantt chart?</summary><p>The app draws a Gantt in the workbench. It is not a replacement for a slide deck, and it does not try to be.</p></details>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>30-day full-feature trial, no account and no card. After that the app drops to the free tier instead of switching off: full GUI planning, AI read access, 3 delivery-report exports per month. Pro is $9.99 per year and unlocks AI write-back.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../compare/kaidoplan-vs-linear-todoist-mcp.html">KaidoPlan vs Linear or Todoist over MCP</a><span class="why">Comparison</span></li><li><a href="../guides/kaidoplan-quickstart.html">Set up a KaidoPlan plan in ten minutes</a><span class="why">Guide · 10 minutes</span></li><li><a href="../features/tasks-and-wbs.html">Tasks and the WBS</a><span class="why">Features · 6 tools</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script></body></html>

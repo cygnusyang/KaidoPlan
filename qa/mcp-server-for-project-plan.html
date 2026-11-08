@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Is there an MCP server that lets an AI agent read and edit a project plan?</title>
+<meta name="description" content="KaidoPlan ships an MCP server with 21 tools over a local .kaido plan: read the WBS, write status, compute the schedule, list violations. Loopback only, token required, folders explicitly authorized.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/qa/mcp-server-for-project-plan.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="Is there an MCP server that lets an AI agent read and edit a project plan?">
+<meta property="og:description" content="KaidoPlan ships an MCP server with 21 tools over a local .kaido plan: read the WBS, write status, compute the schedule, list violations. Loopback only, token required, folders explicitly authorized.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/qa/mcp-server-for-project-plan.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Is there an MCP server for a project plan?",
+  "description": "KaidoPlan ships an MCP server with 21 tools over a local .kaido plan: read the WBS, write status, compute the schedule, list violations. Loopback only, token required, folders explicitly authorized.",
+  "url": "https://kaidoplan.cygnusyang.top/qa/mcp-server-for-project-plan.html",
+  "datePublished": "2026-11-08",
+  "dateModified": "2026-11-08",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Is there an MCP server for a project plan?",
+      "item": "https://kaidoplan.cygnusyang.top/qa/mcp-server-for-project-plan.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does it work with a remote or hosted agent?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The endpoint is loopback-only by design, so the agent has to run on the same Mac."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is the server on by default?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes since v3.4.0, on 127.0.0.1 with a token. Turning it off in the panel stops access immediately; a previous explicit <em>off</em> setting is not overridden by the default change."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Answer</p>
+<h1>Is there an MCP server for a project plan?</h1>
+<p class="dek">Yes — KaidoPlan has one built in. 21 tools over stdio or a loopback HTTP endpoint, covering tasks, dependencies, resources, baselines, scheduling and violation checks.</p>
+<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<h2>What the server exposes</h2>
+<p>The plan is a local file; the MCP server is a second surface on the same data, so an agent can ask questions and make changes without parsing JSON by hand.</p>
+<table>
+<thead><tr><th>Group</th><th>Tools</th><th>What it is for</th></tr></thead>
+<tbody>
+<tr><td>Project</td><td><code>project_create</code>, <code>project_open</code>, <code>project_save</code></td><td>Open the plan, create one, save it back to disk</td></tr>
+<tr><td>Tasks and WBS</td><td><code>task_add</code>, <code>task_list</code>, <code>task_get</code>, <code>task_update</code>, <code>task_delete</code>, <code>wbs_import</code></td><td>Read and change the structure</td></tr>
+<tr><td>Scheduling</td><td><code>schedule_compute</code>, <code>schedule_critical_path</code></td><td>Turn dependencies into dates and slack</td></tr>
+<tr><td>Violations</td><td><code>violations_list</code></td><td>Cycles, deadline conflicts, out-of-window tasks</td></tr>
+<tr><td>Write-back</td><td><code>status_update</code>, <code>status_batch_update</code></td><td>Record progress and completion times</td></tr>
+<tr><td>Resources</td><td><code>resource_add</code>, <code>resource_list</code></td><td>People, equipment, materials</td></tr>
+<tr><td>Baselines</td><td><code>baseline_create</code>, <code>baseline_list</code>, <code>baseline_delete</code>, <code>baseline_variance</code>, <code>baseline_set_color</code></td><td>Freeze a schedule, then compare plan and actuals</td></tr>
+</tbody></table>
+<p>Twenty-one tools in total. Client setup is one switch per client — Claude Desktop, Claude Code, Cursor, Codex and WorkBuddy — and the switch writes only the <code>mcpServers.kaidoplan</code> key, leaving the rest of the configuration untouched.</p>
+
+<h2>The security model, in three lines</h2>
+<ul>
+<li>Loopback only: the endpoint listens on <code>127.0.0.1</code>, never the LAN or the internet.</li>
+<li>Every request carries a token the app generates locally and shows in its panel.</li>
+<li>Only folders you authorized in that panel are reachable; anything else is refused.</li>
+</ul>
+
+<h2>Read versus write</h2>
+<p>On the free tier an agent can read the plan and answer questions about it. Writing — status, actual dates, new tasks — is the Pro feature. That split is deliberate: read-only agents are useful and safe; an agent with unlimited write access changes a delivery date without anyone reviewing it.</p>
+<p>If you would rather not add an MCP client, the CLI exposes the same operations from a shell, and the file itself is readable JSON.</p>
+<h2>Questions this page does not answer</h2>
+<details><summary>Does it work with a remote or hosted agent?</summary><p>No. The endpoint is loopback-only by design, so the agent has to run on the same Mac.</p></details>
+<details><summary>Is the server on by default?</summary><p>Yes since v3.4.0, on 127.0.0.1 with a token. Turning it off in the panel stops access immediately; a previous explicit <em>off</em> setting is not overridden by the default change.</p></details>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>30-day full-feature trial, no account and no card. After that the app drops to the free tier instead of switching off: full GUI planning, AI read access, 3 delivery-report exports per month. Pro is $9.99 per year and unlocks AI write-back.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../features/mcp-clients.html">Connecting an agent</a><span class="why">Features · Integration</span></li><li><a href="../features/status-writeback.html">Status write-back</a><span class="why">Features · 2 tools</span></li><li><a href="../qa/sync-plan-across-claude-code-sessions.html">How do I keep a project plan in sync across Claude Code sessions?</a><span class="why">Answer</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script></body></html>

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Resources: people, equipment and materials on a plan</title>
+<meta name="description" content="resource_add and resource_list attach people, equipment or materials to a project, with units and efficiency used in effort conversion.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/features/resources.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="Resources: people, equipment and materials on a plan">
+<meta property="og:description" content="resource_add and resource_list attach people, equipment or materials to a project, with units and efficiency used in effort conversion.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/features/resources.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Resources",
+  "description": "resource_add and resource_list attach people, equipment or materials to a project, with units and efficiency used in effort conversion.",
+  "url": "https://kaidoplan.cygnusyang.top/features/resources.html",
+  "datePublished": "2026-11-08",
+  "dateModified": "2026-11-08",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Resources",
+      "item": "https://kaidoplan.cygnusyang.top/features/resources.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I assign a task to a resource?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Tasks carry an <code>assignee</code>, which is the owner. Resources are the pool the plan describes; the two are related but not the same field."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does efficiency affect dates?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It takes part in effort conversion, which is how duration is derived from effort — so yes, indirectly."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Features · 2 tools</p>
+<h1>Resources</h1>
+<p class="dek">A plan that says <em>three days</em> is making an assumption about who is doing the work. Resources make the assumption explicit.</p>
+<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<h2>The tools</h2>
+<table>
+<thead><tr><th>Tool</th><th>Does</th></tr></thead>
+<tbody>
+<tr><td><code>resource_add</code></td><td>Adds a person, piece of equipment or material. <code>units</code> and <code>efficiency</code> take part in effort conversion.</td></tr>
+<tr><td><code>resource_list</code></td><td>Lists the project's resources.</td></tr>
+</tbody></table>
+
+<h2>Why bother on a solo project</h2>
+<p>Because effort and duration are not the same number. Eight hours of work is one day for one person at full attention, two days at half, and four days if the "person" is also doing support that week. Recording the resource is how the plan carries that assumption instead of hiding it in an estimate.</p>
+<p>On an AI-assisted project the resource model also covers the non-human parts: the CI runner that can only do one build at a time, the device that has to be free for a test. Those constraints behave exactly like a busy person.</p>
+
+<h2>What it does not do</h2>
+<p>Do not read this as full resource-levelled scheduling with automatic reallocation. Resources inform effort conversion and appear on the plan; the scheduler's job here is the dependency graph and the dates.</p>
+
+<h2>In practice</h2>
+<ul>
+<li>Add the people who will actually do the work, with realistic units.</li>
+<li>Record shared equipment when it is a real bottleneck.</li>
+<li>Re-check the critical path after a resource change: a task that becomes half-time can move the end date without any dependency changing.</li>
+</ul>
+<h2>Questions this page does not answer</h2>
+<details><summary>Can I assign a task to a resource?</summary><p>Tasks carry an <code>assignee</code>, which is the owner. Resources are the pool the plan describes; the two are related but not the same field.</p></details>
+<details><summary>Does efficiency affect dates?</summary><p>It takes part in effort conversion, which is how duration is derived from effort — so yes, indirectly.</p></details>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>30-day full-feature trial, no account and no card. After that the app drops to the free tier instead of switching off: full GUI planning, AI read access, 3 delivery-report exports per month. Pro is $9.99 per year and unlocks AI write-back.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../features/scheduling.html">Scheduling and the critical path</a><span class="why">Features · 2 tools</span></li><li><a href="../features/tasks-and-wbs.html">Tasks and the WBS</a><span class="why">Features · 6 tools</span></li><li><a href="../guides/kaidoplan-quickstart.html">Set up a KaidoPlan plan in ten minutes</a><span class="why">Guide · 10 minutes</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script></body></html>

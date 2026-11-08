@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>One switch per MCP client: Claude Desktop, Claude Code, Cursor, Codex, WorkBuddy</title>
+<meta name="description" content="v3.4.0 replaced copy-and-paste MCP configuration with one switch per client. It writes only the kaidoplan key and can run the app binary as a stdio server.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/features/mcp-clients.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="One switch per MCP client: Claude Desktop, Claude Code, Cursor, Codex, WorkBuddy">
+<meta property="og:description" content="v3.4.0 replaced copy-and-paste MCP configuration with one switch per client. It writes only the kaidoplan key and can run the app binary as a stdio server.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/features/mcp-clients.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Connecting an agent",
+  "description": "v3.4.0 replaced copy-and-paste MCP configuration with one switch per client. It writes only the kaidoplan key and can run the app binary as a stdio server.",
+  "url": "https://kaidoplan.cygnusyang.top/features/mcp-clients.html",
+  "datePublished": "2026-11-08",
+  "dateModified": "2026-11-08",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Connecting an agent",
+      "item": "https://kaidoplan.cygnusyang.top/features/mcp-clients.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do I have to use the switch?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. A copy-configuration button remains as the manual path for anyone who wants to place the entry themselves."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens when the token changes?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Configurations of enabled clients are rewritten automatically, so you do not have to re-paste them."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Features · Integration</p>
+<h1>Connecting an agent</h1>
+<p class="dek">Five clients, one switch each. The configuration file keeps its formatting, its key order and its other servers.</p>
+<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<h2>What the switch does</h2>
+<p>Turning on a client writes its MCP configuration for you: Claude Desktop, Claude Code, Cursor, Codex and WorkBuddy each have a row with a switch. Turning it off removes the same entry. The editor is text-preserving — it adds or removes only <code>mcpServers.kaidoplan</code> (for Codex, <code>[mcp_servers.kaidoplan]</code>), so indentation, key order and line endings in the rest of the file are untouched.</p>
+<p>Each row reports its own state: connected, configuration needs updating, write failed with a reason and a retry, not connected, client not installed. A failure in one client does not affect the others.</p>
+
+<h2>Stdio without a separate install</h2>
+<p>The app binary can run as a stdio MCP server with <code>--mcp-stdio</code>. That mode is intercepted very early in launch: no window, no Dock icon, nothing to close. A client can therefore start the app itself rather than depending on a separately installed CLI.</p>
+
+<h2>The security defaults</h2>
+<ul>
+<li>Loopback only — never the LAN, never the internet.</li>
+<li>A bearer token generated locally must accompany every request; it is shown in the panel and can be reset.</li>
+<li>Only folders authorized in the panel are reachable.</li>
+<li>Since v3.4.0 the service is on by default on <code>127.0.0.1</code>; an existing explicit off setting is respected rather than overwritten.</li>
+</ul>
+
+<h2>Ports</h2>
+<p>The first successful bind is persisted, so restarts prefer the same port. If it is taken, the app falls back through a private range of 56 ports without changing the stored preference — so the next launch still tries your port first.</p>
+
+<h2>Free tier, again</h2>
+<p>Connecting a client is free and read access is free. Write-back tools are gated by the Pro licence after the trial, and the refusal happens before anything touches the disk.</p>
+<h2>Questions this page does not answer</h2>
+<details><summary>Do I have to use the switch?</summary><p>No. A copy-configuration button remains as the manual path for anyone who wants to place the entry themselves.</p></details>
+<details><summary>What happens when the token changes?</summary><p>Configurations of enabled clients are rewritten automatically, so you do not have to re-paste them.</p></details>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>30-day full-feature trial, no account and no card. After that the app drops to the free tier instead of switching off: full GUI planning, AI read access, 3 delivery-report exports per month. Pro is $9.99 per year and unlocks AI write-back.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../qa/mcp-server-for-project-plan.html">Is there an MCP server for a project plan?</a><span class="why">Answer</span></li><li><a href="../features/status-writeback.html">Status write-back</a><span class="why">Features · 2 tools</span></li><li><a href="../features/cli.html">The command line</a><span class="why">Features · CLI</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script></body></html>

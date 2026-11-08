@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>What is a critical path, and why does an AI-assisted project need one?</title>
+<meta name="description" content="The critical path is the chain of dependent tasks with zero total slack: it sets the project&#x27;s finish date. In AI-assisted work it is the only defence against an optimistically compressed plan.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/qa/critical-path-for-ai-projects.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="What is a critical path, and why does an AI-assisted project need one?">
+<meta property="og:description" content="The critical path is the chain of dependent tasks with zero total slack: it sets the project&#x27;s finish date. In AI-assisted work it is the only defence against an optimistically compressed plan.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/qa/critical-path-for-ai-projects.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "What is a critical path, and why does an AI project need one?",
+  "description": "The critical path is the chain of dependent tasks with zero total slack: it sets the project's finish date. In AI-assisted work it is the only defence against an optimistically compressed plan.",
+  "url": "https://kaidoplan.cygnusyang.top/qa/critical-path-for-ai-projects.html",
+  "datePublished": "2026-11-08",
+  "dateModified": "2026-11-08",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "What is a critical path, and why does an AI project need one?",
+      "item": "https://kaidoplan.cygnusyang.top/qa/critical-path-for-ai-projects.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do I need to understand the algorithm to use it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. You need to trust the graph, which means every dependency you assert has to be real. A wrong edge produces a confidently wrong critical path."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between the critical path and the finish date?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The finish date is the output. The critical path is the explanation: which tasks, in which order, produce that date."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Answer</p>
+<h1>What is a critical path, and why does an AI project need one?</h1>
+<p class="dek">The critical path is the longest chain of dependent work in the plan. Its length is the project's duration, and every task on it has zero slack — delay one by a day and the delivery date moves by a day.</p>
+<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<h2>The definition, without the mystique</h2>
+<p>Take the dependency graph. For every task, compute the earliest it can start and finish, then the latest it can start and finish without pushing the project end. The difference between the two is <em>slack</em>. Tasks with zero slack sit on the critical path, and they form one or more chains from the start of the project to its end.</p>
+<p>Two consequences follow, and they are the whole practical value:</p>
+<ul>
+<li>The end date is not the sum of all estimates. It is the length of one chain. Adding people to tasks off the chain buys you nothing.</li>
+<li>Any date change on the chain moves the delivery date one-for-one. That is the only set of tasks where "we lost a day" is literally true.</li>
+</ul>
+
+<h2>Why AI-assisted projects need it more, not less</h2>
+<p>An agent executes quickly and reports honestly, so the plan fills with completed work — and the natural conclusion is that the project is going well. But agents also compress durations when asked to estimate, and they execute in the order requested rather than the order the graph requires. Both inflate the apparent progress while the chain that sets the date is unchanged.</p>
+<p>A checklist cannot see this, because the checklist has no edges. The number that matters is not "how many tasks are done" but "how many days of zero-slack work remain".</p>
+
+<h2>Computing it</h2>
+<pre><code>kaidoplan schedule path --file plan.kaido</code></pre>
+<p>Returns the tasks whose total slack is within the requested limit, together with the schedule. In the app the same chain is highlighted in the Gantt chart. Both read the same dependency graph, so they cannot disagree.</p>
+
+<h2>Three practical rules</h2>
+<ol>
+<li><strong>Review the critical path, not the task list.</strong> If a standup asks everyone for status, it optimises the wrong set. Ask what moved on the chain.</li>
+<li><strong>Keep the chain short on purpose.</strong> Parallelising off-chain work is cheap; serialising on-chain work is what makes a plan fragile.</li>
+<li><strong>Recompute after every change.</strong> The critical path moves. A chain that was slack last week can become the constraint this week, silently.</li>
+</ol>
+<h2>Questions this page does not answer</h2>
+<details><summary>Do I need to understand the algorithm to use it?</summary><p>No. You need to trust the graph, which means every dependency you assert has to be real. A wrong edge produces a confidently wrong critical path.</p></details>
+<details><summary>What is the difference between the critical path and the finish date?</summary><p>The finish date is the output. The critical path is the explanation: which tasks, in which order, produce that date.</p></details>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>30-day full-feature trial, no account and no card. After that the app drops to the free tier instead of switching off: full GUI planning, AI read access, 3 delivery-report exports per month. Pro is $9.99 per year and unlocks AI write-back.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../features/scheduling.html">Scheduling and the critical path</a><span class="why">Features · 2 tools</span></li><li><a href="../guides/delivery-check.html">A delivery check you can run in five minutes</a><span class="why">Guide · reproducible</span></li><li><a href="../qa/why-ai-projects-miss-deadlines.html">Why do AI-assisted projects still miss deadlines?</a><span class="why">Answer</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script></body></html>

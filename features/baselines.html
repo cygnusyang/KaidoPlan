@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Baselines: freeze a schedule, then compare plan and actuals</title>
+<meta name="description" content="baseline_create takes an immutable snapshot of the schedule; baseline_variance compares the current plan and actual dates against it. Five tools for measuring slip.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/features/baselines.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="Baselines: freeze a schedule, then compare plan and actuals">
+<meta property="og:description" content="baseline_create takes an immutable snapshot of the schedule; baseline_variance compares the current plan and actual dates against it. Five tools for measuring slip.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/features/baselines.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Baselines and variance",
+  "description": "baseline_create takes an immutable snapshot of the schedule; baseline_variance compares the current plan and actual dates against it. Five tools for measuring slip.",
+  "url": "https://kaidoplan.cygnusyang.top/features/baselines.html",
+  "datePublished": "2026-11-08",
+  "dateModified": "2026-11-08",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Baselines and variance",
+      "item": "https://kaidoplan.cygnusyang.top/features/baselines.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I recover an old plan from a baseline?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A baseline records the planned dates at that moment; it is a reference, not a backup. Use the repository or your backup for restoration."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many baselines can I keep?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "They are cheap and listed in creation order. Keep the ones whose comparison you would actually make."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Features · 5 tools</p>
+<h1>Baselines and variance</h1>
+<p class="dek">Without a frozen schedule, <em>it slipped</em> is an opinion. A baseline turns it into two numbers.</p>
+<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<h2>The tools</h2>
+<table>
+<thead><tr><th>Tool</th><th>Does</th></tr></thead>
+<tbody>
+<tr><td><code>baseline_create</code></td><td>Takes an immutable snapshot: planned start and finish plus completion state are frozen. Returns the baseline's id, name, colour and entry count.</td></tr>
+<tr><td><code>baseline_list</code></td><td>Lists baselines in creation order, oldest first.</td></tr>
+<tr><td><code>baseline_variance</code></td><td>Compares both the current plan and the actual dates against a baseline. Omitting the id uses the most recent one.</td></tr>
+<tr><td><code>baseline_delete</code></td><td>Removes one baseline; the tasks are untouched.</td></tr>
+<tr><td><code>baseline_set_color</code></td><td>Changes the palette colour of a baseline. Only the colour — the snapshot entries and creation time do not move.</td></tr>
+</tbody></table>
+
+<h2>Two comparisons, not one</h2>
+<p>Planned-versus-baseline tells you the schedule changed. Actual-versus-baseline tells you the work took longer than promised. They are different facts and they lead to different conversations: the first is usually a scope or dependency decision, the second is an estimate problem.</p>
+<pre><code>kaidoplan baseline create --file plan.kaido
+kaidoplan baseline variance --file plan.kaido</code></pre>
+
+<h2>When to take one</h2>
+<ul>
+<li>At the start of each reporting period, so the report has a reference point.</li>
+<li>Before a delivery push, so the promise has a frozen state behind it.</li>
+<li>Before a large re-plan, so the cost of the re-plan is measurable afterwards.</li>
+</ul>
+
+<h2>Immutability is the feature</h2>
+<p>A snapshot you can edit is a rumour. These entries are frozen at creation, which is why a baseline from three weeks ago still means what it meant then.</p>
+<h2>Questions this page does not answer</h2>
+<details><summary>Can I recover an old plan from a baseline?</summary><p>A baseline records the planned dates at that moment; it is a reference, not a backup. Use the repository or your backup for restoration.</p></details>
+<details><summary>How many baselines can I keep?</summary><p>They are cheap and listed in creation order. Keep the ones whose comparison you would actually make.</p></details>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>30-day full-feature trial, no account and no card. After that the app drops to the free tier instead of switching off: full GUI planning, AI read access, 3 delivery-report exports per month. Pro is $9.99 per year and unlocks AI write-back.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../qa/export-delivery-report.html">How do I export a delivery report for a client?</a><span class="why">Answer</span></li><li><a href="../features/violations.html">Violation checks</a><span class="why">Features · 1 tool</span></li><li><a href="../guides/delivery-check.html">A delivery check you can run in five minutes</a><span class="why">Guide · reproducible</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script></body></html>

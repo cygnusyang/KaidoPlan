@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://kaidoplan.cygnusyang.top/</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/zh.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/guides.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/changelog.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/privacy.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/terms.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/refund.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/guides/kaidoplan-quickstart.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/guides/delivery-check.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/changelog.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/changelog/v3-4-0.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/compare/kaidoplan-vs-handoff-md.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/compare/kaidoplan-vs-linear-todoist-mcp.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/compare/kaidoplan-vs-excel-gantt.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/qa/sync-plan-across-claude-code-sessions.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/qa/ai-agent-marked-everything-done.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/qa/critical-path-for-ai-projects.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/qa/wbs-for-ai-coding-projects.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/qa/track-dependencies-between-ai-tasks.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/qa/mcp-server-for-project-plan.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/qa/why-ai-projects-miss-deadlines.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/qa/export-delivery-report.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/features/project-files.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/features/tasks-and-wbs.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/features/scheduling.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/features/violations.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/features/status-writeback.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/features/resources.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/features/baselines.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/features/cli.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://kaidoplan.cygnusyang.top/features/mcp-clients.html</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+</urlset>

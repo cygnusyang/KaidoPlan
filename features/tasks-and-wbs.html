@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tasks, groups, milestones and WBS import over MCP</title>
+<meta name="description" content="task_add, task_list, task_get, task_update, task_delete and wbs_import give an agent enough structure to read and change a plan without inventing one.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/features/tasks-and-wbs.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="Tasks, groups, milestones and WBS import over MCP">
+<meta property="og:description" content="task_add, task_list, task_get, task_update, task_delete and wbs_import give an agent enough structure to read and change a plan without inventing one.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/features/tasks-and-wbs.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Tasks and the WBS",
+  "description": "task_add, task_list, task_get, task_update, task_delete and wbs_import give an agent enough structure to read and change a plan without inventing one.",
+  "url": "https://kaidoplan.cygnusyang.top/features/tasks-and-wbs.html",
+  "datePublished": "2026-11-08",
+  "dateModified": "2026-11-08",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Tasks and the WBS",
+      "item": "https://kaidoplan.cygnusyang.top/features/tasks-and-wbs.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do milestones behave like zero-duration tasks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "They are the points that other tasks depend on, which is why they matter for the schedule. Treat them as checkpoints, not as work."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can an agent rewrite the whole plan at once?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It can call the write tools in sequence. There is no bulk overwrite operation, and that is intentional: a plan replaced wholesale is a plan nobody reviewed."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Features · 6 tools</p>
+<h1>Tasks and the WBS</h1>
+<p class="dek">Six tools that cover the structure: create, read, filter, change, delete, and bulk import a breakdown you already have.</p>
+<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<h2>The tools</h2>
+<table>
+<thead><tr><th>Tool</th><th>Does</th></tr></thead>
+<tbody>
+<tr><td><code>task_add</code></td><td>Creates a task with effort, assignee, dependencies and constraints. A constraint is written as <code>type:ISO8601</code>, e.g. <code>startNoLaterThan:2026-11-05T00:00:00Z</code>.</td></tr>
+<tr><td><code>task_list</code></td><td>Lists tasks, optionally filtered by parent or by a natural-language filter.</td></tr>
+<tr><td><code>task_get</code></td><td>Returns one task in full — the cheap way to check state before changing it.</td></tr>
+<tr><td><code>task_update</code></td><td>Changes fields. Passing an empty string to <code>assignee</code> clears the owner rather than writing a blank one.</td></tr>
+<tr><td><code>task_delete</code></td><td>Deletes a task and its subtasks, and drops dependencies that pointed at them, so no dangling edges are left behind.</td></tr>
+<tr><td><code>wbs_import</code></td><td>Bulk-imports a nested task tree instead of retyping a breakdown that already exists.</td></tr>
+</tbody></table>
+
+<h2>Structure, not fields</h2>
+<p>Groups carry hierarchy; milestones are the points where someone else has to agree; tasks carry the work, an estimate and the edges. An agent that only adds flat tasks produces a list that cannot be scheduled — which is the most common way a "generated plan" fails.</p>
+
+<h2>Importing what you already have</h2>
+<p><code>wbs_import</code> takes a nested tree and turns it into the plan. The estimate and the dependency step that follow are the ones that need a human: an imported outline with no edges schedules to a single day, and the resulting date is meaningless rather than wrong.</p>
+<pre><code>kaidoplan wbs import --file plan.kaido
+kaidoplan task list --file plan.kaido</code></pre>
+
+<h2>Deletion is honest</h2>
+<p>A deleted task takes its dependencies with it. The alternative — leaving edges pointing at a task that no longer exists — produces a schedule that either fails or silently ignores the edge, and both outcomes are worse than a clean delete.</p>
+<h2>Questions this page does not answer</h2>
+<details><summary>Do milestones behave like zero-duration tasks?</summary><p>They are the points that other tasks depend on, which is why they matter for the schedule. Treat them as checkpoints, not as work.</p></details>
+<details><summary>Can an agent rewrite the whole plan at once?</summary><p>It can call the write tools in sequence. There is no bulk overwrite operation, and that is intentional: a plan replaced wholesale is a plan nobody reviewed.</p></details>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>30-day full-feature trial, no account and no card. After that the app drops to the free tier instead of switching off: full GUI planning, AI read access, 3 delivery-report exports per month. Pro is $9.99 per year and unlocks AI write-back.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../qa/wbs-for-ai-coding-projects.html">How do I break an AI coding project into a WBS?</a><span class="why">Answer</span></li><li><a href="../features/scheduling.html">Scheduling and the critical path</a><span class="why">Features · 2 tools</span></li><li><a href="../features/status-writeback.html">Status write-back</a><span class="why">Features · 2 tools</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script></body></html>

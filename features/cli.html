@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The KaidoPlan CLI: same plan, same operations, from a shell</title>
+<meta name="description" content="project, task, wbs, schedule, violations, status, resource and baseline subcommands read and write the same .kaido file the app uses, with --json output for scripts.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/features/cli.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="The KaidoPlan CLI: same plan, same operations, from a shell">
+<meta property="og:description" content="project, task, wbs, schedule, violations, status, resource and baseline subcommands read and write the same .kaido file the app uses, with --json output for scripts.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/features/cli.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "The command line",
+  "description": "project, task, wbs, schedule, violations, status, resource and baseline subcommands read and write the same .kaido file the app uses, with --json output for scripts.",
+  "url": "https://kaidoplan.cygnusyang.top/features/cli.html",
+  "datePublished": "2026-11-08",
+  "dateModified": "2026-11-08",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "The command line",
+      "item": "https://kaidoplan.cygnusyang.top/features/cli.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does the CLI need a licence?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Reading, scheduling and checking are read operations and work on the free tier. Write operations from other tools follow the same Pro boundary as the MCP server."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use it without the app installed?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The CLI is a separate Homebrew package. Whether it needs the app's licence state depends on the operation — reads do not."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Features · CLI</p>
+<h1>The command line</h1>
+<p class="dek">Everything the app can do to the plan, from a terminal — which is also the shortest path to putting a schedule check in CI.</p>
+<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<h2>The command surface</h2>
+<pre><code>kaidoplan project create|open|save|summary
+kaidoplan task add|list|get|update|delete
+kaidoplan wbs import
+kaidoplan schedule compute|path
+kaidoplan violations
+kaidoplan status update|batch
+kaidoplan resource add|list
+kaidoplan baseline create|list|delete|color|variance</code></pre>
+<p>Every command takes <code>--file</code>; JSON output is available where a script needs structure rather than formatted text. The CLI works whether or not the app is open — it opens the file, performs the operation and saves.</p>
+
+<h2>The four commands worth memorising</h2>
+<pre><code>kaidoplan schedule compute --file plan.kaido   # dates from the graph
+kaidoplan schedule path --file plan.kaido      # the chain that sets the date
+kaidoplan violations --file plan.kaido         # what the plan admits is broken
+kaidoplan status batch --file plan.kaido       # write progress back, per-entry</code></pre>
+
+<h2>Why a CLI and not only an MCP server</h2>
+<p>The MCP server needs the app and a client. A shell command needs neither, which makes it the option that survives in scripts, in CI and in a shell history you can read six months later. The two surfaces are the same operations on the same file, so choosing one is not choosing a different feature set.</p>
+
+<h2>Putting it in CI</h2>
+<p>A dependency cycle can be made a build failure in one line. That is a cheap guarantee: it means no commit can introduce a plan that can never start, and it costs nothing when the check passes.</p>
+<h2>Questions this page does not answer</h2>
+<details><summary>Does the CLI need a licence?</summary><p>Reading, scheduling and checking are read operations and work on the free tier. Write operations from other tools follow the same Pro boundary as the MCP server.</p></details>
+<details><summary>Can I use it without the app installed?</summary><p>The CLI is a separate Homebrew package. Whether it needs the app's licence state depends on the operation — reads do not.</p></details>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>30-day full-feature trial, no account and no card. After that the app drops to the free tier instead of switching off: full GUI planning, AI read access, 3 delivery-report exports per month. Pro is $9.99 per year and unlocks AI write-back.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../features/mcp-clients.html">Connecting an agent</a><span class="why">Features · Integration</span></li><li><a href="../guides/delivery-check.html">A delivery check you can run in five minutes</a><span class="why">Guide · reproducible</span></li><li><a href="../qa/sync-plan-across-claude-code-sessions.html">How do I keep a project plan in sync across Claude Code sessions?</a><span class="why">Answer</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script></body></html>

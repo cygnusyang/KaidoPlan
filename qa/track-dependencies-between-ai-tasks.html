@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How to track dependencies between tasks an AI agent executes</title>
+<meta name="description" content="Dependencies have to be recorded somewhere the agent reads and the scheduler computes. Finish-to-start plus constraints covers most projects; the rest is discipline about what counts as an edge.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/qa/track-dependencies-between-ai-tasks.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="How to track dependencies between tasks an AI agent executes">
+<meta property="og:description" content="Dependencies have to be recorded somewhere the agent reads and the scheduler computes. Finish-to-start plus constraints covers most projects; the rest is discipline about what counts as an edge.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/qa/track-dependencies-between-ai-tasks.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "How do I track dependencies between tasks an agent executes?",
+  "description": "Dependencies have to be recorded somewhere the agent reads and the scheduler computes. Finish-to-start plus constraints covers most projects; the rest is discipline about what counts as an edge.",
+  "url": "https://kaidoplan.cygnusyang.top/qa/track-dependencies-between-ai-tasks.html",
+  "datePublished": "2026-11-08",
+  "dateModified": "2026-11-08",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "How do I track dependencies between tasks an agent executes?",
+      "item": "https://kaidoplan.cygnusyang.top/qa/track-dependencies-between-ai-tasks.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can an agent add dependencies itself?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, through the write tools, on a Pro licence after the trial. Whether it should is a policy question: edges change the delivery date, so many teams keep them human-owned."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens if I create a loop?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The schedule cannot be computed, and the cycle is reported as a violation. That is the correct failure: a loop means a piece of work can never start."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Answer</p>
+<h1>How do I track dependencies between tasks an agent executes?</h1>
+<p class="dek">Record them as data, not as instructions in a prompt. A dependency in a chat message is a suggestion; a dependency in the plan is an edge the scheduler will enforce.</p>
+<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<h2>Two kinds of dependency, one place to keep them</h2>
+<p><strong>Hard dependencies</strong> are structural: the acceptance test cannot run before the endpoint exists. <strong>Constraints</strong> are calendar facts: the security review cannot start before the 12th because the reviewer is away. Both affect the schedule, and both belong in the plan.</p>
+<table>
+<thead><tr><th>Kind</th><th>Example</th><th>What it changes</th></tr></thead>
+<tbody>
+<tr><td>Finish-to-start</td><td>Client integration starts when the server task ends</td><td>Propagates dates; creates the chain</td></tr>
+<tr><td>Lag</td><td>Two days of review after the build</td><td>Adds duration to the edge rather than the task</td></tr>
+<tr><td>Start no earlier than</td><td>A review that cannot begin before a date</td><td>Delays the task; can push the end date</td></tr>
+<tr><td>Finish no later than</td><td>A demo that cannot slip</td><td>Creates a deadline conflict when violated</td></tr>
+</tbody></table>
+
+<h2>Why prompts are the wrong storage</h2>
+<p>Telling an agent "do the API first, then the client" works for one session. It does not survive the session, it cannot be checked, and it silently disappears when the conversation is summarised. A dependency stored in the plan survives everything, and — the part that matters — the scheduler can prove that the resulting dates are consistent with it.</p>
+<pre><code>kaidoplan task update --file plan.kaido
+kaidoplan schedule compute --file plan.kaido
+kaidoplan violations --file plan.kaido</code></pre>
+<p>After the edges are in, a cycle is reported rather than discovered later, and a task scheduled before its predecessor ends is a violation instead of a surprise.</p>
+
+<h2>Practical discipline</h2>
+<ul>
+<li><strong>One edge, one reason.</strong> If you cannot state why the dependency exists, delete it. Invented edges make the critical path fiction.</li>
+<li><strong>Do not model "related to".</strong> Undirected relations are not dependencies and add noise to the schedule.</li>
+<li><strong>Re-check after parallelisation.</strong> Splitting work changes the graph; the critical path you knew last week may no longer be the constraint.</li>
+<li><strong>Keep the graph in the repository.</strong> The plan is a file, so the dependency structure is reviewable in a diff — which is the only way a second person can audit it.</li>
+</ul>
+<h2>Questions this page does not answer</h2>
+<details><summary>Can an agent add dependencies itself?</summary><p>Yes, through the write tools, on a Pro licence after the trial. Whether it should is a policy question: edges change the delivery date, so many teams keep them human-owned.</p></details>
+<details><summary>What happens if I create a loop?</summary><p>The schedule cannot be computed, and the cycle is reported as a violation. That is the correct failure: a loop means a piece of work can never start.</p></details>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>30-day full-feature trial, no account and no card. After that the app drops to the free tier instead of switching off: full GUI planning, AI read access, 3 delivery-report exports per month. Pro is $9.99 per year and unlocks AI write-back.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../features/tasks-and-wbs.html">Tasks and the WBS</a><span class="why">Features · 6 tools</span></li><li><a href="../features/violations.html">Violation checks</a><span class="why">Features · 1 tool</span></li><li><a href="../qa/critical-path-for-ai-projects.html">What is a critical path, and why does an AI project need one?</a><span class="why">Answer</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script></body></html>

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KaidoPlan quickstart: set up a plan an AI can work against</title>
+<meta name="description" content="Install KaidoPlan, give the project a real window, add the work with its dependencies, run the first check and connect Claude Code, Codex or Cursor over MCP. Uses the public v3.4.0 release.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/guides/kaidoplan-quickstart.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="KaidoPlan quickstart: set up a plan an AI can work against">
+<meta property="og:description" content="Install KaidoPlan, give the project a real window, add the work with its dependencies, run the first check and connect Claude Code, Codex or Cursor over MCP. Uses the public v3.4.0 release.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/guides/kaidoplan-quickstart.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Set up a KaidoPlan plan in ten minutes",
+  "description": "Install KaidoPlan, give the project a real window, add the work with its dependencies, run the first check and connect Claude Code, Codex or Cursor over MCP. Uses the public v3.4.0 release.",
+  "url": "https://kaidoplan.cygnusyang.top/guides/kaidoplan-quickstart.html",
+  "datePublished": "2026-11-08",
+  "dateModified": "2026-11-08",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Set up a KaidoPlan plan in ten minutes",
+      "item": "https://kaidoplan.cygnusyang.top/guides/kaidoplan-quickstart.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do I need the Pro licence to plan?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The GUI workbench — WBS, dependencies, Gantt, critical path, validation, progress tracking — is in the free tier, and so is AI read access. Pro ($9.99/year) adds AI write-back and unlimited delivery-report exports."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Where does the plan live?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Wherever you save the .kaido file. There is no account, no sync and no server copy; the app's only unprompted network call is the update check."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I keep using my current task tracker?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, as long as you accept that the tracker will not tell you which chain sets the end date. KaidoPlan is the schedule layer, not a second inbox."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Guide · 10 minutes</p>
+<h1>Set up a KaidoPlan plan in ten minutes</h1>
+<p class="dek">Most planning failures are not tool failures. They start with a plan that has no end date, no dependencies and no way to tell whether the arithmetic still holds. This is the shortest path to a plan that does.</p>
+<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<h2>Before you start</h2>
+<p>You need macOS 14 or later and about ten minutes. No account is involved: the app never asks you to sign in, and the plan is a file on your disk. The download is a 30-day full-feature trial; when it ends the app drops to the free tier rather than switching off.</p>
+<pre><code>brew install --cask cygnusyang/kaidoplan/kaidoplan
+brew install cygnusyang/kaidoplan/kaidoplan-cli</code></pre>
+<p>The CLI is optional for planning in the GUI, but you will want it for the checks below and for anything an agent does on your behalf. If you would rather not use Homebrew, the same builds are on <a href="https://github.com/cygnusyang/KaidoPlan/releases/latest">GitHub Releases</a>.</p>
+
+<h2>1. Give the project a window before you add any work</h2>
+<p>Create a project and set a start and an end date. This is not decoration: the window is what every violation check is measured against. A task that finishes after the project end is a violation, and it cannot be reported if the project has no end.</p>
+<p>The plan is stored as a single <code>.kaido</code> file — plain JSON, <code>formatVersion</code> 2. You can put it in the repository next to the code, diff it in a pull request, or read it with <code>jq</code>. It is not a database and it is not synced anywhere.</p>
+
+<h2>2. Add the work as a WBS, not as a list</h2>
+<p>Tasks, groups and milestones, each with an effort estimate. The distinction that matters: a list records what exists, a WBS records what depends on what. If two tasks can run in parallel, say so; if they cannot, the dependency is the only thing that will stop the schedule from quietly compressing into a fiction.</p>
+<p>If you already have the breakdown in another tool, import it instead of retyping it. <code>wbs_import</code> takes a nested task tree and turns it into the plan.</p>
+
+<h2>3. Connect the dependencies</h2>
+<p>A finish-to-start dependency with an optional lag covers most real projects. Constraints — start no earlier than, finish no later than — cover the rest: a review that cannot begin before a date, a demo that cannot slip past one.</p>
+<p>When you are done, every task should have exactly one honest answer to "what has to finish before this starts". Tasks with no predecessor are the start of a chain, and chains are what the next step computes.</p>
+
+<h2>4. Run the check before you trust the dates</h2>
+<pre><code>kaidoplan schedule compute --file plan.kaido
+kaidoplan schedule path --file plan.kaido
+kaidoplan violations --file plan.kaido</code></pre>
+<p>The first command propagates dependencies and returns each task's earliest and latest dates. The second returns the critical path: the chain whose total slack is zero, which is the only chain that decides your delivery date. The third lists violations — dependency cycles, deadline conflicts, and tasks scheduled outside the project window.</p>
+<p>Run all three after any change that touches dates. The result you are looking for is boring: no violations, and a critical path you can name out loud.</p>
+
+<h2>5. Connect the agent that will actually write the code</h2>
+<p>In the app, open the MCP service panel. Each supported client — Claude Desktop, Claude Code, Cursor, Codex and WorkBuddy — has one switch. Flipping it writes only the <code>mcpServers.kaidoplan</code> key into that client's configuration and leaves the rest of the file byte-identical, so your existing MCP servers and formatting survive. Turning it off removes the same key.</p>
+<p>The service listens on the loopback address only, and every request has to carry the token shown in that panel. Only folders you authorized there are reachable.</p>
+<p>Reading the plan works on the free tier. Writing to it — task status, actual dates, new tasks — is the Pro feature, because a plan that an agent can edit without limits is a plan nobody reviewed.</p>
+
+<h2>6. What "set up" actually means</h2>
+<ul>
+<li>The project has a start and an end date, and both are real.</li>
+<li>Every task has an owner-by-intent, an effort estimate and its predecessors.</li>
+<li><code>violations</code> returns nothing.</li>
+<li>You can name the critical path without opening the app.</li>
+<li>One agent is connected, and you know whether it can write.</li>
+</ul>
+<p>That is the whole setup. It is deliberately smaller than a project management methodology, because the failure mode it addresses is narrow: an agent reports every task done, and the date moved anyway.</p>
+<h2>Questions this page does not answer</h2>
+<details><summary>Do I need the Pro licence to plan?</summary><p>No. The GUI workbench — WBS, dependencies, Gantt, critical path, validation, progress tracking — is in the free tier, and so is AI read access. Pro ($9.99/year) adds AI write-back and unlimited delivery-report exports.</p></details>
+<details><summary>Where does the plan live?</summary><p>Wherever you save the .kaido file. There is no account, no sync and no server copy; the app's only unprompted network call is the update check.</p></details>
+<details><summary>Can I keep using my current task tracker?</summary><p>Yes, as long as you accept that the tracker will not tell you which chain sets the end date. KaidoPlan is the schedule layer, not a second inbox.</p></details>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>30-day full-feature trial, no account and no card. After that the app drops to the free tier instead of switching off: full GUI planning, AI read access, 3 delivery-report exports per month. Pro is $9.99 per year and unlocks AI write-back.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../guides/delivery-check.html">A delivery check you can run in five minutes</a><span class="why">Guide · reproducible</span></li><li><a href="../features/scheduling.html">Scheduling and the critical path</a><span class="why">Features · 2 tools</span></li><li><a href="../features/mcp-clients.html">Connecting an agent</a><span class="why">Features · Integration</span></li><li><a href="../compare/kaidoplan-vs-excel-gantt.html">KaidoPlan vs a spreadsheet Gantt</a><span class="why">Comparison</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script></body></html>
