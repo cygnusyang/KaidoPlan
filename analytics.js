@@ -10,8 +10,10 @@
  *
  * 用法：
  *   kTrack("download_click", { p: "hero" })
+ *   kTrack("buy_click", { p: "pricing" })
  * 页面加载会自动上报一次 view；data-track 属性会自动绑定点击事件：
  *   <a href="..." data-track="download_click" data-track-page="hero">
+ *   <button type="button" data-track="buy_click" data-track-page="pricing">
  */
 (function () {
   var ENDPOINT = "https://kaido-license-service.cygnusyang.workers.dev/t";
