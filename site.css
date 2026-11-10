@@ -25,3 +25,10 @@
 .theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--muted);font-size:14px;line-height:1;cursor:pointer}
 .theme-toggle:hover{color:var(--ink);border-color:var(--line-strong);background:var(--soft)}
 .theme-toggle svg{display:block}
+
+/* SkillHub install command beside brew (KAIDO-T03). Keep the existing
+   dark bar; only wrap the commands so brew and the skill can sit together. */
+.install-cmds{display:flex;flex-wrap:wrap;align-items:flex-start;gap:16px}
+.install-skill p{margin:0 0 8px}
+.install a{color:#d5d4ff;text-decoration:underline;text-underline-offset:3px}
+.install a:hover{color:#fff}
