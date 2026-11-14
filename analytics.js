@@ -16,7 +16,7 @@
  *   <button type="button" data-track="buy_click" data-track-page="pricing">
  */
 (function () {
-  var ENDPOINT = "https://kaido-license-service.cygnusyang.workers.dev/t";
+  var ENDPOINT = "https://kaidoplan-events.cygnusyang.top/t";
   var SITE = document.documentElement.getAttribute("data-site") || "kaidoplan";
   var LANG = (/^zh/i.test(document.documentElement.lang || "") ? "zh" : "en");
 
@@ -48,6 +48,11 @@
     }
   } catch (e) {
     ref = sourceTag();
+  }
+
+  function pageName() {
+    return location.pathname.replace(/^\/|\/$/g, "").replace(/\.html$/, "")
+      .replace(/\//g, "-").replace(/^index$|^zh$/, "") || "home";
   }
 
   function kTrack(name, opts) {
@@ -89,11 +94,11 @@
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
-      kTrack("view");
+      kTrack("view", { p: pageName() });
       bindClicks();
     });
   } else {
-    kTrack("view");
+    kTrack("view", { p: pageName() });
     bindClicks();
   }
 })();
