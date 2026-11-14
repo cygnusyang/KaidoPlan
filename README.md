@@ -18,7 +18,7 @@ brew install --cask cygnusyang/kaidoplan/kaidoplan
 
 ## CLI and MCP server
 
-`kaidoplan` (CLI) and `kaidoplan-mcp` (MCP server) let AI agents read and write plans:
+`kaidoplan` (CLI) and `kaidoplan-mcp` (MCP server) let AI agents read plans; KaidoPlan Pro unlocks write-back through the same tools:
 
 ```
 brew install cygnusyang/kaidoplan/kaidoplan-cli
