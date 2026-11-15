@@ -122,3 +122,10 @@ section.pricing {
 .install-skill p{margin:0 0 8px}
 .install a{color:#d5d4ff;text-decoration:underline;text-underline-offset:3px}
 .install a:hover{color:#fff}
+
+/* 结账不可用时的兜底。默认收起；Paddle 报 checkout.error / checkout.failed、
+   或 10 秒内没有 checkout.loaded 时才出现，恢复后由 checkout.loaded 自动收起。 */
+.checkout-fallback{margin:16px 0 0;padding:16px 18px;border:1px solid var(--card-accent-line);border-radius:10px;background:var(--card-accent);font-size:14px;line-height:1.6}
+.checkout-fallback[hidden]{display:none}
+.checkout-fallback p{margin:0 0 12px;color:var(--ink)}
+.checkout-fallback .button{font-size:14px;padding:9px 15px;box-shadow:none;margin-bottom:0}

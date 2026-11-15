@@ -75,18 +75,99 @@
 <script>
 (function () {
   var tries = 0;
+  var CHECKOUT_TIMEOUT_MS = 10000;
+  var watchdog = null;
+  var fallback = null;
+  var isZh = (document.documentElement.lang || "").toLowerCase().indexOf("zh") === 0;
+
+  function clearWatchdog() {
+    if (watchdog) { clearTimeout(watchdog); watchdog = null; }
+  }
+
+  function armWatchdog() {
+    clearWatchdog();
+    watchdog = setTimeout(function () {
+      showFallback("timeout: no checkout.loaded in " + CHECKOUT_TIMEOUT_MS + "ms");
+    }, CHECKOUT_TIMEOUT_MS);
+  }
+
+  function fallbackNode() {
+    if (fallback) { return fallback; }
+    fallback = document.createElement("div");
+    fallback.className = "checkout-fallback";
+    fallback.setAttribute("role", "status");
+    fallback.hidden = true;
+
+    var msg = document.createElement("p");
+    msg.textContent = isZh
+      ? "官网结账暂时打不开。发封邮件给我，我会把付款链接直接发给你；也可以先下载，30 天全功能试用照常开始。"
+      : "Web checkout isn't opening right now. Email me and I'll send you a payment link — or start the 30-day full-feature trial instead.";
+
+    var mail = document.createElement("a");
+    mail.className = "button secondary";
+    mail.href = "mailto:ruohuyang@163.com?subject="
+      + encodeURIComponent(isZh ? "KaidoPlan Pro 订阅" : "KaidoPlan Pro subscription")
+      + "&body=" + encodeURIComponent(isZh
+        ? "我想订阅 KaidoPlan Pro（$9.99/年）。请给我发付款链接。"
+        : "I'd like to subscribe to KaidoPlan Pro ($9.99/year). Please send me a payment link.");
+    mail.textContent = isZh ? "邮件联系我 →" : "Email me instead →";
+
+    fallback.appendChild(msg);
+    fallback.appendChild(mail);
+
+    var actions = document.querySelector(".pricing .license .actions");
+    if (actions && actions.parentNode) {
+      actions.parentNode.insertBefore(fallback, actions.nextSibling);
+    } else {
+      document.body.appendChild(fallback);
+    }
+    return fallback;
+  }
+
+  function showFallback(reason) {
+    clearWatchdog();
+    try { Paddle.Checkout.close(); } catch (e) {}
+    fallbackNode().hidden = false;
+    if (window.console && console.error) {
+      console.error("[kaidoplan] checkout unavailable:", reason);
+    }
+  }
+
+  function onPaddleEvent(ev) {
+    if (!ev) { return; }
+    var name = ev.name || (ev.data && ev.data.name) || "";
+    if (name === "checkout.loaded") {
+      clearWatchdog();
+      if (fallback) { fallback.hidden = true; }
+    } else if (name === "checkout.error" || name === "checkout.failed") {
+      showFallback(name + ": " + (ev.detail || (ev.error && ev.error.detail) || ""));
+    }
+  }
+
+  // Paddle 的 error.html 会直接向父窗口 postMessage；SDK 未转成事件时也能立刻降级。
+  window.addEventListener("message", function (e) {
+    if (!e.origin || !/^https:\/\/([a-z0-9-]+\.)*paddle\.(com|dev)$/.test(e.origin)) { return; }
+    var d = e.data;
+    if (!d || typeof d !== "object") { return; }
+    var name = d.event_name || (d.callback_data && d.callback_data.name) || "";
+    if (name === "checkout.error" || name === "checkout.failed") {
+      showFallback("postMessage " + name);
+    }
+  });
+
   function start() {
     if (!window.Paddle || !window.Paddle.Initialize) {
       if (tries++ < 50) { setTimeout(start, 100); }
       return;
     }
-    Paddle.Initialize({ token: "live_4a29a303f49f7dc47c33854986c" });
+    Paddle.Initialize({ token: "live_4a29a303f49f7dc47c33854986c", eventCallback: onPaddleEvent });
 
     var q = new URLSearchParams(location.search);
 
     // Paddle 生成的结账链接会带 ?_ptxn=txn_...，直接打开该笔交易
     var ptxn = q.get("_ptxn") || "";
     if (/^txn_[A-Za-z0-9]+$/.test(ptxn)) {
+      armWatchdog();
       Paddle.Checkout.open({ transactionId: ptxn });
       return;
     }
@@ -114,11 +195,11 @@
         opts.settings.allowDiscountRemoval = false;
       }
       if (ref) { opts.customData = { ref: ref }; }
+      armWatchdog();
       Paddle.Checkout.open(opts);
     }
 
     if (hasOffer) {
-      var isZh = (document.documentElement.lang || "").toLowerCase().indexOf("zh") === 0;
       var note = document.createElement("p");
       note.className = "micro";
       note.textContent = isZh
