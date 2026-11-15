@@ -21,11 +21,10 @@ Last updated 2026-11-08. Current public release: v3.4.0 (2026-11-07). No claims 
 ## Pricing (direct download)
 
 - **30-day full-feature trial**: every feature unlocked, no account, no card.
-- After the trial the app **downgrades to the free tier** instead of switching off: the full GUI planning workbench stays, an agent can **read** the plan over MCP/CLI but cannot write to it, and delivery-report exports are limited to **3 per month** (preview unlimited). Nothing already built is locked or deleted.
-- **KaidoPlan Pro — USD 9.99 per year**: unlocks AI write-back (task status, actual dates, new tasks) through the MCP/CLI tools and unlimited delivery-report exports. Cancel anytime.
+- **KaidoPlan Pro — USD 9.99 per year**: a subscription gives continued access to all features after the trial, including AI write-back (task status, actual dates, new tasks) through the MCP/CLI tools and unlimited delivery-report exports. Cancel anytime.
 - Direct-download purchases carry a **14-day no-questions-asked refund**.
 - Checkout is processed by Paddle.com Market Ltd as Merchant of Record.
-- Mac App Store builds are in review; no availability is claimed here.
+- Eligible Mac App Store users can start a one-month trial through the in-app subscription.
 
 ## Install
 
@@ -90,8 +89,7 @@ Tool reference (21 MCP tools, grouped):
 | Current public release | v3.4.0, published 2026-11-07 |
 | Plan file | `.kaido`, plain JSON, `formatVersion` 2 |
 | MCP tools | 21, stdio JSON-RPC |
-| Trial | 30 days, all features, no account, then downgrade to free tier |
-| Free tier | full GUI planning, AI read-only, 3 delivery-report exports per month |
+| Trial | 30 days, all features, no account required for the direct download |
 | Pro | USD 9.99 per year — AI write-back, unlimited exports |
 | Refunds | 14 days, direct-download purchases |
 | Merchant of record | Paddle.com Market Ltd |
