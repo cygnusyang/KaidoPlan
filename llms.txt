@@ -51,6 +51,10 @@ Setup and checks:
 - Ten-minute setup: https://kaidoplan.cygnusyang.top/guides/kaidoplan-quickstart.html
 - A five-minute delivery check: https://kaidoplan.cygnusyang.top/guides/delivery-check.html
 
+Use cases:
+
+- Where a plan earns its keep, and when this is the wrong tool: https://kaidoplan.cygnusyang.top/use-cases.html
+
 Definitions and questions:
 
 - What a critical path is and why an AI project needs one: https://kaidoplan.cygnusyang.top/qa/critical-path-for-ai-projects.html

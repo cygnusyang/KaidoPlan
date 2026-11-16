@@ -51,6 +51,10 @@ Setup and checks:
 - Ten-minute setup: https://kaidoplan.cygnusyang.top/guides/kaidoplan-quickstart.html
 - A five-minute delivery check: https://kaidoplan.cygnusyang.top/guides/delivery-check.html
 
+Use cases:
+
+- Where a plan earns its keep, and when this is the wrong tool: https://kaidoplan.cygnusyang.top/use-cases.html
+
 Definitions and questions:
 
 - What a critical path is and why an AI project needs one: https://kaidoplan.cygnusyang.top/qa/critical-path-for-ai-projects.html
@@ -377,6 +381,12 @@ Install, plan and check a real project.
 
 - A delivery check you can run in five minutesAn agent that reports progress honestly can still leave you with a plan that no longer adds up.
 
+## Use cases
+
+When a plan earns its keep, and when it does not.
+
+- Where a plan earns its keepThree situations where a task list is not enough: one developer with several agents, parallel sessions on one plan, and a date you have to defend. Includes the cases where this is the wrong tool.
+
 ## Questions
 
 The specific things people search for before they try a planning tool.
@@ -445,6 +455,90 @@ KaidoPlan runs on macOS 14 or later.
 Try every feature free for 30 days with the direct download. Continue with full access for $9.99 per year.
 
 Download KaidoPlanPricing
+
+---
+
+## https://kaidoplan.cygnusyang.top/use-cases.html
+
+Use cases
+
+# Where a plan earns its keep
+
+A task list is enough until a date matters. These are the three situations where the gap between "every task is done" and "the date still holds" decides whether the project ships.
+
+Updated 2026-11-16 · by cygnus, the developer of KaidoPlan
+
+## 01 — One developer, several agents, one delivery date
+
+You are building a three-week deliverable on your own, and the work is spread across Claude Code, Codex or whichever agent you have open. Every session reports progress. The task list gets greener each day. Then someone asks when it ships, and you open the list and realise the client integration sits behind an API task that quietly grew two subtasks on Tuesday.
+
+Nothing in that story is a coding error. Each task was genuinely finished or genuinely in progress. What went uncalculated is the one thing an agent never reports: which chain of dependencies is setting the end date.
+
+This is the case the app is built for. The work is broken into a WBS, dependencies are connected, and forward and backward scheduling produce a real finish date plus per-task slack. The chain with zero slack is usually two or three tasks, and it is rarely the ones that dominate a status update.
+
+What changes: the delivery date stops being a number someone typed into a cell and becomes a consequence of the graph. When the graph changes — including when an agent changes it — the date moves with it.
+
+## 02 — Parallel agent sessions editing the same plan
+
+Several sessions run on the same project. Each one only knows its own context window. The plan ends up scattered across transcripts: one session moved a date, another added a task, a third closed something that the first is still waiting on. Nobody can say which version is current, and no agent can see the whole shape.
+
+Keeping the plan in one local `.kaido` file gives every session the same object to read and write. A built-in MCP server and a CLI cover tasks, dependencies, resources, baselines, scheduling, violation checks and WBS import, so an agent reads the plan before it acts instead of guessing from chat history.
+
+The plan is also checkable, which matters more than it sounds. Violation checks surface date conflicts, dependency cycles and tasks scheduled outside the project window. A cycle is what two agents create when each waits for the other, and it is the failure mode that a chat transcript will never show you.
+
+What changes: parallel work stops producing parallel versions of the plan.
+
+## 03 — A date you have to defend to someone else
+
+You owe a date to a client, a partner or a manager. Quote it early and you cannot deliver; quote it late and you lose the work. What you need at that moment is not optimism but an argument: this date is set by these three tasks, everything else has slack, and here is what breaks it.
+
+The critical path gives you that argument, because it is computed rather than asserted. A task with zero slack blocks the end date; a task with four days of slack can absorb a slip without moving it. That distinction is invisible in a list where every row says done.
+
+Delivery reports can be exported for the person who asked. They show the plan, the computed dates and the outstanding violations at the time of export.
+
+What changes: the date comes with its own reasoning, so the conversation is about the graph instead of about whether you are being pessimistic.
+
+## When this is not the tool
+
+Being specific about the edges is cheaper than a refund.
+
+- Not a collaboration platform. There is no cloud sync and no real-time multi-user editing. The plan is a file; sharing it across people means sending the file. Teams that need a shared live board should look elsewhere.
+
+- Not a kanban replacement. If you only need to see what is in progress and who owns it, a board does that with less setup. This app is about dates and dependencies, and it assumes you care about them.
+
+- macOS only. macOS 14 or later, Apple silicon and Intel. There is no Windows or Linux build.
+
+- It does not estimate for you. Effort and durations are your assertions. The scheduler does arithmetic on what you claim; it does not know that your last three integrations took four days each instead of two.
+
+- No telemetry. Nothing is sent about how you use the app. The trade-off is that usage analytics inside the product do not exist — what you cannot measure, you have to ask about.
+
+## How to tell if you are in one of these
+
+Three questions. If one of them is a yes, the arithmetic is worth running:
+
+- Does this project have a date that someone outside the work is waiting on?
+
+- Do at least two tasks have to happen in a fixed order?
+
+- Is more than one person — or more than one agent session — changing the plan?
+
+If all three are no, you have a to-do list and you should keep it. If two or more are yes, the failure you are heading for is the one this page opened with: every task done, the date gone.
+
+KaidoPlan runs on macOS 14 or later.
+
+Try every feature free for 30 days with the direct download. Continue with full access for $9.99 per year.
+
+Download KaidoPlanPricing
+
+##
+
+-
+
+-
+
+-
+
+-
 
 ---
 

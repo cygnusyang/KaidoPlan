@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Use cases: AI coding projects that need a dated plan</title>
+<meta name="description" content="Three situations where the difference between every task being done and the delivery date holding decides whether the project ships: solo delivery with several agents, parallel agent sessions on one plan, and a date you have to defend.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/use-cases.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="Use cases: AI coding projects that need a dated plan">
+<meta property="og:description" content="Solo delivery with several agents, parallel agent sessions editing one plan, and a date you have to defend to someone else. Three situations where a task list is not enough.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/use-cases.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="zh_CN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="site.css"><link rel="stylesheet" href="learn.css">
+
+<script src="theme.js"></script>
+<script src="analytics.js" defer></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Use cases: AI coding projects that need a dated plan",
+  "description": "Three situations where the difference between every task being done and the delivery date holding decides whether the project ships.",
+  "url": "https://kaidoplan.cygnusyang.top/use-cases.html",
+  "datePublished": "2026-11-16",
+  "dateModified": "2026-11-16",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "applicationSubCategory": "Project planning and scheduling",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Use cases",
+      "item": "https://kaidoplan.cygnusyang.top/use-cases.html"
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="guides.html">Guides</a><a href="index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest/download/KaidoPlan.dmg" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Use cases</p>
+<h1>Where a plan earns its keep</h1>
+<p class="dek">A task list is enough until a date matters. These are the three situations where the gap between "every task is done" and "the date still holds" decides whether the project ships.</p>
+<p class="meta">Updated 2026-11-16 · by cygnus, the developer of KaidoPlan</p>
+
+<h2>01 — One developer, several agents, one delivery date</h2>
+<p>You are building a three-week deliverable on your own, and the work is spread across Claude Code, Codex or whichever agent you have open. Every session reports progress. The task list gets greener each day. Then someone asks when it ships, and you open the list and realise the client integration sits behind an API task that quietly grew two subtasks on Tuesday.</p>
+<p>Nothing in that story is a coding error. Each task was genuinely finished or genuinely in progress. What went uncalculated is the one thing an agent never reports: which chain of dependencies is setting the end date.</p>
+<p>This is the case the app is built for. The work is broken into a WBS, dependencies are connected, and forward and backward scheduling produce a real finish date plus per-task slack. The chain with zero slack is usually two or three tasks, and it is rarely the ones that dominate a status update.</p>
+<p><strong>What changes:</strong> the delivery date stops being a number someone typed into a cell and becomes a consequence of the graph. When the graph changes — including when an agent changes it — the date moves with it.</p>
+
+<h2>02 — Parallel agent sessions editing the same plan</h2>
+<p>Several sessions run on the same project. Each one only knows its own context window. The plan ends up scattered across transcripts: one session moved a date, another added a task, a third closed something that the first is still waiting on. Nobody can say which version is current, and no agent can see the whole shape.</p>
+<p>Keeping the plan in one local <code>.kaido</code> file gives every session the same object to read and write. A built-in MCP server and a CLI cover tasks, dependencies, resources, baselines, scheduling, violation checks and WBS import, so an agent reads the plan before it acts instead of guessing from chat history.</p>
+<p>The plan is also checkable, which matters more than it sounds. Violation checks surface date conflicts, dependency cycles and tasks scheduled outside the project window. A cycle is what two agents create when each waits for the other, and it is the failure mode that a chat transcript will never show you.</p>
+<p><strong>What changes:</strong> parallel work stops producing parallel versions of the plan.</p>
+
+<h2>03 — A date you have to defend to someone else</h2>
+<p>You owe a date to a client, a partner or a manager. Quote it early and you cannot deliver; quote it late and you lose the work. What you need at that moment is not optimism but an argument: this date is set by these three tasks, everything else has slack, and here is what breaks it.</p>
+<p>The critical path gives you that argument, because it is computed rather than asserted. A task with zero slack blocks the end date; a task with four days of slack can absorb a slip without moving it. That distinction is invisible in a list where every row says done.</p>
+<p>Delivery reports can be exported for the person who asked. They show the plan, the computed dates and the outstanding violations at the time of export.</p>
+<p><strong>What changes:</strong> the date comes with its own reasoning, so the conversation is about the graph instead of about whether you are being pessimistic.</p>
+
+<h2>When this is not the tool</h2>
+<p>Being specific about the edges is cheaper than a refund.</p>
+<ul>
+<li><strong>Not a collaboration platform.</strong> There is no cloud sync and no real-time multi-user editing. The plan is a file; sharing it across people means sending the file. Teams that need a shared live board should look elsewhere.</li>
+<li><strong>Not a kanban replacement.</strong> If you only need to see what is in progress and who owns it, a board does that with less setup. This app is about dates and dependencies, and it assumes you care about them.</li>
+<li><strong>macOS only.</strong> macOS 14 or later, Apple silicon and Intel. There is no Windows or Linux build.</li>
+<li><strong>It does not estimate for you.</strong> Effort and durations are your assertions. The scheduler does arithmetic on what you claim; it does not know that your last three integrations took four days each instead of two.</li>
+<li><strong>No telemetry.</strong> Nothing is sent about how you use the app. The trade-off is that usage analytics inside the product do not exist — what you cannot measure, you have to ask about.</li>
+</ul>
+
+<h2>How to tell if you are in one of these</h2>
+<p>Three questions. If one of them is a yes, the arithmetic is worth running:</p>
+<ol>
+<li>Does this project have a date that someone outside the work is waiting on?</li>
+<li>Do at least two tasks have to happen in a fixed order?</li>
+<li>Is more than one person — or more than one agent session — changing the plan?</li>
+</ol>
+<p>If all three are no, you have a to-do list and you should keep it. If two or more are yes, the failure you are heading for is the one this page opened with: every task done, the date gone.</p>
+
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>Try every feature free for 30 days with the direct download. Continue with full access for $9.99 per year.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest/download/KaidoPlan.dmg" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="index.html#pricing">Pricing</a></div>
+
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="qa/ai-agent-marked-everything-done.html">Why the deadline slipped after every task was marked done</a><span class="why">Answer</span></li><li><a href="qa/sync-plan-across-claude-code-sessions.html">Keeping one plan across Claude Code sessions</a><span class="why">Answer</span></li><li><a href="features/mcp-clients.html">MCP server and CLI</a><span class="why">Features</span></li><li><a href="guides/delivery-check.html">A delivery check you can run in five minutes</a><span class="why">Guide · reproducible</span></li></ul><p class="tagline"><a href="guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="terms.html">Terms of sale</a> · <a href="refund.html">Refunds</a> · <a href="privacy.html">Privacy</a> · <a href="zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="theme.js"></script></body></html>
