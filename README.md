@@ -1,6 +1,8 @@
 # KaidoPlan
 
-A project planning workbench for people and AI. Claude Code and Codex do the work; KaidoPlan keeps the WBS, dependencies, schedule and progress in one plan both sides can inspect.
+**A macOS project planner for AI coding teams.** *AI says done. Deadline moved.*
+
+Claude Code and Codex do the work; KaidoPlan keeps the WBS, dependencies, schedule and progress in one plan both sides can inspect.
 
 **[Download for macOS](https://github.com/cygnusyang/KaidoPlan/releases/latest)** · **[Website](https://kaidoplan.cygnusyang.top/)** · **[中文](https://kaidoplan.cygnusyang.top/zh.html)** · **[Privacy](https://kaidoplan.cygnusyang.top/privacy.html)**
 
