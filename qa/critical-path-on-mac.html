@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How do I calculate a critical path on a Mac?</title>
+<meta name="description" content="Three ways to get a critical path on macOS: a planner that reads dependencies, a general project tool, or a spreadsheet. What each one gets wrong, and how to run the calculation locally.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/qa/critical-path-on-mac.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="How do I calculate a critical path on a Mac?">
+<meta property="og:description" content="Three ways to get a critical path on macOS: a planner that reads dependencies, a general project tool, or a spreadsheet. What each one gets wrong, and how to run the calculation locally.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/qa/critical-path-on-mac.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script src="../analytics.js" defer></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "How do I calculate a critical path on a Mac?",
+  "description": "Three ways to get a critical path on macOS: a planner that reads dependencies, a general project tool, or a spreadsheet. What each one gets wrong, and how to run the calculation locally.",
+  "url": "https://kaidoplan.cygnusyang.top/qa/critical-path-on-mac.html",
+  "datePublished": "2026-11-17",
+  "dateModified": "2026-11-17",
+  "inLanguage": "en",
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "about": {
+    "@type": "SoftwareApplication",
+    "name": "KaidoPlan",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "macOS 14 or later",
+    "url": "https://kaidoplan.cygnusyang.top/"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "How do I calculate a critical path on a Mac?",
+      "item": "https://kaidoplan.cygnusyang.top/qa/critical-path-on-mac.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I calculate a critical path in a spreadsheet on a Mac?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, for a small plan and with care. You do a forward pass for earliest start and finish, a backward pass for latest start and finish, then subtract. It breaks down once a task has more than one successor, or when a calendar or a fixed deadline enters the model, because a spreadsheet recalculates rows in an order you did not choose."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does the calculation need a cloud account on macOS?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not with KaidoPlan. The plan is one local .kaido JSON file and the schedule is computed in the app on the machine. There is no account and nothing is uploaded, so the file can live in a git repository or iCloud Drive without sending the plan to a third party."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can an AI agent read the critical path on a Mac?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, read-only and without a licence. The CLI and the MCP server expose 21 tools over stdio JSON-RPC, and reading plans is free. Writing task status, actual dates or new tasks back into the plan needs a Pro licence."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest/download/KaidoPlan.dmg" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Answer</p>
+<h1>How do I calculate a critical path on a Mac?</h1>
+<p class="dek">Use a tool that reads the dependency graph and recomputes the chain whenever a date changes. On macOS that means three options: a planner built around dependencies, a general project management app, or a spreadsheet. Only the first one keeps the answer correct after the third edit.</p>
+<p class="meta">Updated 2026-11-17 · by cygnus, the developer of KaidoPlan</p>
+
+<h2>The three options on macOS</h2>
+<ul>
+<li><strong>A planner that computes the chain itself.</strong> You enter tasks, durations and dependencies; the tool runs a forward and backward pass and highlights the zero-slack chain. The answer updates when any input changes.</li>
+<li><strong>A general project management app.</strong> Many of them compute a critical path. They are built around team collaboration and boards, so the dependency editor is usually a secondary screen and the schedule is derived from assignments rather than from the graph.</li>
+<li><strong>A spreadsheet.</strong> Free, and correct for a plan with a handful of tasks and a single chain. It stops being correct as soon as the graph branches, because you have to describe the calculation in formulas and keep them in a valid order.</li>
+</ul>
+<p>There is no macOS-specific algorithm here. The calculation is the same on every platform. What differs on a Mac is where the plan lives and who can read it, which matters more than it sounds when AI agents are part of the work.</p>
+
+<h2>Doing it by hand, and where it breaks</h2>
+<p>The manual version is two passes over the graph:</p>
+<ol>
+<li><strong>Forward pass.</strong> For each task in dependency order, earliest start is the latest earliest finish among its predecessors; earliest finish is earliest start plus duration.</li>
+<li><strong>Backward pass.</strong> From the project end backwards, latest finish is the earliest latest start among its successors; latest start is latest finish minus duration.</li>
+<li><strong>Slack.</strong> Latest start minus earliest start. Zero means the task is on the critical path.</li>
+</ol>
+<p>This is correct and it is also where most hand calculations go wrong, in three specific ways:</p>
+<ul>
+<li><strong>Order matters and is invisible in a spreadsheet.</strong> A row that reads a value not yet recalculated returns a stale number, quietly. The error shows up as a plausible plan, not as an error.</li>
+<li><strong>A task with two successors needs the minimum, not the first one you look at.</strong> Missing the second successor makes a critical task look slack.</li>
+<li><strong>Constraints are not part of the textbook algorithm.</strong> A fixed delivery date, a task that cannot start before a date, or a calendar with non-working days has to be folded in, and a spreadsheet has no place to put it.</li>
+</ul>
+
+<h2>Running it locally on a Mac</h2>
+<p>KaidoPlan is a macOS app that keeps the WBS, the dependency edges and the dates in one local <code>.kaido</code> file — plain JSON, no database, no account. The schedule engine computes the critical path, total and free slack, and reports violations: date conflicts, dependency cycles and tasks scheduled outside their allowed window.</p>
+<p>The same calculation is available without opening a window:</p>
+<pre><code>kaidoplan schedule path --file plan.kaido</code></pre>
+<p>The CLI and the MCP server are the same engine the app uses, so a command-line answer and the highlighted chain in the Gantt chart cannot disagree. Both are read-only without a licence; writing task status, actual dates or new tasks back into the plan needs Pro.</p>
+
+<h2>Why "on a Mac" changes the answer</h2>
+<p>For a local-first tool the platform question is mostly a data question. Three consequences that do not apply to a web planner:</p>
+<ul>
+<li><strong>The file is yours.</strong> A <code>.kaido</code> plan can be diffed, reviewed in a pull request, or kept next to the code it describes. There is no export step and no vendor copy of the schedule.</li>
+<li><strong>Agents read the same file.</strong> Claude Code, Codex and other MCP clients read the plan through stdio; the plan does not have to be synchronised into a service first.</li>
+<li><strong>No connection, no account.</strong> The 30-day trial requires neither. When it ends the app drops to the free tier — the whole planning workbench, AI read-only, and three delivery-report exports a month — it does not stop.</li>
+</ul>
+<p>The trade-off is stated plainly on the product page: this is a single-user local tool. There is no real-time multi-user editing, no cloud sync, and no Windows or Linux build. Sharing a plan with another person means sending the file.</p>
+
+<h2>Questions this page does not answer</h2>
+<details><summary>Can I calculate a critical path in a spreadsheet on a Mac?</summary><p>Yes, for a small plan and with care. You do a forward pass for earliest start and finish, a backward pass for latest start and finish, then subtract. It breaks down once a task has more than one successor, or when a calendar or a fixed deadline enters the model, because a spreadsheet recalculates rows in an order you did not choose.</p></details>
+<details><summary>Does the calculation need a cloud account on macOS?</summary><p>Not with KaidoPlan. The plan is one local .kaido JSON file and the schedule is computed in the app on the machine. There is no account and nothing is uploaded, so the file can live in a git repository or iCloud Drive without sending the plan to a third party.</p></details>
+<details><summary>Can an AI agent read the critical path on a Mac?</summary><p>Yes, read-only and without a licence. The CLI and the MCP server expose 21 tools over stdio JSON-RPC, and reading plans is free. Writing task status, actual dates or new tasks back into the plan needs a Pro licence.</p></details>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>Try every feature free for 30 days with the direct download. Continue with full access for $9.99 per year.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest/download/KaidoPlan.dmg" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../qa/critical-path-for-ai-projects.html">What is a critical path, and why does an AI project need one?</a><span class="why">Answer</span></li><li><a href="../features/scheduling.html">Scheduling and the critical path</a><span class="why">Features · 2 tools</span></li><li><a href="../guides/delivery-check.html">A delivery check you can run in five minutes</a><span class="why">Guide · reproducible</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path on macOS</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script></body></html>

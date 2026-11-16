@@ -59,6 +59,7 @@ Use cases:
 Definitions and questions:
 
 - What a critical path is and why an AI project needs one: https://kaidoplan.cygnusyang.top/qa/critical-path-for-ai-projects.html
+- How to calculate a critical path on a Mac (three options, and where each breaks): https://kaidoplan.cygnusyang.top/qa/critical-path-on-mac.html
 - Why the deadline slipped after every task was marked done: https://kaidoplan.cygnusyang.top/qa/ai-agent-marked-everything-done.html
 - Keeping one plan across Claude Code sessions: https://kaidoplan.cygnusyang.top/qa/sync-plan-across-claude-code-sessions.html
 - Breaking an AI coding project into a WBS: https://kaidoplan.cygnusyang.top/qa/wbs-for-ai-coding-projects.html
