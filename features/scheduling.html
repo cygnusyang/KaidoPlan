@@ -25,8 +25,8 @@
   "headline": "Scheduling and the critical path",
   "description": "schedule_compute propagates dependencies with ASAP/ALAP to produce real dates; schedule_critical_path returns the zero-slack chain that sets the delivery date.",
   "url": "https://kaidoplan.cygnusyang.top/features/scheduling.html",
-  "datePublished": "2026-11-08",
-  "dateModified": "2026-11-08",
+  "datePublished": "2026-11-16",
+  "dateModified": "2026-11-16",
   "inLanguage": "en",
   "author": {
     "@type": "Person",
@@ -93,12 +93,12 @@
 </script>
 </head>
 <body><a class="skip" href="#main">Skip to content</a>
-<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/download/v3.10.4/KaidoPlan-v3.10.4.dmg" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest/download/KaidoPlan.dmg" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
 <main class="prose" id="main">
 <p class="kicker">Features · 2 tools</p>
 <h1>Scheduling and the critical path</h1>
 <p class="dek">Two tools turn a dependency graph into an answer: when does this finish, and which tasks decide that.</p>
-<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<p class="meta">Updated 2026-11-16 · by cygnus, the developer of KaidoPlan</p>
 <h2>schedule_compute</h2>
 <p>Propagates dependencies forward and backward and returns, for every task, its earliest and latest start and finish, plus the schedule that was chosen. Forward propagation answers "when could this happen"; backward propagation answers "when must it happen without moving the end date". The gap between the two is slack, which is the number that tells you where you have room.</p>
 <p>Constraints participate: a task with a start-no-earlier-than constraint is delayed even when its predecessor would allow an earlier start, and a finish-no-later-than constraint is what turns into a deadline conflict when the arithmetic cannot satisfy it.</p>
@@ -114,7 +114,7 @@ kaidoplan schedule path --file plan.kaido</code></pre>
 <h2>Questions this page does not answer</h2>
 <details><summary>Does it support resources levelling?</summary><p>Resources carry units and efficiency and take part in effort conversion. Full resource-levelled scheduling is not something to assume; check what the app shows for your plan rather than trusting a page.</p></details>
 <details><summary>Can I schedule backwards from a fixed delivery date?</summary><p>Yes — backward propagation is what produces latest dates, and a finish-no-later-than constraint anchors the end.</p></details>
-<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>Try every feature free for 30 days with the direct download. Continue with full access for $9.99 per year.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/download/v3.10.4/KaidoPlan-v3.10.4.dmg" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>Try every feature free for 30 days with the direct download. Continue with full access for $9.99 per year.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest/download/KaidoPlan.dmg" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
 <nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../qa/critical-path-for-ai-projects.html">What is a critical path, and why does an AI project need one?</a><span class="why">Answer</span></li><li><a href="../features/violations.html">Violation checks</a><span class="why">Features · 1 tool</span></li><li><a href="../guides/delivery-check.html">A delivery check you can run in five minutes</a><span class="why">Guide · reproducible</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
 </main>
 <footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>

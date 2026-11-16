@@ -25,8 +25,8 @@
   "headline": "Is there an MCP server for a project plan?",
   "description": "KaidoPlan ships an MCP server with 21 tools over a local .kaido plan: read the WBS, write status, compute the schedule, list violations. Loopback only, token required, folders explicitly authorized.",
   "url": "https://kaidoplan.cygnusyang.top/qa/mcp-server-for-project-plan.html",
-  "datePublished": "2026-11-08",
-  "dateModified": "2026-11-08",
+  "datePublished": "2026-11-16",
+  "dateModified": "2026-11-16",
   "inLanguage": "en",
   "author": {
     "@type": "Person",
@@ -93,12 +93,12 @@
 </script>
 </head>
 <body><a class="skip" href="#main">Skip to content</a>
-<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/download/v3.10.4/KaidoPlan-v3.10.4.dmg" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest/download/KaidoPlan.dmg" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
 <main class="prose" id="main">
 <p class="kicker">Answer</p>
 <h1>Is there an MCP server for a project plan?</h1>
 <p class="dek">Yes — KaidoPlan has one built in. 21 tools over stdio or a loopback HTTP endpoint, covering tasks, dependencies, resources, baselines, scheduling and violation checks.</p>
-<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<p class="meta">Updated 2026-11-16 · by cygnus, the developer of KaidoPlan</p>
 <h2>What the server exposes</h2>
 <p>The plan is a local file; the MCP server is a second surface on the same data, so an agent can ask questions and make changes without parsing JSON by hand.</p>
 <table>
@@ -127,7 +127,7 @@
 <h2>Questions this page does not answer</h2>
 <details><summary>Does it work with a remote or hosted agent?</summary><p>No. The endpoint is loopback-only by design, so the agent has to run on the same Mac.</p></details>
 <details><summary>Is the server on by default?</summary><p>Yes since v3.4.0, on 127.0.0.1 with a token. Turning it off in the panel stops access immediately; a previous explicit <em>off</em> setting is not overridden by the default change.</p></details>
-<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>Try every feature free for 30 days with the direct download. Continue with full access for $9.99 per year.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/download/v3.10.4/KaidoPlan-v3.10.4.dmg" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>Try every feature free for 30 days with the direct download. Continue with full access for $9.99 per year.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest/download/KaidoPlan.dmg" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
 <nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../features/mcp-clients.html">Connecting an agent</a><span class="why">Features · Integration</span></li><li><a href="../features/status-writeback.html">Status write-back</a><span class="why">Features · 2 tools</span></li><li><a href="../qa/sync-plan-across-claude-code-sessions.html">How do I keep a project plan in sync across Claude Code sessions?</a><span class="why">Answer</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
 </main>
 <footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>

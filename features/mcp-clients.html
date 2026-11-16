@@ -25,8 +25,8 @@
   "headline": "Connecting an agent",
   "description": "v3.4.0 replaced copy-and-paste MCP configuration with one switch per client. It writes only the kaidoplan key and can run the app binary as a stdio server.",
   "url": "https://kaidoplan.cygnusyang.top/features/mcp-clients.html",
-  "datePublished": "2026-11-08",
-  "dateModified": "2026-11-08",
+  "datePublished": "2026-11-16",
+  "dateModified": "2026-11-16",
   "inLanguage": "en",
   "author": {
     "@type": "Person",
@@ -93,12 +93,12 @@
 </script>
 </head>
 <body><a class="skip" href="#main">Skip to content</a>
-<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/download/v3.10.4/KaidoPlan-v3.10.4.dmg" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest/download/KaidoPlan.dmg" data-track="download_click" data-track-page="content">Download for macOS ↗</a></nav></header>
 <main class="prose" id="main">
 <p class="kicker">Features · Integration</p>
 <h1>Connecting an agent</h1>
 <p class="dek">Five clients, one switch each. The configuration file keeps its formatting, its key order and its other servers.</p>
-<p class="meta">Updated 2026-11-08 · by cygnus, the developer of KaidoPlan</p>
+<p class="meta">Updated 2026-11-16 · by cygnus, the developer of KaidoPlan</p>
 <h2>What the switch does</h2>
 <p>Turning on a client writes its MCP configuration for you: Claude Desktop, Claude Code, Cursor, Codex and WorkBuddy each have a row with a switch. Turning it off removes the same entry. The editor is text-preserving — it adds or removes only <code>mcpServers.kaidoplan</code> (for Codex, <code>[mcp_servers.kaidoplan]</code>), so indentation, key order and line endings in the rest of the file are untouched.</p>
 <p>Each row reports its own state: connected, configuration needs updating, write failed with a reason and a retry, not connected, client not installed. A failure in one client does not affect the others.</p>
@@ -122,7 +122,7 @@
 <h2>Questions this page does not answer</h2>
 <details><summary>Do I have to use the switch?</summary><p>No. A copy-configuration button remains as the manual path for anyone who wants to place the entry themselves.</p></details>
 <details><summary>What happens when the token changes?</summary><p>Configurations of enabled clients are rewritten automatically, so you do not have to re-paste them.</p></details>
-<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>Try every feature free for 30 days with the direct download. Continue with full access for $9.99 per year.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/download/v3.10.4/KaidoPlan-v3.10.4.dmg" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
+<div class="cta"><strong>KaidoPlan runs on macOS 14 or later.</strong><p>Try every feature free for 30 days with the direct download. Continue with full access for $9.99 per year.</p><a class="button" href="https://github.com/cygnusyang/KaidoPlan/releases/latest/download/KaidoPlan.dmg" data-track="download_click" data-track-page="content-cta">Download KaidoPlan</a><a class="button secondary" href="../index.html#pricing">Pricing</a></div>
 <nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../qa/mcp-server-for-project-plan.html">Is there an MCP server for a project plan?</a><span class="why">Answer</span></li><li><a href="../features/status-writeback.html">Status write-back</a><span class="why">Features · 2 tools</span></li><li><a href="../features/cli.html">The command line</a><span class="why">Features · CLI</span></li></ul><p class="tagline"><a href="../guides.html">All guides and answers</a></p></nav>
 </main>
 <footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
