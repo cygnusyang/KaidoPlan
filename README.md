@@ -1,6 +1,6 @@
 # KaidoPlan
 
-**A macOS project planner for AI coding teams.** *AI says done. Deadline moved.*
+**A project planner for AI coding teams.** *AI says done. Deadline moved.*
 
 Claude Code and Codex do the work; KaidoPlan keeps the WBS, dependencies, schedule and progress in one plan both sides can inspect.
 
