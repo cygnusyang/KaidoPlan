@@ -400,6 +400,8 @@ The specific things people search for before they try a planning tool.
 
 - What is a critical path, and why does an AI project need one?The critical path is the longest chain of dependent work in the plan.
 
+- How do I calculate a critical path on a Mac?Three options on macOS, and where each one breaks.
+
 - How do I break an AI coding project into a WBS?Break it down by what can be verified independently, not by what feels like a phase.
 
 - How do I track dependencies between tasks an agent executes?Record them as data, not as instructions in a prompt.
