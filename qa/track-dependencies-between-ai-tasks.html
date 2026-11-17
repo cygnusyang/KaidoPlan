@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>How to track dependencies between tasks an AI agent executes</title>
-<meta name="description" content="Dependencies have to be recorded somewhere the agent reads and the scheduler computes. Finish-to-start plus constraints covers most projects; the rest is discipline about what counts as an edge.">
+<meta name="description" content="A dependency in a prompt is a suggestion; a dependency in the plan is an edge the scheduler enforces. Four edge types, three tests for whether an edge is real, and the difference between a lag and a task.">
 <link rel="canonical" href="https://kaidoplan.cygnusyang.top/qa/track-dependencies-between-ai-tasks.html">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="KaidoPlan">
 <meta property="og:title" content="How to track dependencies between tasks an AI agent executes">
-<meta property="og:description" content="Dependencies have to be recorded somewhere the agent reads and the scheduler computes. Finish-to-start plus constraints covers most projects; the rest is discipline about what counts as an edge.">
+<meta property="og:description" content="A dependency in a prompt is a suggestion; a dependency in the plan is an edge the scheduler enforces. Four edge types, three tests for whether an edge is real, and the difference between a lag and a task.">
 <meta property="og:url" content="https://kaidoplan.cygnusyang.top/qa/track-dependencies-between-ai-tasks.html">
 <meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
 <meta property="og:locale" content="en_US">
@@ -23,10 +23,10 @@
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "How do I track dependencies between tasks an agent executes?",
-  "description": "Dependencies have to be recorded somewhere the agent reads and the scheduler computes. Finish-to-start plus constraints covers most projects; the rest is discipline about what counts as an edge.",
+  "description": "A dependency in a prompt is a suggestion; a dependency in the plan is an edge the scheduler enforces. Four edge types, three tests for whether an edge is real, and the difference between a lag and a task.",
   "url": "https://kaidoplan.cygnusyang.top/qa/track-dependencies-between-ai-tasks.html",
-  "datePublished": "2026-11-16",
-  "dateModified": "2026-11-16",
+  "datePublished": "2026-11-17",
+  "dateModified": "2026-11-17",
   "inLanguage": "en",
   "author": {
     "@type": "Person",
@@ -97,32 +97,79 @@
 <main class="prose" id="main">
 <p class="kicker">Answer</p>
 <h1>How do I track dependencies between tasks an agent executes?</h1>
-<p class="dek">Record them as data, not as instructions in a prompt. A dependency in a chat message is a suggestion; a dependency in the plan is an edge the scheduler will enforce.</p>
-<p class="meta">Updated 2026-11-16 · by cygnus, the developer of KaidoPlan</p>
-<h2>Two kinds of dependency, one place to keep them</h2>
-<p><strong>Hard dependencies</strong> are structural: the acceptance test cannot run before the endpoint exists. <strong>Constraints</strong> are calendar facts: the security review cannot start before the 12th because the reviewer is away. Both affect the schedule, and both belong in the plan.</p>
+<p class="dek">Record them as data in the plan file, not as instructions in a prompt. A dependency stated in chat survives one session; an edge in the plan survives the session, can be checked, and produces a date.</p>
+<p class="meta">Updated 2026-11-17 · by cygnus, the developer of KaidoPlan</p>
+<h2>Two kinds of constraint, one place to keep them</h2>
+<p>Projects confuse two things that both affect dates but behave differently:</p>
+<ul>
+<li><strong>A dependency</strong> is structural: the acceptance test cannot run before the endpoint exists. It propagates dates and it creates the chain.</li>
+<li><strong>A constraint</strong> is a calendar fact: the security review cannot start before the 12th because the reviewer is away. It does not propagate; it clips.</li>
+</ul>
+<p>Both belong in the plan, and both have a written form. What does not belong is either one living only in a message.</p>
 <table>
-<thead><tr><th>Kind</th><th>Example</th><th>What it changes</th></tr></thead>
+<thead><tr><th>Form</th><th>Example</th><th>Effect on the schedule</th></tr></thead>
 <tbody>
-<tr><td>Finish-to-start</td><td>Client integration starts when the server task ends</td><td>Propagates dates; creates the chain</td></tr>
-<tr><td>Lag</td><td>Two days of review after the build</td><td>Adds duration to the edge rather than the task</td></tr>
-<tr><td>Start no earlier than</td><td>A review that cannot begin before a date</td><td>Delays the task; can push the end date</td></tr>
-<tr><td>Finish no later than</td><td>A demo that cannot slip</td><td>Creates a deadline conflict when violated</td></tr>
+<tr><td>Finish-to-start (<code>fs</code>)</td><td>Client integration starts when the server task ends</td><td>Propagates the finish date downstream; creates the chain</td></tr>
+<tr><td>Start-to-start (<code>ss</code>)</td><td>Docs writing starts when the API design starts, one day later</td><td>Links starts; the pair can overlap</td></tr>
+<tr><td>Finish-to-finish (<code>ff</code>)</td><td>Load test cannot finish before the last migration finishes</td><td>Links finishes without forcing a start order</td></tr>
+<tr><td>Lag on an edge</td><td>Two days of cooling-off after the build</td><td>Adds time to the edge, not to the task</td></tr>
+<tr><td>Constraint: start no earlier than</td><td>Review cannot begin before 2026-12-12</td><td>Delays the task; can push the end date</td></tr>
+<tr><td>Constraint: end no later than</td><td>A demo that cannot slip</td><td>Turns a slip into a reported conflict instead of a surprise</td></tr>
 </tbody></table>
 
-<h2>Why prompts are the wrong storage</h2>
-<p>Telling an agent "do the API first, then the client" works for one session. It does not survive the session, it cannot be checked, and it silently disappears when the conversation is summarised. A dependency stored in the plan survives everything, and — the part that matters — the scheduler can prove that the resulting dates are consistent with it.</p>
-<pre><code>kaidoplan task update --file plan.kaido
+<h2>Three tests for whether an edge is real</h2>
+<p>Most bad schedules are not missing edges. They are invented ones — and an invented edge is worse than a missing one, because it changes the critical path while looking like rigour.</p>
+<ol>
+<li><strong>Can you say it as a sentence with "cannot"?</strong> "The migration cannot start before the schema freeze." If the sentence is "it would be better if", it is a preference, and preferences belong in notes.</li>
+<li><strong>Does work actually wait?</strong> An edge means a task sits idle until another completes. If a task could plausibly start and be corrected later, it is not blocked; it is coupled, which is different.</li>
+<li><strong>Would removing it change the date?</strong> Not always — plenty of real edges are off the critical path. But if removing it changes nothing and nobody can name who waits, the edge is decoration.</li>
+</ol>
+
+<h2>Lag is not a task</h2>
+<p>Two days of review after a build can be modelled two ways, and the choice changes who is accountable:</p>
+<ul>
+<li><strong>As a lag</strong> (<code>--dep &lt;build-id&gt;:fs:2</code>): the edge carries two days. The schedule is right and the review is invisible. Nobody is assigned, nothing can be marked done, and no report mentions it.</li>
+<li><strong>As a task</strong> with a duration of two days: the review appears in the WBS, gets an owner, can be blocked, and shows up in the critical path when it becomes the constraint.</li>
+</ul>
+<p>Use lag for time that is genuinely passive — a bake period, a vendor turnaround you cannot influence. Use a task for anything a person or an agent has to do. The tell is simple: if someone could be late, it is a task.</p>
+
+<h2>Why a prompt is the wrong storage</h2>
+<p>"Do the API first, then the client" works for one session and then stops existing. Concretely, over two sessions:</p>
+<ol>
+<li>Session one is told the order and complies. The transcript records the instruction.</li>
+<li>The session ends. The next one opens with a summary — "API done, moving to client" — which preserves the sequencing as a fact but not as a constraint.</li>
+<li>Session two hits a blocked API endpoint, so it starts the client work in parallel and fixes the mismatch later. Every individual status is true. The plan is now inconsistent with the order it was supposed to follow.</li>
+</ol>
+<p>An edge in the plan survives step 2, and — the part that matters — the scheduler can prove the resulting dates are consistent with it. That proof is the entire difference between a plan and a description of a plan.</p>
+<pre><code># the edge: client integration cannot start before the server task finishes
+kaidoplan task update 9B44 --dep 4A1C:fs --file plan.kaido
+
+# the constraint: the review cannot begin before 12 December
+kaidoplan task update C710 --constraint startNoEarlierThan:2026-12-12 --file plan.kaido
+
+# now make the schedule answer for it
 kaidoplan schedule compute --file plan.kaido
 kaidoplan violations --file plan.kaido</code></pre>
-<p>After the edges are in, a cycle is reported rather than discovered later, and a task scheduled before its predecessor ends is a violation instead of a surprise.</p>
+<p><code>--dep</code> takes <code>&lt;predecessor&gt;[:type[:lag]]</code>, defaults to <code>fs</code> with no lag, and repeats, so one command can add several predecessors. Identifiers accept a unique prefix. Both flags work on <code>task add</code> as well, which is the better habit: create the task with its edges rather than adding them later from memory.</p>
+
+<h2>What a cycle looks like, and why it is reported</h2>
+<p>A cycle means a piece of work can never start, because starting it requires finishing it. Two ways this appears in real plans: a template copied twice, and a dependency added during a parallelisation pass that points backwards into the chain.</p>
+<p>The failure is correct behaviour, not a bug: the schedule cannot be computed, and the cycle is named as a violation. What you must not do is delete the edge that is hardest to justify and move on — a cycle usually means two tasks were merged conceptually and one of them should not exist.</p>
+<p>Beyond cycles, violations name the four classes of inconsistency a status report cannot see:</p>
+<ul>
+<li><strong>Negative slack</strong>: a constraint cannot be met by the current plan, so the deadline is already broken.</li>
+<li><strong>Constraint against dependency</strong>: the calendar says "not before the 12th" and the network says "must finish by the 10th". One of the two inputs is wrong.</li>
+<li><strong>Window violations</strong>: a task scheduled before the project start or after its end.</li>
+<li><strong>Manual start conflicts</strong>: a pinned date that contradicts the graph.</li>
+</ul>
 
 <h2>Practical discipline</h2>
 <ul>
-<li><strong>One edge, one reason.</strong> If you cannot state why the dependency exists, delete it. Invented edges make the critical path fiction.</li>
-<li><strong>Do not model "related to".</strong> Undirected relations are not dependencies and add noise to the schedule.</li>
-<li><strong>Re-check after parallelisation.</strong> Splitting work changes the graph; the critical path you knew last week may no longer be the constraint.</li>
-<li><strong>Keep the graph in the repository.</strong> The plan is a file, so the dependency structure is reviewable in a diff — which is the only way a second person can audit it.</li>
+<li><strong>One edge, one reason.</strong> If you cannot state why it exists, delete it. This is the single cheapest improvement available to most plans.</li>
+<li><strong>Do not model "related to".</strong> Undirected relations are not dependencies and add noise to every downstream number.</li>
+<li><strong>Guard the edges, not the dates.</strong> Pinning dates hides the problem; getting the edges right lets <a href="critical-path-for-ai-projects.html">the date be computed</a>, and a computed date can be defended in a review.</li>
+<li><strong>Re-check after parallelising.</strong> Splitting work changes the graph. The chain you knew last week may no longer be the constraint, and the new one is usually the integration step nobody scheduled.</li>
+<li><strong>Keep the graph in the repository.</strong> The plan is a file, so the dependency structure is reviewable in a diff — the only way a second person can audit it without reading a dashboard.</li>
 </ul>
 <h2>Questions this page does not answer</h2>
 <details><summary>Can an agent add dependencies itself?</summary><p>Yes, through the write tools, on a Pro licence after the trial. Whether it should is a policy question: edges change the delivery date, so many teams keep them human-owned.</p></details>

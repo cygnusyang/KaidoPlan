@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Is there an MCP server that lets an AI agent read and edit a project plan?</title>
-<meta name="description" content="KaidoPlan ships an MCP server with 21 tools over a local .kaido plan: read the WBS, write status, compute the schedule, list violations. Loopback only, token required, folders explicitly authorized.">
+<meta name="description" content="KaidoPlan ships an MCP server with 21 tools over a local .kaido plan: read the WBS, write status, compute the schedule, list violations. Loopback only, token required, folders explicitly authorized — plus what it deliberately does not do.">
 <link rel="canonical" href="https://kaidoplan.cygnusyang.top/qa/mcp-server-for-project-plan.html">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="KaidoPlan">
 <meta property="og:title" content="Is there an MCP server that lets an AI agent read and edit a project plan?">
-<meta property="og:description" content="KaidoPlan ships an MCP server with 21 tools over a local .kaido plan: read the WBS, write status, compute the schedule, list violations. Loopback only, token required, folders explicitly authorized.">
+<meta property="og:description" content="KaidoPlan ships an MCP server with 21 tools over a local .kaido plan: read the WBS, write status, compute the schedule, list violations. Loopback only, token required, folders explicitly authorized — plus what it deliberately does not do.">
 <meta property="og:url" content="https://kaidoplan.cygnusyang.top/qa/mcp-server-for-project-plan.html">
 <meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
 <meta property="og:locale" content="en_US">
@@ -23,10 +23,10 @@
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "Is there an MCP server for a project plan?",
-  "description": "KaidoPlan ships an MCP server with 21 tools over a local .kaido plan: read the WBS, write status, compute the schedule, list violations. Loopback only, token required, folders explicitly authorized.",
+  "description": "KaidoPlan ships an MCP server with 21 tools over a local .kaido plan: read the WBS, write status, compute the schedule, list violations. Loopback only, token required, folders explicitly authorized — plus what it deliberately does not do.",
   "url": "https://kaidoplan.cygnusyang.top/qa/mcp-server-for-project-plan.html",
-  "datePublished": "2026-11-16",
-  "dateModified": "2026-11-16",
+  "datePublished": "2026-11-17",
+  "dateModified": "2026-11-17",
   "inLanguage": "en",
   "author": {
     "@type": "Person",
@@ -97,33 +97,59 @@
 <main class="prose" id="main">
 <p class="kicker">Answer</p>
 <h1>Is there an MCP server for a project plan?</h1>
-<p class="dek">Yes — KaidoPlan has one built in. 21 tools over stdio or a loopback HTTP endpoint, covering tasks, dependencies, resources, baselines, scheduling and violation checks.</p>
-<p class="meta">Updated 2026-11-16 · by cygnus, the developer of KaidoPlan</p>
-<h2>What the server exposes</h2>
-<p>The plan is a local file; the MCP server is a second surface on the same data, so an agent can ask questions and make changes without parsing JSON by hand.</p>
+<p class="dek">Yes — KaidoPlan has one built in. 21 tools over stdio or a loopback endpoint, covering tasks, dependencies, resources, baselines, scheduling and violation checks. Every write tool persists on its own; there is no save step to forget.</p>
+<p class="meta">Updated 2026-11-17 · by cygnus, the developer of KaidoPlan</p>
+<h2>What MCP actually buys over parsing the file</h2>
+<p>The plan is already plain JSON, so an agent could read it with <code>cat</code> and write it with a text editor. That works for reading and is a bad idea for writing, for three reasons that have nothing to do with convenience:</p>
+<ul>
+<li><strong>Writing a consistent document is harder than reading one.</strong> A status change also moves the project's <code>updatedAt</code>, may need to record a completion time, and may invalidate dates downstream. Hand-editing JSON gets the field right and the consequences wrong.</li>
+<li><strong>A tool call can fail loudly.</strong> <code>task_update</code> with an unknown identifier returns an error. A careful string edit with the wrong UUID returns a file that parses perfectly and contains a dependency pointing at nothing.</li>
+<li><strong>Some answers are computed, not stored.</strong> The critical path is not a field in the file. An agent reading the JSON can see durations and edges and still get the chain wrong — the schedule engine cannot, because it is the thing the app's Gantt chart also calls.</li>
+</ul>
+<p>That last point is the design constraint worth stating: the CLI, the MCP server and the window are the same engine. A command-line answer and the highlighted chain in the chart cannot disagree, because there is one implementation.</p>
+
+<h2>The 21 tools</h2>
 <table>
 <thead><tr><th>Group</th><th>Tools</th><th>What it is for</th></tr></thead>
 <tbody>
-<tr><td>Project</td><td><code>project_create</code>, <code>project_open</code>, <code>project_save</code></td><td>Open the plan, create one, save it back to disk</td></tr>
-<tr><td>Tasks and WBS</td><td><code>task_add</code>, <code>task_list</code>, <code>task_get</code>, <code>task_update</code>, <code>task_delete</code>, <code>wbs_import</code></td><td>Read and change the structure</td></tr>
+<tr><td>Project</td><td><code>project_create</code>, <code>project_open</code>, <code>project_save</code></td><td>Open a plan, create one, save as</td></tr>
+<tr><td>Tasks and WBS</td><td><code>task_add</code>, <code>task_list</code>, <code>task_get</code>, <code>task_update</code>, <code>task_delete</code>, <code>wbs_import</code></td><td>Read and change the structure, including edges and constraints</td></tr>
 <tr><td>Scheduling</td><td><code>schedule_compute</code>, <code>schedule_critical_path</code></td><td>Turn dependencies into dates and slack</td></tr>
-<tr><td>Violations</td><td><code>violations_list</code></td><td>Cycles, deadline conflicts, out-of-window tasks</td></tr>
+<tr><td>Violations</td><td><code>violations_list</code></td><td>Cycles, deadline conflicts, dates outside the project window</td></tr>
 <tr><td>Write-back</td><td><code>status_update</code>, <code>status_batch_update</code></td><td>Record progress and completion times</td></tr>
 <tr><td>Resources</td><td><code>resource_add</code>, <code>resource_list</code></td><td>People, equipment, materials</td></tr>
-<tr><td>Baselines</td><td><code>baseline_create</code>, <code>baseline_list</code>, <code>baseline_delete</code>, <code>baseline_variance</code>, <code>baseline_set_color</code></td><td>Freeze a schedule, then compare plan and actuals</td></tr>
+<tr><td>Baselines</td><td><code>baseline_create</code>, <code>baseline_list</code>, <code>baseline_delete</code>, <code>baseline_variance</code>, <code>baseline_set_color</code></td><td>Freeze a schedule, then compare plan against actuals</td></tr>
 </tbody></table>
-<p>Twenty-one tools in total. Client setup is one switch per client — Claude Desktop, Claude Code, Cursor, Codex and WorkBuddy — and the switch writes only the <code>mcpServers.kaidoplan</code> key, leaving the rest of the configuration untouched.</p>
+<p>Client setup is one switch per client — Claude Desktop, Claude Code, Cursor, Codex and WorkBuddy — and the switch writes only the <code>mcpServers.kaidoplan</code> key into that client's configuration, leaving the rest of the file byte-identical. The app binary can also run as a stdio server directly (<code>--mcp-stdio</code>), so a client can start it without a separate CLI install.</p>
+
+<h2>A session, end to end</h2>
+<p>What the tool surface looks like when an agent is actually working. Four calls, in this order, and the fourth is the one that is always skipped:</p>
+<ol>
+<li><code>project_open</code> with the file path. Returns <code>formatVersion</code> and whether the file will be upgraded on the next save — worth reading before you let an older client write to a newer plan.</li>
+<li><code>task_list</code> filtered by parent, or <code>project_summary</code>'s CLI equivalent for the aggregate. This is the read that replaces <a href="sync-plan-across-claude-code-sessions.html">the recap paragraph</a>.</li>
+<li><code>status_batch_update</code> with an array of task IDs, statuses and progress. Returns per-entry success and failure: one bad identifier rejects that entry and leaves the rest applied, so a partial write is visible rather than silent.</li>
+<li><code>schedule_compute</code>, then <code>violations_list</code>. The recompute is what turns "I marked it done" into "the date is still valid, or it is not".</li>
+</ol>
+<p>Every write tool persists to disk on its own. <code>project_save</code> exists for explicit saves, save-as, and retrying after a <code>saved:false</code> result — it is not a step the agent has to remember in the normal loop.</p>
 
 <h2>The security model, in three lines</h2>
 <ul>
 <li>Loopback only: the endpoint listens on <code>127.0.0.1</code>, never the LAN or the internet.</li>
 <li>Every request carries a token the app generates locally and shows in its panel.</li>
-<li>Only folders you authorized in that panel are reachable; anything else is refused.</li>
+<li>Only folders you authorised in that panel are reachable; anything else is refused, before the file is opened.</li>
 </ul>
+<p>The server is on by default since v3.4.0, on the loopback address with a token. Turning it off in the panel stops access immediately, and a previous explicit <em>off</em> setting is not overridden by that default change.</p>
 
 <h2>Read versus write</h2>
-<p>The free trial lets an agent read the plan and update task status, actual dates and tasks. Continued use of write-back requires a subscription. Review updates that could move the delivery date.</p>
-<p>If you would rather not add an MCP client, the CLI exposes the same operations from a shell, and the file itself is readable JSON.</p>
+<p>Reading a plan through the server — listing tasks, computing the schedule, listing violations — needs no licence at all. Writing status, actual dates, edges or new tasks back into the plan requires a Pro entitlement, which the 30-day trial grants in full. The split is not arbitrary: the write tools are the operations that can move a delivery date. An agent that can silently rewrite edges can silently rewrite the answer you report to a client.</p>
+<p>If you would rather not add an MCP client at all, the CLI exposes the same operations from a shell, and the file is readable JSON. Nothing about the workflow depends on MCP; it is one of three ways in.</p>
+
+<h2>What it does not do</h2>
+<ul>
+<li><strong>No remote access.</strong> The endpoint is loopback-only by design, so the agent has to run on the same Mac. A hosted agent cannot reach it, and that is the trade for not having an authentication story to get wrong.</li>
+<li><strong>No multi-user coordination.</strong> Two agents writing at once is two writers on one file; the last save wins, including its stale view of everything it did not touch. Serialise the writers.</li>
+<li><strong>No partial-file access.</strong> There is no "give the agent only task 12". It gets the plan it opened, which is why the folder authorisation list matters more than the token.</li>
+</ul>
 <h2>Questions this page does not answer</h2>
 <details><summary>Does it work with a remote or hosted agent?</summary><p>No. The endpoint is loopback-only by design, so the agent has to run on the same Mac.</p></details>
 <details><summary>Is the server on by default?</summary><p>Yes since v3.4.0, on 127.0.0.1 with a token. Turning it off in the panel stops access immediately; a previous explicit <em>off</em> setting is not overridden by the default change.</p></details>

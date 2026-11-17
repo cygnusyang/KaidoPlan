@@ -480,7 +480,7 @@ When a plan earns its keep, and when it does not.
 
 The specific things people search for before they try a planning tool.
 
-- How do I keep a project plan in sync across Claude Code sessions?Short answer: stop keeping the plan in the conversation.
+- How do I keep a project plan in sync across Claude Code sessions?Why a chat summary cannot carry a plan, and the one-writer rule.
 
 - The agent marked every task done — why did the deadline still slip?A boolean status cannot contradict a date — and that is the whole problem.
 
@@ -488,15 +488,15 @@ The specific things people search for before they try a planning tool.
 
 - How do I calculate a critical path on a Mac?Three options on macOS, and where each one breaks.
 
-- How do I break an AI coding project into a WBS?Break it down by what can be verified independently, not by what feels like a phase.
+- How do I break an AI coding project into a WBS?Seven tasks with a check each, and the two fields that make a WBS schedulable.
 
-- How do I track dependencies between tasks an agent executes?Record them as data, not as instructions in a prompt.
+- How do I track dependencies between tasks an agent executes?Four edge types, three tests for a real edge, and why lag is not a task.
 
-- Is there an MCP server for a project plan?Yes — KaidoPlan has one built in.
+- Is there an MCP server for a project plan?The 21 tools, one end-to-end session, and what it deliberately will not do.
 
 - AI-assisted projects miss deadlines — and the arithmetic that catches itThe five failure modes and the four CLI checks that catch them.
 
-- How do I export a delivery report for a client?A delivery report is not a screenshot of a task list.
+- How do I export a delivery report for a client?Four sections, the command behind each number, and what to write when the date slips.
 
 ## Free tools
 
@@ -1422,43 +1422,82 @@ Answer
 
 # How do I keep a project plan in sync across Claude Code sessions?
 
-Short answer: stop keeping the plan in the conversation. Put it in a file, give the agent a documented way to read and write it, and recompute the schedule after every write.
+Short answer: stop keeping the plan in the conversation. A project file, a documented read and write path, and a recompute after every write. The hard part is not the pattern, it is that the plan is a single-writer file and two sessions are two writers.
 
-Updated 2026-11-16 · by cygnus, the developer of KaidoPlan
+Updated 2026-11-17 · by cygnus, the developer of KaidoPlan
 
-## Why sessions drift
+## What a session boundary actually destroys
 
-Each Claude Code session starts with whatever context it was given and ends with a transcript. A plan that lives inside that transcript is lost or partially summarised at the boundary, so the next session rebuilds it from prose — and rebuilds it slightly differently. Two sessions later, two versions of the plan exist and neither is authoritative.
+A session does not lose the plan in one event. It loses four specific things, and each one is small enough that its absence looks like normal working state:
 
-The fix is not a better summary. It is separating the plan from the conversation:
+- Which tasks are done, by identifier. The transcript says "the API is basically finished". The plan says tasks `4A1C` and `7D02` are `done` and `9B44` is `in_progress` with `progress: 0.6`. Only the second can be written back.
 
-- A file owns the plan. Not a chat, not a scratchpad. One file in the repository, with a schema, that outlives every session.
+- When each one completed. A status flag has no time. Without a completion timestamp, nothing downstream can check whether the client work started before the endpoint existed — the exact conflict a status report cannot see.
 
-- The agent reads it at the start of a session. One tool call or one `cat`, not a hand-written recap.
+- Why the edges exist. "The client goes after the API" survives a summary. "The acceptance test is blocked on the migration, which is blocked on the schema freeze" usually does not, and that second chain is the one that sets the date.
 
-- The agent writes to it explicitly. Status, actual dates and new tasks go through defined operations rather than a paragraph asking a human to update a spreadsheet.
+- Whether the dates still add up. The plan that was consistent at 14:00 is not necessarily consistent after a session moves two tasks. Nothing in the transcript recomputes.
 
-- Dates get recomputed after the write. The reason to do 1–3 at all: a write that changes a date can create a conflict, and only a recomputation will say so.
+So the next session does not resume the plan. It reconstructs one from a lossy projection of it, and two reconstructions of the same prose do not agree. Nothing errors. The project simply acquires a second, slightly different schedule that nobody is maintaining.
 
-## What this looks like with KaidoPlan
+## The pattern: make the plan unreachable from the summary
 
-The plan is a single `.kaido` file — plain JSON, `formatVersion` 2 — so a session can read it with nothing installed. With the app running, an MCP server exposes 21 tools over the same file: `task_list` and `project_summary` to read, `status_update` and `status_batch_update` to write back, `schedule_compute` and `violations_list` to check the arithmetic afterwards. The CLI covers the same ground when the app is closed.
+- A file owns the plan. One file in the repository, with a schema and a format version. Not a scratchpad, not a per-session markdown table.
 
-`# start of session
+- The session reads it first, mechanically. One command, not a hand-written recap paragraph that the agent may or may not have been given.
+
+- Progress is written through operations, not prose. Status goes in as data with a completion time, because a paragraph asking a human to update a spreadsheet is not a write path.
+
+- The schedule is recomputed after the write. This is the step that justifies the first three: a write that changes a date can create a conflict, and only a recomputation will report it.
+
+## The loop, with real commands
+
+In KaidoPlan the plan is a single `.kaido` file — plain JSON, `formatVersion` 2, keys sorted, one task object per entry. A session can read it with `cat` and nothing installed.
+
+`# 1. start of session: what is the state, what is the date
 kaidoplan project summary --file plan.kaido
-# after the agent reports progress
-kaidoplan status batch --file plan.kaido --json
+kaidoplan task list --file plan.kaido --json
+
+# 2. after the agent reports progress: write a batch file
+cat > updates.json <<'JSON'
+[{"taskID":"4A1C","status":"done","progress":1},
+{"taskID":"9B44","status":"in_progress","progress":0.6}]
+JSON
+kaidoplan status batch updates.json --file plan.kaido
+
+# 3. the step everyone skips
+kaidoplan schedule compute --file plan.kaido
 kaidoplan violations --file plan.kaido`
 
-Because the file is in the repository, the plan's history is the commit history. A date that moved is a diff you can review, not a claim you have to take on trust.
+Two details matter more than they look. `status batch` returns a per-entry result: a bad identifier rejects that line and leaves the rest of the batch applied, so a partial write is visible rather than silent. And task identifiers accept a unique prefix, which is what makes a batch file practical to have an agent produce.
 
-## The parts that are easy to get wrong
+With the app running, the same three steps are available as MCP tool calls (`project_summary`, `status_batch_update`, `schedule_compute`, `violations_list`) over stdio or the loopback endpoint. The CLI and the app are the same engine, so the two surfaces cannot disagree about the date.
 
-- Letting the agent invent dates. An agent that both plans and executes will optimistically compress durations. Keep the estimates human-owned.
+## Two sessions at once: the honest limitation
 
-- Skipping the recompute. A status write without a schedule recompute is how a plan accumulates silent contradictions.
+The file has no lock. Two sessions writing at the same time is two writers on one document, and the last save wins — including its stale copy of everything it did not touch.
 
-- Keeping a second copy in the handoff file. Two sources of dates diverge; the file that gets opened more wins.
+Git does not save you here either, and it is worth saying why rather than implying version control solves it. The writer normalises the whole document on every save: keys are sorted, empty arrays are still emitted, and the project's `updatedAt` changes each time. A merge of two branches therefore conflicts on the file as a whole far more often than on the two tasks that actually differ. Stable task UUIDs stop an identity from being duplicated; they do not make the text merge cleanly.
+
+The rule that works is boring: one writing session at a time per plan file. Parallel sessions can read freely — reads are cheap and they are how you avoid guessing — but writes get serialised. If you need isolation for a risky change, copy the file, work on the copy, and diff the two plans before you accept one.
+
+## What the file in the repository buys you
+
+- The plan's history is the commit history. A date that moved is a diff with a timestamp and a reason, not a claim to take on trust.
+
+- The session's claim becomes checkable. "Everything is done" is a sentence; `git diff` over the plan shows which identifiers changed and whether any dependency was added to make the schedule close.
+
+- Handoff stops being a document. There is no separate HANDOFF.md to keep in step, because the state the next session needs is the file it already opens.
+
+## Failure modes, in the order they appear
+
+- The agent invents dates. An agent that both plans and executes compresses durations, because "how long will this take" is answered optimistically by default. Keep estimates human-owned; let the agent own execution and reporting.
+
+- The recompute is skipped when nothing "seems" to have changed. A status write moves a completion time, which can pull a successor earlier and shorten the critical path. Fifty percent of plan corruption is one skipped recompute a day for a week.
+
+- A second copy lives in the handoff file. Two sources of dates diverge, and the one that gets opened more often wins — which is not the one that is correct.
+
+- Status is written as one big update at the end of the session. Batch it per work unit instead: a batch at the end of a long session is a batch written from memory, and memory is the thing you were trying to stop relying on.
 
 ## Questions this page does not answer
 
@@ -1765,61 +1804,97 @@ Answer
 
 # How do I calculate a critical path on a Mac?
 
-Use a tool that reads the dependency graph and recomputes the chain whenever a date changes. On macOS that means three options: a planner built around dependencies, a general project management app, or a spreadsheet. Only the first one keeps the answer correct after the third edit.
+The algorithm is the same on every platform: a forward pass, a backward pass, and the zero-slack chain that comes out of the difference. What differs on a Mac is where the plan lives and whether an agent can read it — which decides how often the number is still correct.
 
 Updated 2026-11-17 · by cygnus, the developer of KaidoPlan
 
-## The three options on macOS
+## What you are actually choosing between
 
-- A planner that computes the chain itself. You enter tasks, durations and dependencies; the tool runs a forward and backward pass and highlights the zero-slack chain. The answer updates when any input changes.
+There is no macOS-specific critical path method. Earliest start, earliest finish, latest start, latest finish, slack — that arithmetic was settled before personal computers existed, and a Mac computes it no differently from anything else.
 
-- A general project management app. Many of them compute a critical path. They are built around team collaboration and boards, so the dependency editor is usually a secondary screen and the schedule is derived from assignments rather than from the graph.
+So the real question is not "which app has the algorithm". It is "which setup still gives the right answer after the third edit, when a task duration changed and two dependencies moved". That is a data-model question, and on macOS it has three answers with very different failure modes.
 
-- A spreadsheet. Free, and correct for a plan with a handful of tasks and a single chain. It stops being correct as soon as the graph branches, because you have to describe the calculation in formulas and keep them in a valid order.
+Route
 
-There is no macOS-specific algorithm here. The calculation is the same on every platform. What differs on a Mac is where the plan lives and who can read it, which matters more than it sounds when AI agents are part of the work.
+What it costs
 
-## Doing it by hand, and where it breaks
+Where it breaks
 
-The manual version is two passes over the graph:
+A planner built around dependencies
 
-- Forward pass. For each task in dependency order, earliest start is the latest earliest finish among its predecessors; earliest finish is earliest start plus duration.
+Learning one tool; the plan becomes a file you own
 
-- Backward pass. From the project end backwards, latest finish is the earliest latest start among its successors; latest start is latest finish minus duration.
+Nothing structural. The risk is a plan with no edges, which is a WBS pretending to be a schedule
 
-- Slack. Latest start minus earliest start. Zero means the task is on the critical path.
+A general project management app
 
-This is correct and it is also where most hand calculations go wrong, in three specific ways:
+An account, a subscription, a browser tab
 
-- Order matters and is invisible in a spreadsheet. A row that reads a value not yet recalculated returns a stale number, quietly. The error shows up as a plausible plan, not as an error.
+The dependency editor is a secondary screen, and dates often derive from assignments rather than from the graph
 
-- A task with two successors needs the minimum, not the first one you look at. Missing the second successor makes a critical task look slack.
+A spreadsheet
 
-- Constraints are not part of the textbook algorithm. A fixed delivery date, a task that cannot start before a date, or a calendar with non-working days has to be folded in, and a spreadsheet has no place to put it.
+Free, and correct for one straight chain
 
-You can run both passes on your own numbers in the free online critical path calculator — it shows ES, EF, LS, LF and total float for every task and highlights the zero-slack chain in red on the chart.
+Recalculation order you did not choose; second successors; calendars and fixed deadlines have nowhere to live
 
-## Running it locally on a Mac
+## Doing the two passes by hand
 
-KaidoPlan is a macOS app that keeps the WBS, the dependency edges and the dates in one local `.kaido` file — plain JSON, no database, no account. The schedule engine computes the critical path, total and free slack, and reports violations: date conflicts, dependency cycles and tasks scheduled outside their allowed window.
+Worth knowing even if you never do it by hand, because it tells you what to distrust in any tool's output:
 
-The same calculation is available without opening a window:
+- Forward pass. In dependency order, earliest start is the latest earliest finish among predecessors; earliest finish is earliest start plus duration.
 
-`kaidoplan schedule path --file plan.kaido`
+- Backward pass. From the project end, latest finish is the earliest latest start among successors; latest start is latest finish minus duration.
 
-The CLI and the MCP server are the same engine the app uses, so a command-line answer and the highlighted chain in the Gantt chart cannot disagree. Both are read-only without a licence; writing task status, actual dates or new tasks back into the plan needs Pro.
+- Slack. Latest start minus earliest start. Zero means the task sets the end date.
 
-## Why "on a Mac" changes the answer
+The calculation is four lines. The errors are not in the calculation.
 
-For a local-first tool the platform question is mostly a data question. Three consequences that do not apply to a web planner:
+## Why a spreadsheet is right until it is silently wrong
 
-- The file is yours. A `.kaido` plan can be diffed, reviewed in a pull request, or kept next to the code it describes. There is no export step and no vendor copy of the schedule.
+Take three tasks: Schema (2 days), Migration (3 days, depends on Schema), Backfill (1 day, depends on Migration). Row 2 reads row 1, row 3 reads row 2. Change Schema from 2 to 4 and a spreadsheet either recalculates in the right order or it does not — and if it does not, the cell shows a number that is plausible, not an error.
 
-- Agents read the same file. Claude Code, Codex and other MCP clients read the plan through stdio; the plan does not have to be synchronised into a service first.
+Three specific traps, all of which produce a believable plan rather than a broken one:
 
-- No connection, no account. The 30-day trial requires neither. When it ends the app drops to the free tier — the whole planning workbench, AI read-only, and three delivery-report exports a month — it does not stop.
+- Recalculation order is invisible. A cell that reads a value not yet recomputed returns the old value. There is no warning, because a stale number is a number.
 
-The trade-off is stated plainly on the product page: this is a single-user local tool. There is no real-time multi-user editing, no cloud sync, and no Windows or Linux build. Sharing a plan with another person means sending the file.
+- Two successors need a `MIN`, not the first one you looked at. Miss the second successor and a task on the critical path reports positive slack — the most expensive possible mistake, because it is the one that makes a late project look safe.
+
+- Constraints are outside the textbook algorithm. A fixed demo date, a reviewer who is away until the 12th, a calendar with non-working days: each has to be folded in by hand, and a spreadsheet has no column that means "this edge cannot start before a date".
+
+If you want to see the two passes run on your own numbers without building the formulas, the browser calculator shows ES, EF, LS, LF and total float per task and highlights the zero-slack chain. It runs locally; nothing is uploaded.
+
+## What to check before trusting any number
+
+- Is there an edge list, or only dates? A plan with dates and no dependencies has no critical path. It has a wish with columns.
+
+- Does the tool recompute, or does it store what you typed? If a duration change does not move the finish date, you are looking at a table, not a schedule.
+
+- Does it report conflicts? An optimistic plan can be internally inconsistent: a task finishing after its successor started. A tool that cannot name that will let you present it.
+
+- Can you see slack per task, not just the highlighted chain? The chain tells you what to protect today. Slack tells you where the next chain will come from.
+
+## On macOS specifically: local-first changes three things
+
+KaidoPlan keeps the WBS, the edges and the dates in one local `.kaido` file — plain JSON, no database, no account. That is a platform decision with consequences that a web planner cannot offer:
+
+- The file is yours. It can be diffed, reviewed in a pull request, or kept next to the code it describes. There is no export step and no vendor copy of your schedule.
+
+- Agents read the same file. Claude Code, Cursor, Codex and other MCP clients read the plan over stdio, so the schedule does not have to be synchronised into a service before an agent can see it.
+
+- No connection, no account. The 30-day trial needs neither. When it ends the app drops to the free tier — the planning workbench, AI read access, and three delivery-report exports a month — rather than locking the file.
+
+The same computation is available from a terminal, which is what makes it usable inside an agent loop:
+
+`kaidoplan schedule compute --file plan.kaido
+kaidoplan schedule path --limit 2 --file plan.kaido
+kaidoplan violations --file plan.kaido`
+
+`schedule path` returns the tasks whose total slack is within the limit, so `--limit 2` answers "what has two days or less of room" rather than only naming the zero-slack chain. Reading plans and running the schedule needs no licence; writing status, actual dates or new tasks back needs Pro.
+
+## The limitation, stated plainly
+
+This is a single-user local tool. There is no real-time multi-user editing, no cloud sync, and no Windows or Linux build. Sharing a plan with another person means sending the file. If the requirement is four people editing one schedule simultaneously, the right answer is a hosted tool, and the cost you accept is that the schedule lives in someone else's database.
 
 ## Questions this page does not answer
 
@@ -1857,42 +1932,119 @@ Answer
 
 # How do I break an AI coding project into a WBS?
 
-Break it down by what can be verified independently, not by what feels like a phase. The test of a good task is that someone can say whether it is done without reading the code.
+Break it down by what can be checked without reading the code. The unit is not a phase and not a file — it is the smallest piece of work whose completion is a fact rather than an opinion.
 
-Updated 2026-11-16 · by cygnus, the developer of KaidoPlan
+Updated 2026-11-17 · by cygnus, the developer of KaidoPlan
 
-## The unit of breakdown: verification, not activity
+## The wrong unit, and why it feels right
 
-Most WBS advice divides projects by activity — design, build, test, ship. That is a reporting structure, not a work structure. For a project executed by an agent, the useful unit is the smallest piece of work whose completion can be checked by a fact rather than an opinion: a route that responds, a migration that applies, a report that totals correctly.
+Standard WBS advice divides by activity: design, build, test, ship. For a human team that is a reporting structure — it maps to who reports to whom and what a status meeting can ask about.
 
-Three rules follow:
+For a project executed by an agent it is close to useless, for one reason: an agent produces no social signal that a phase has ended. There is no "the build phase feels done". There is a diff, a failing test, and a file that either parses or does not. So the unit of breakdown has to be something a machine and a reviewer can both check:
 
-- If you cannot describe the check, the task is not small enough. "Improve the importer" has no check; "import a 1PUX export with attachments and reconcile the item count" does.
+A task is well-sized when someone can say whether it is done without reading the implementation.
 
-- Separate planning from execution in the structure. The estimate is a human judgement; making the agent produce both the task and its duration is how plans become optimistic.
+"Improve the importer" fails that test. "Import a 1PUX export with attachments and reconcile the item count against the file" passes it: the item count either matches or it does not.
 
-- Model groups and milestones, not just tasks. Groups carry the hierarchy reviewers need; milestones are the points where someone other than the author has to agree.
+## What that looks like in practice
 
-## A shape that works
+A single feature — CSV import — broken down this way. Every row has a check and a duration, which is the whole point; the check is what stops the task drifting, and the duration is what lets the plan compute a date.
 
-- Acceptance criteria first. What has to be true on the delivery date, in observable terms.
+Task
 
-- Chains that end at a milestone. Group tasks so each group produces one verifiable milestone, then connect the milestones.
+Done when
 
-- Integration and review as their own tasks. They are the ones that get eaten when the plan is compressed, and they are the ones whose loss shows up as a late project.
+Days
 
-- Effort estimates in hours or days, per task. Coarse is fine; absent is not, because without estimates there is no schedule to compute.
+Document the column contract
 
-## Getting it into the tool
+Three fixture files (clean, quoted, malformed) validate against the written spec
 
-If the breakdown already exists as a nested outline, import it rather than retyping: `wbs_import` turns a nested task tree into the plan. Then add the dependencies — that step is where the real design work happens, because a WBS without edges cannot produce a critical path.
+0.5
 
-`kaidoplan wbs import --file plan.kaido
-kaidoplan schedule compute --file plan.kaido`
+Parser plus error cases
+
+Five fixtures pass; a malformed file returns an error naming the row number
+
+1
+
+Migration for the import table
+
+Applies to a copy of production and rolls back cleanly
+
+0.5
+
+Upload endpoint
+
+A 10k-row file returns a job id, and the stored row count equals the file's
+
+1.5
+
+Progress and cancel
+
+Cancelling mid-import leaves no partial rows behind
+
+1
+
+Reconciliation report
+
+Rows in the database equal file rows minus rejected rows, on all three fixtures
+
+1
+
+Integration test and review
+
+CI green on the fixture set, and a second reader signs the diff off
+
+0.5
+
+Six days of work, seven tasks, and each one is a yes-or-no question afterwards. Notice what the breakdown did not do: it did not create a task called "backend" that swallows four of these and reports 80% for a week.
+
+## The shape, in order
+
+- Acceptance criteria first. What is observably true on the delivery date. Written before the tasks, because it decides what the tasks are.
+
+- Chains that end at a milestone. Group tasks so each group produces one checkable milestone, then connect the milestones. A milestone is where someone other than the author has to agree — that is what makes it worth having.
+
+- Integration and review as their own tasks. They are the first things eaten when a plan is compressed, they are routinely estimated at zero because they feel like a formality, and their disappearance is what a late project looks like from a week away.
+
+- A duration on every task. Coarse is fine — half a day, a day, three days. Absent is not: without durations there is no schedule to compute, only a list with a hopeful date stapled to it.
+
+## The two fields that make it schedulable
+
+A WBS on its own is a tree. A tree has no dates. What turns it into a schedule is edges and durations, and most of the design work is in the edges, because an edge is a claim about the world:
+
+- Parser cannot start before the contract is written (finish-to-start).
+
+- Upload endpoint cannot start before the migration applies.
+
+- Reconciliation needs both the endpoint and the parser.
+
+If you cannot state the edge in that form — "X cannot start before Y finishes" — it is probably not an edge. "Related to" is not a dependency, and adding it makes the critical path fiction.
+
+If the breakdown already exists as a nested outline, import it rather than retyping. The CLI takes a JSON tree of `title`, optional `kind` (`task`, `group`, `milestone`), `durationDays` or `effortHours`, and `children`:
+
+`kaidoplan wbs import wbs.json --file plan.kaido
+kaidoplan schedule compute --file plan.kaido
+kaidoplan violations --file plan.kaido`
+
+Import carries structure, kinds and estimates. It does not carry dependencies — there is no edge in the JSON, by design, because an outline does not know them. Adding the edges is the next step and the one that cannot be automated from a document.
 
 ## The failure to avoid
 
-An agent generates sixty tasks in a flat list with no dependencies and no estimates. It looks like thorough planning and it is unusable: nothing can be scheduled, nothing can be checked, and the only thing it supports is the illusion that the project is understood.
+An agent asked for a WBS returns sixty tasks in a flat list: no groups, no edges, no durations, phrased as verbs. It reads as thorough work and it is unusable, in a specific way:
+
+- Nothing can be scheduled. No durations means no forward pass; no edges means no chain; no chain means no date.
+
+- Nothing can be checked. "Implement authentication" is not done or not done, it is "mostly there".
+
+- The volume creates false confidence. Sixty items looks like a plan understood in detail. It is a transcript of what the agent would do next, written in the grammar of a plan.
+
+The correction is not to ask for fewer tasks. It is to ask for the check alongside each one, then delete every task whose check you cannot state. In practice that removes about a third of them and the remaining forty are schedulable.
+
+## How many is too many
+
+A practical ceiling for a solo project is the point where you can no longer name the critical path from memory — usually a few dozen tasks. Beyond that, groups should hide the detail: you review the milestone, and open the group only when its date moves. A WBS whose purpose is to be read in full is a document; a WBS whose purpose is to be computed is a schedule. You only get one of those.
 
 ## Questions this page does not answer
 
@@ -1926,63 +2078,133 @@ Answer
 
 # How do I track dependencies between tasks an agent executes?
 
-Record them as data, not as instructions in a prompt. A dependency in a chat message is a suggestion; a dependency in the plan is an edge the scheduler will enforce.
+Record them as data in the plan file, not as instructions in a prompt. A dependency stated in chat survives one session; an edge in the plan survives the session, can be checked, and produces a date.
 
-Updated 2026-11-16 · by cygnus, the developer of KaidoPlan
+Updated 2026-11-17 · by cygnus, the developer of KaidoPlan
 
-## Two kinds of dependency, one place to keep them
+## Two kinds of constraint, one place to keep them
 
-Hard dependencies are structural: the acceptance test cannot run before the endpoint exists. Constraints are calendar facts: the security review cannot start before the 12th because the reviewer is away. Both affect the schedule, and both belong in the plan.
+Projects confuse two things that both affect dates but behave differently:
 
-Kind
+- A dependency is structural: the acceptance test cannot run before the endpoint exists. It propagates dates and it creates the chain.
+
+- A constraint is a calendar fact: the security review cannot start before the 12th because the reviewer is away. It does not propagate; it clips.
+
+Both belong in the plan, and both have a written form. What does not belong is either one living only in a message.
+
+Form
 
 Example
 
-What it changes
+Effect on the schedule
 
-Finish-to-start
+Finish-to-start (`fs`)
 
 Client integration starts when the server task ends
 
-Propagates dates; creates the chain
+Propagates the finish date downstream; creates the chain
 
-Lag
+Start-to-start (`ss`)
 
-Two days of review after the build
+Docs writing starts when the API design starts, one day later
 
-Adds duration to the edge rather than the task
+Links starts; the pair can overlap
 
-Start no earlier than
+Finish-to-finish (`ff`)
 
-A review that cannot begin before a date
+Load test cannot finish before the last migration finishes
+
+Links finishes without forcing a start order
+
+Lag on an edge
+
+Two days of cooling-off after the build
+
+Adds time to the edge, not to the task
+
+Constraint: start no earlier than
+
+Review cannot begin before 2026-12-12
 
 Delays the task; can push the end date
 
-Finish no later than
+Constraint: end no later than
 
 A demo that cannot slip
 
-Creates a deadline conflict when violated
+Turns a slip into a reported conflict instead of a surprise
 
-## Why prompts are the wrong storage
+## Three tests for whether an edge is real
 
-Telling an agent "do the API first, then the client" works for one session. It does not survive the session, it cannot be checked, and it silently disappears when the conversation is summarised. A dependency stored in the plan survives everything, and — the part that matters — the scheduler can prove that the resulting dates are consistent with it.
+Most bad schedules are not missing edges. They are invented ones — and an invented edge is worse than a missing one, because it changes the critical path while looking like rigour.
 
-`kaidoplan task update --file plan.kaido
+- Can you say it as a sentence with "cannot"? "The migration cannot start before the schema freeze." If the sentence is "it would be better if", it is a preference, and preferences belong in notes.
+
+- Does work actually wait? An edge means a task sits idle until another completes. If a task could plausibly start and be corrected later, it is not blocked; it is coupled, which is different.
+
+- Would removing it change the date? Not always — plenty of real edges are off the critical path. But if removing it changes nothing and nobody can name who waits, the edge is decoration.
+
+## Lag is not a task
+
+Two days of review after a build can be modelled two ways, and the choice changes who is accountable:
+
+- As a lag (`--dep <build-id>:fs:2`): the edge carries two days. The schedule is right and the review is invisible. Nobody is assigned, nothing can be marked done, and no report mentions it.
+
+- As a task with a duration of two days: the review appears in the WBS, gets an owner, can be blocked, and shows up in the critical path when it becomes the constraint.
+
+Use lag for time that is genuinely passive — a bake period, a vendor turnaround you cannot influence. Use a task for anything a person or an agent has to do. The tell is simple: if someone could be late, it is a task.
+
+## Why a prompt is the wrong storage
+
+"Do the API first, then the client" works for one session and then stops existing. Concretely, over two sessions:
+
+- Session one is told the order and complies. The transcript records the instruction.
+
+- The session ends. The next one opens with a summary — "API done, moving to client" — which preserves the sequencing as a fact but not as a constraint.
+
+- Session two hits a blocked API endpoint, so it starts the client work in parallel and fixes the mismatch later. Every individual status is true. The plan is now inconsistent with the order it was supposed to follow.
+
+An edge in the plan survives step 2, and — the part that matters — the scheduler can prove the resulting dates are consistent with it. That proof is the entire difference between a plan and a description of a plan.
+
+`# the edge: client integration cannot start before the server task finishes
+kaidoplan task update 9B44 --dep 4A1C:fs --file plan.kaido
+
+# the constraint: the review cannot begin before 12 December
+kaidoplan task update C710 --constraint startNoEarlierThan:2026-12-12 --file plan.kaido
+
+# now make the schedule answer for it
 kaidoplan schedule compute --file plan.kaido
 kaidoplan violations --file plan.kaido`
 
-After the edges are in, a cycle is reported rather than discovered later, and a task scheduled before its predecessor ends is a violation instead of a surprise.
+`--dep` takes `<predecessor>[:type[:lag]]`, defaults to `fs` with no lag, and repeats, so one command can add several predecessors. Identifiers accept a unique prefix. Both flags work on `task add` as well, which is the better habit: create the task with its edges rather than adding them later from memory.
+
+## What a cycle looks like, and why it is reported
+
+A cycle means a piece of work can never start, because starting it requires finishing it. Two ways this appears in real plans: a template copied twice, and a dependency added during a parallelisation pass that points backwards into the chain.
+
+The failure is correct behaviour, not a bug: the schedule cannot be computed, and the cycle is named as a violation. What you must not do is delete the edge that is hardest to justify and move on — a cycle usually means two tasks were merged conceptually and one of them should not exist.
+
+Beyond cycles, violations name the four classes of inconsistency a status report cannot see:
+
+- Negative slack: a constraint cannot be met by the current plan, so the deadline is already broken.
+
+- Constraint against dependency: the calendar says "not before the 12th" and the network says "must finish by the 10th". One of the two inputs is wrong.
+
+- Window violations: a task scheduled before the project start or after its end.
+
+- Manual start conflicts: a pinned date that contradicts the graph.
 
 ## Practical discipline
 
-- One edge, one reason. If you cannot state why the dependency exists, delete it. Invented edges make the critical path fiction.
+- One edge, one reason. If you cannot state why it exists, delete it. This is the single cheapest improvement available to most plans.
 
-- Do not model "related to". Undirected relations are not dependencies and add noise to the schedule.
+- Do not model "related to". Undirected relations are not dependencies and add noise to every downstream number.
 
-- Re-check after parallelisation. Splitting work changes the graph; the critical path you knew last week may no longer be the constraint.
+- Guard the edges, not the dates. Pinning dates hides the problem; getting the edges right lets the date be computed, and a computed date can be defended in a review.
 
-- Keep the graph in the repository. The plan is a file, so the dependency structure is reviewable in a diff — which is the only way a second person can audit it.
+- Re-check after parallelising. Splitting work changes the graph. The chain you knew last week may no longer be the constraint, and the new one is usually the integration step nobody scheduled.
+
+- Keep the graph in the repository. The plan is a file, so the dependency structure is reviewable in a diff — the only way a second person can audit it without reading a dashboard.
 
 ## Questions this page does not answer
 
@@ -2016,13 +2238,23 @@ Answer
 
 # Is there an MCP server for a project plan?
 
-Yes — KaidoPlan has one built in. 21 tools over stdio or a loopback HTTP endpoint, covering tasks, dependencies, resources, baselines, scheduling and violation checks.
+Yes — KaidoPlan has one built in. 21 tools over stdio or a loopback endpoint, covering tasks, dependencies, resources, baselines, scheduling and violation checks. Every write tool persists on its own; there is no save step to forget.
 
-Updated 2026-11-16 · by cygnus, the developer of KaidoPlan
+Updated 2026-11-17 · by cygnus, the developer of KaidoPlan
 
-## What the server exposes
+## What MCP actually buys over parsing the file
 
-The plan is a local file; the MCP server is a second surface on the same data, so an agent can ask questions and make changes without parsing JSON by hand.
+The plan is already plain JSON, so an agent could read it with `cat` and write it with a text editor. That works for reading and is a bad idea for writing, for three reasons that have nothing to do with convenience:
+
+- Writing a consistent document is harder than reading one. A status change also moves the project's `updatedAt`, may need to record a completion time, and may invalidate dates downstream. Hand-editing JSON gets the field right and the consequences wrong.
+
+- A tool call can fail loudly. `task_update` with an unknown identifier returns an error. A careful string edit with the wrong UUID returns a file that parses perfectly and contains a dependency pointing at nothing.
+
+- Some answers are computed, not stored. The critical path is not a field in the file. An agent reading the JSON can see durations and edges and still get the chain wrong — the schedule engine cannot, because it is the thing the app's Gantt chart also calls.
+
+That last point is the design constraint worth stating: the CLI, the MCP server and the window are the same engine. A command-line answer and the highlighted chain in the chart cannot disagree, because there is one implementation.
+
+## The 21 tools
 
 Group
 
@@ -2034,13 +2266,13 @@ Project
 
 `project_create`, `project_open`, `project_save`
 
-Open the plan, create one, save it back to disk
+Open a plan, create one, save as
 
 Tasks and WBS
 
 `task_add`, `task_list`, `task_get`, `task_update`, `task_delete`, `wbs_import`
 
-Read and change the structure
+Read and change the structure, including edges and constraints
 
 Scheduling
 
@@ -2052,7 +2284,7 @@ Violations
 
 `violations_list`
 
-Cycles, deadline conflicts, out-of-window tasks
+Cycles, deadline conflicts, dates outside the project window
 
 Write-back
 
@@ -2070,9 +2302,23 @@ Baselines
 
 `baseline_create`, `baseline_list`, `baseline_delete`, `baseline_variance`, `baseline_set_color`
 
-Freeze a schedule, then compare plan and actuals
+Freeze a schedule, then compare plan against actuals
 
-Twenty-one tools in total. Client setup is one switch per client — Claude Desktop, Claude Code, Cursor, Codex and WorkBuddy — and the switch writes only the `mcpServers.kaidoplan` key, leaving the rest of the configuration untouched.
+Client setup is one switch per client — Claude Desktop, Claude Code, Cursor, Codex and WorkBuddy — and the switch writes only the `mcpServers.kaidoplan` key into that client's configuration, leaving the rest of the file byte-identical. The app binary can also run as a stdio server directly (`--mcp-stdio`), so a client can start it without a separate CLI install.
+
+## A session, end to end
+
+What the tool surface looks like when an agent is actually working. Four calls, in this order, and the fourth is the one that is always skipped:
+
+- `project_open` with the file path. Returns `formatVersion` and whether the file will be upgraded on the next save — worth reading before you let an older client write to a newer plan.
+
+- `task_list` filtered by parent, or `project_summary`'s CLI equivalent for the aggregate. This is the read that replaces the recap paragraph.
+
+- `status_batch_update` with an array of task IDs, statuses and progress. Returns per-entry success and failure: one bad identifier rejects that entry and leaves the rest applied, so a partial write is visible rather than silent.
+
+- `schedule_compute`, then `violations_list`. The recompute is what turns "I marked it done" into "the date is still valid, or it is not".
+
+Every write tool persists to disk on its own. `project_save` exists for explicit saves, save-as, and retrying after a `saved:false` result — it is not a step the agent has to remember in the normal loop.
 
 ## The security model, in three lines
 
@@ -2080,13 +2326,23 @@ Twenty-one tools in total. Client setup is one switch per client — Claude Desk
 
 - Every request carries a token the app generates locally and shows in its panel.
 
-- Only folders you authorized in that panel are reachable; anything else is refused.
+- Only folders you authorised in that panel are reachable; anything else is refused, before the file is opened.
+
+The server is on by default since v3.4.0, on the loopback address with a token. Turning it off in the panel stops access immediately, and a previous explicit off setting is not overridden by that default change.
 
 ## Read versus write
 
-The free trial lets an agent read the plan and update task status, actual dates and tasks. Continued use of write-back requires a subscription. Review updates that could move the delivery date.
+Reading a plan through the server — listing tasks, computing the schedule, listing violations — needs no licence at all. Writing status, actual dates, edges or new tasks back into the plan requires a Pro entitlement, which the 30-day trial grants in full. The split is not arbitrary: the write tools are the operations that can move a delivery date. An agent that can silently rewrite edges can silently rewrite the answer you report to a client.
 
-If you would rather not add an MCP client, the CLI exposes the same operations from a shell, and the file itself is readable JSON.
+If you would rather not add an MCP client at all, the CLI exposes the same operations from a shell, and the file is readable JSON. Nothing about the workflow depends on MCP; it is one of three ways in.
+
+## What it does not do
+
+- No remote access. The endpoint is loopback-only by design, so the agent has to run on the same Mac. A hosted agent cannot reach it, and that is the trade for not having an authentication story to get wrong.
+
+- No multi-user coordination. Two agents writing at once is two writers on one file; the last save wins, including its stale view of everything it did not touch. Serialise the writers.
+
+- No partial-file access. There is no "give the agent only task 12". It gets the plan it opened, which is why the folder authorisation list matters more than the token.
 
 ## Questions this page does not answer
 
@@ -2310,36 +2566,123 @@ Answer
 
 # How do I export a delivery report for a client?
 
-A delivery report is not a screenshot of a task list. It answers three questions in order: what is the date, what decides it, and what changed since the last report.
+A delivery report is not a screenshot of a task list. It is an argument with four parts, and every number in it should be reproducible from the plan file the client can be handed.
 
-Updated 2026-11-16 · by cygnus, the developer of KaidoPlan
+Updated 2026-11-17 · by cygnus, the developer of KaidoPlan
 
-## What belongs in the report
+## Four sections, in this order
 
-- The computed finish date, not the date someone hoped for.
+Order matters because each section depends on the one before it. A report that opens with percentages has already lost the argument.
 
-- The critical path — the chain that produces that date, named by task.
+- The computed finish date. Not the date someone hoped for, and not a range invented for safety. The number the schedule produces from the current durations and edges.
 
-- Violations, including ones that are still open. A report that hides an open conflict is a report that will be contradicted next week.
+- The chain that produces it. The critical path, named by task. This is the load-bearing section: it converts "trust me" into "these three tasks decide the date, and here they are".
 
-- Variance against a baseline: planned versus actual per milestone, so "on track" is a measurement.
+- Open violations. Conflicts, cycles, tasks outside the project window. A report that hides an open conflict is a report that will be contradicted next week, by the person who reads the plan themselves.
 
-## Exporting
+- Variance against a baseline. Planned versus actual per milestone, so that "on track" is a measurement rather than an adjective.
 
-Preview and export delivery reports from the workbench. You can export as many reports as you need during the trial and with an active subscription. Use the preview to verify the numbers before you send a report.
+## What a section 1–4 report looks like
 
-If you want the same content without a document, the numbers come from the CLI:
+Milestone
 
-`kaidoplan schedule compute --file plan.kaido
-kaidoplan schedule path --file plan.kaido
-kaidoplan violations --file plan.kaido
-kaidoplan baseline variance --file plan.kaido`
+Baseline finish
 
-## The habit that makes reports cheap
+Computed finish
 
-Take a baseline at the start of each reporting period. Then the report is a comparison — plan against actual — instead of a narrative written from memory. It also removes the most common argument in a delivery review: whether the date "changed" or was always wrong.
+Variance
 
-Keep the plan in the repository and the report has a source you can point at. That is a stronger position than a slide deck nobody can audit.
+Import pipeline accepted
+
+2026-11-21
+
+2026-11-21
+
+0 days
+
+Reconciliation report signed off
+
+2026-11-27
+
+2026-11-28
+
++1 day
+
+Handover to operations
+
+2026-12-04
+
+2026-12-08
+
++4 days
+
+Then the sentence that makes the table useful: "The four days are on the reconciliation chain — the fixture set took a day longer than planned, and the handover rehearsal is serialised behind it." That is a report. The table alone is a spreadsheet, and the percentage-complete column that usually accompanies it says nothing about the date.
+
+Note what the middle row does to the last: a one-day slip upstream becomes four days at the end, because the tasks after it have no slack. This is the single most common thing a client does not believe until they see the chain.
+
+## Where each number comes from
+
+Every figure in the report is one command away, which is what makes it auditable rather than asserted:
+
+Report line
+
+Command
+
+Computed finish date
+
+`kaidoplan schedule compute --file plan.kaido`
+
+The deciding chain, with slack
+
+`kaidoplan schedule path --file plan.kaido`
+
+Open violations
+
+`kaidoplan violations --file plan.kaido`
+
+Variance per milestone
+
+`kaidoplan baseline variance --baseline <id> --file plan.kaido`
+
+The same variance as data
+
+`kaidoplan baseline variance --baseline <id> --csv variance.csv --file plan.kaido`
+
+The `--csv` form is the one worth knowing about if the client wants the numbers in their own tracker: it writes the per-task variance rows to a file instead of printing them, and the project-level totals stay identical to what the report shows.
+
+## Preview before you send
+
+If you want the habit before the report, the five-minute delivery check is the same four numbers in a smaller loop. The app's workbench previews the delivery report before export, which is the cheapest place to catch a number that contradicts the text you wrote around it. Export is unlimited during the trial; on the free tier it is three reports a month, with the rest of the planning workbench intact.
+
+## The baseline habit that makes reports cheap
+
+Take a baseline at the start of each reporting period — `kaidoplan baseline create --name "Sprint 12 start" --file plan.kaido`. From then on the report is a comparison, not a narrative written from memory.
+
+It also removes the most common argument in a delivery review: whether the date changed or was always wrong. With a baseline the question has a diff answer. Without one, both sides are describing their recollection of a document, and the person who is more senior usually wins.
+
+Two rules for baselines, learned the hard way:
+
+- Baseline after you accept a change, not before. A baseline taken mid-negotiation freezes a schedule nobody agreed to.
+
+- Keep them. A baseline you deleted is a variance you cannot compute, and the period it covered becomes unauditable retroactively.
+
+## What to leave out
+
+- Percentage complete, as a headline. Forty tasks at 70% tells the reader nothing about the date, and it invites the question "so are we on track", which is the question the report exists to answer without being asked.
+
+- Task counts. "38 of 52 done" is a volume metric. The date is set by the zero-slack chain, which is usually two or three tasks.
+
+- Any number you cannot reproduce. If a figure in the report does not come from a command in the plan, it is a claim wearing a table's clothing, and the first technical reader will find it.
+
+## When the number is bad
+
+The report is most valuable on the week the date moves, and that is the week people rewrite it. The structure that survives a bad number is the same structure as always, with one added paragraph at the top:
+
+The delivery date is now 8 December, four days later than the baseline of 4 December. The change is on the reconciliation chain: the fixture set took a day longer, and the handover rehearsal is serialised behind it. To recover the four days, either the rehearsal moves in parallel with sign-off, or the fixture scope drops to the two formats that matter.
+
+Date, cause, options. No apology and no optimism. A client who receives that in week two trusts the next report; a client who receives "still on track" for six weeks and then a four-week slip does not, and the arithmetic was available the whole time.
+
+Keep the plan in the repository and the report has a source you can point at — a commit, a baseline and a diff. That is a stronger position than a slide deck nobody can audit, and it is the difference between reporting a schedule and defending one.
 
 ## Questions this page does not answer
 

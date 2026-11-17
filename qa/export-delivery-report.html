@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>How to export a delivery report from a project plan</title>
-<meta name="description" content="What a delivery report should contain, how to preview it, and how KaidoPlan exports it.">
+<meta name="description" content="A delivery report answers three questions in order: what the date is, what decides it, and what changed since last time. What belongs in each section, which command produces each number, and how to write the paragraph when the number is bad.">
 <link rel="canonical" href="https://kaidoplan.cygnusyang.top/qa/export-delivery-report.html">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="KaidoPlan">
 <meta property="og:title" content="How to export a delivery report from a project plan">
-<meta property="og:description" content="What a delivery report should contain, how to preview it, and how KaidoPlan exports it.">
+<meta property="og:description" content="A delivery report answers three questions in order: what the date is, what decides it, and what changed since last time. What belongs in each section, which command produces each number, and how to write the paragraph when the number is bad.">
 <meta property="og:url" content="https://kaidoplan.cygnusyang.top/qa/export-delivery-report.html">
 <meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
 <meta property="og:locale" content="en_US">
@@ -23,10 +23,10 @@
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "How do I export a delivery report for a client?",
-  "description": "What a delivery report should contain, how to preview it, and how KaidoPlan exports it.",
+  "description": "A delivery report answers three questions in order: what the date is, what decides it, and what changed since last time. What belongs in each section, which command produces each number, and how to write the paragraph when the number is bad.",
   "url": "https://kaidoplan.cygnusyang.top/qa/export-delivery-report.html",
-  "datePublished": "2026-11-16",
-  "dateModified": "2026-11-16",
+  "datePublished": "2026-11-17",
+  "dateModified": "2026-11-17",
   "inLanguage": "en",
   "author": {
     "@type": "Person",
@@ -97,27 +97,65 @@
 <main class="prose" id="main">
 <p class="kicker">Answer</p>
 <h1>How do I export a delivery report for a client?</h1>
-<p class="dek">A delivery report is not a screenshot of a task list. It answers three questions in order: what is the date, what decides it, and what changed since the last report.</p>
-<p class="meta">Updated 2026-11-16 · by cygnus, the developer of KaidoPlan</p>
-<h2>What belongs in the report</h2>
+<p class="dek">A delivery report is not a screenshot of a task list. It is an argument with four parts, and every number in it should be reproducible from the plan file the client can be handed.</p>
+<p class="meta">Updated 2026-11-17 · by cygnus, the developer of KaidoPlan</p>
+<h2>Four sections, in this order</h2>
+<p>Order matters because each section depends on the one before it. A report that opens with percentages has already lost the argument.</p>
 <ol>
-<li><strong>The computed finish date</strong>, not the date someone hoped for.</li>
-<li><strong>The critical path</strong> — the chain that produces that date, named by task.</li>
-<li><strong>Violations</strong>, including ones that are still open. A report that hides an open conflict is a report that will be contradicted next week.</li>
-<li><strong>Variance against a baseline</strong>: planned versus actual per milestone, so "on track" is a measurement.</li>
+<li><strong>The computed finish date.</strong> Not the date someone hoped for, and not a range invented for safety. The number the schedule produces from the current durations and edges.</li>
+<li><strong>The chain that produces it.</strong> The critical path, named by task. This is the load-bearing section: it converts "trust me" into "these three tasks decide the date, and here they are".</li>
+<li><strong>Open violations.</strong> Conflicts, cycles, tasks outside the project window. A report that hides an open conflict is a report that will be contradicted next week, by the person who reads the plan themselves.</li>
+<li><strong>Variance against a baseline.</strong> Planned versus actual per milestone, so that "on track" is a measurement rather than an adjective.</li>
 </ol>
 
-<h2>Exporting</h2>
-<p>Preview and export delivery reports from the workbench. You can export as many reports as you need during the trial and with an active subscription. Use the preview to verify the numbers before you send a report.</p>
-<p>If you want the same content without a document, the numbers come from the CLI:</p>
-<pre><code>kaidoplan schedule compute --file plan.kaido
-kaidoplan schedule path --file plan.kaido
-kaidoplan violations --file plan.kaido
-kaidoplan baseline variance --file plan.kaido</code></pre>
+<h2>What a section 1–4 report looks like</h2>
+<table>
+<thead><tr><th>Milestone</th><th>Baseline finish</th><th>Computed finish</th><th>Variance</th></tr></thead>
+<tbody>
+<tr><td>Import pipeline accepted</td><td>2026-11-21</td><td>2026-11-21</td><td>0 days</td></tr>
+<tr><td>Reconciliation report signed off</td><td>2026-11-27</td><td>2026-11-28</td><td>+1 day</td></tr>
+<tr><td>Handover to operations</td><td>2026-12-04</td><td>2026-12-08</td><td>+4 days</td></tr>
+</tbody></table>
+<p>Then the sentence that makes the table useful: <em>"The four days are on the reconciliation chain — the fixture set took a day longer than planned, and the handover rehearsal is serialised behind it."</em> That is a report. The table alone is a spreadsheet, and the percentage-complete column that usually accompanies it says nothing about the date.</p>
+<p>Note what the middle row does to the last: a one-day slip upstream becomes four days at the end, because the tasks after it have no slack. This is the single most common thing a client does not believe until they see the chain.</p>
 
-<h2>The habit that makes reports cheap</h2>
-<p>Take a baseline at the start of each reporting period. Then the report is a comparison — plan against actual — instead of a narrative written from memory. It also removes the most common argument in a delivery review: whether the date "changed" or was always wrong.</p>
-<p>Keep the plan in the repository and the report has a source you can point at. That is a stronger position than a slide deck nobody can audit.</p>
+<h2>Where each number comes from</h2>
+<p>Every figure in the report is one command away, which is what makes it auditable rather than asserted:</p>
+<table>
+<thead><tr><th>Report line</th><th>Command</th></tr></thead>
+<tbody>
+<tr><td>Computed finish date</td><td><code>kaidoplan schedule compute --file plan.kaido</code></td></tr>
+<tr><td>The deciding chain, with slack</td><td><code>kaidoplan schedule path --file plan.kaido</code></td></tr>
+<tr><td>Open violations</td><td><code>kaidoplan violations --file plan.kaido</code></td></tr>
+<tr><td>Variance per milestone</td><td><code>kaidoplan baseline variance --baseline &lt;id&gt; --file plan.kaido</code></td></tr>
+<tr><td>The same variance as data</td><td><code>kaidoplan baseline variance --baseline &lt;id&gt; --csv variance.csv --file plan.kaido</code></td></tr>
+</tbody></table>
+<p>The <code>--csv</code> form is the one worth knowing about if the client wants the numbers in their own tracker: it writes the per-task variance rows to a file instead of printing them, and the project-level totals stay identical to what the report shows.</p>
+
+<h2>Preview before you send</h2>
+<p>If you want the habit before the report, <a href="../guides/delivery-check.html">the five-minute delivery check</a> is the same four numbers in a smaller loop. The app's workbench previews the delivery report before export, which is the cheapest place to catch a number that contradicts the text you wrote around it. Export is unlimited during the trial; on the free tier it is three reports a month, with the rest of the planning workbench intact.</p>
+
+<h2>The baseline habit that makes reports cheap</h2>
+<p>Take a baseline at the start of each reporting period — <code>kaidoplan baseline create --name "Sprint 12 start" --file plan.kaido</code>. From then on the report is a comparison, not a narrative written from memory.</p>
+<p>It also removes the most common argument in a delivery review: whether the date changed or was always wrong. With a baseline the question has a diff answer. Without one, both sides are describing their recollection of a document, and the person who is more senior usually wins.</p>
+<p>Two rules for baselines, learned the hard way:</p>
+<ul>
+<li><strong>Baseline after you accept a change, not before.</strong> A baseline taken mid-negotiation freezes a schedule nobody agreed to.</li>
+<li><strong>Keep them.</strong> A baseline you deleted is a variance you cannot compute, and the period it covered becomes unauditable retroactively.</li>
+</ul>
+
+<h2>What to leave out</h2>
+<ul>
+<li><strong>Percentage complete, as a headline.</strong> Forty tasks at 70% tells the reader nothing about the date, and it invites the question "so are we on track", which is the question the report exists to answer without being asked.</li>
+<li><strong>Task counts.</strong> "38 of 52 done" is a volume metric. The date is set by the zero-slack chain, which is usually two or three tasks.</li>
+<li><strong>Any number you cannot reproduce.</strong> If a figure in the report does not come from a command in the plan, it is a claim wearing a table's clothing, and the first technical reader will find it.</li>
+</ul>
+
+<h2>When the number is bad</h2>
+<p>The report is most valuable on the week the date moves, and that is the week people rewrite it. The structure that survives a bad number is the same structure as always, with one added paragraph at the top:</p>
+<blockquote>The delivery date is now 8 December, four days later than the baseline of 4 December. The change is on the reconciliation chain: the fixture set took a day longer, and the handover rehearsal is serialised behind it. To recover the four days, either the rehearsal moves in parallel with sign-off, or the fixture scope drops to the two formats that matter.</blockquote>
+<p>Date, cause, options. No apology and no optimism. A client who receives that in week two trusts the next report; a client who receives "still on track" for six weeks and then a four-week slip does not, and the arithmetic was available the whole time.</p>
+<p>Keep the plan in the repository and the report has a source you can point at — a commit, a baseline and a diff. That is a stronger position than a slide deck nobody can audit, and it is the difference between reporting a schedule and defending one.</p>
 <h2>Questions this page does not answer</h2>
 <details><summary>Can I export to PDF or CSV?</summary><p>The app's delivery report export is the supported path. The plan file is plain JSON, so any other format is a short script away if you need one.</p></details>
 <details><summary>Can I export reports during the free trial?</summary><p>Yes. The trial includes unlimited delivery-report exports.</p></details>

@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>How do I calculate a critical path on a Mac?</title>
-<meta name="description" content="Three ways to get a critical path on macOS: a planner that reads dependencies, a general project tool, or a spreadsheet. What each one gets wrong, and how to run the calculation locally.">
+<meta name="description" content="There is no Mac-specific critical path algorithm, so the question is really which tool keeps the number correct after the third edit. Three routes compared: a dependency-aware planner, a general project app, a spreadsheet — with the specific way each one fails.">
 <link rel="canonical" href="https://kaidoplan.cygnusyang.top/qa/critical-path-on-mac.html">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="KaidoPlan">
 <meta property="og:title" content="How do I calculate a critical path on a Mac?">
-<meta property="og:description" content="Three ways to get a critical path on macOS: a planner that reads dependencies, a general project tool, or a spreadsheet. What each one gets wrong, and how to run the calculation locally.">
+<meta property="og:description" content="There is no Mac-specific critical path algorithm, so the question is really which tool keeps the number correct after the third edit. Three routes compared: a dependency-aware planner, a general project app, a spreadsheet — with the specific way each one fails.">
 <meta property="og:url" content="https://kaidoplan.cygnusyang.top/qa/critical-path-on-mac.html">
 <meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
 <meta property="og:locale" content="en_US">
@@ -23,7 +23,7 @@
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "How do I calculate a critical path on a Mac?",
-  "description": "Three ways to get a critical path on macOS: a planner that reads dependencies, a general project tool, or a spreadsheet. What each one gets wrong, and how to run the calculation locally.",
+  "description": "There is no Mac-specific critical path algorithm, so the question is really which tool keeps the number correct after the third edit. Three routes compared: a dependency-aware planner, a general project app, a spreadsheet — with the specific way each one fails.",
   "url": "https://kaidoplan.cygnusyang.top/qa/critical-path-on-mac.html",
   "datePublished": "2026-11-17",
   "dateModified": "2026-11-17",
@@ -105,45 +105,61 @@
 <main class="prose" id="main">
 <p class="kicker">Answer</p>
 <h1>How do I calculate a critical path on a Mac?</h1>
-<p class="dek">Use a tool that reads the dependency graph and recomputes the chain whenever a date changes. On macOS that means three options: a planner built around dependencies, a general project management app, or a spreadsheet. Only the first one keeps the answer correct after the third edit.</p>
+<p class="dek">The algorithm is the same on every platform: a forward pass, a backward pass, and the zero-slack chain that comes out of the difference. What differs on a Mac is where the plan lives and whether an agent can read it — which decides how often the number is still correct.</p>
 <p class="meta">Updated 2026-11-17 · by cygnus, the developer of KaidoPlan</p>
-<h2>The three options on macOS</h2>
-<ul>
-<li><strong>A planner that computes the chain itself.</strong> You enter tasks, durations and dependencies; the tool runs a forward and backward pass and highlights the zero-slack chain. The answer updates when any input changes.</li>
-<li><strong>A general project management app.</strong> Many of them compute a critical path. They are built around team collaboration and boards, so the dependency editor is usually a secondary screen and the schedule is derived from assignments rather than from the graph.</li>
-<li><strong>A spreadsheet.</strong> Free, and correct for a plan with a handful of tasks and a single chain. It stops being correct as soon as the graph branches, because you have to describe the calculation in formulas and keep them in a valid order.</li>
-</ul>
-<p>There is no macOS-specific algorithm here. The calculation is the same on every platform. What differs on a Mac is where the plan lives and who can read it, which matters more than it sounds when AI agents are part of the work.</p>
+<h2>What you are actually choosing between</h2>
+<p>There is no macOS-specific critical path method. Earliest start, earliest finish, latest start, latest finish, slack — that arithmetic was settled before personal computers existed, and a Mac computes it no differently from anything else.</p>
+<p>So the real question is not "which app has the algorithm". It is "which setup still gives the right answer after the third edit, when a task duration changed and two dependencies moved". That is a data-model question, and on macOS it has three answers with very different failure modes.</p>
+<table>
+<thead><tr><th>Route</th><th>What it costs</th><th>Where it breaks</th></tr></thead>
+<tbody>
+<tr><td>A planner built around dependencies</td><td>Learning one tool; the plan becomes a file you own</td><td>Nothing structural. The risk is a plan with no edges, which is a WBS pretending to be a schedule</td></tr>
+<tr><td>A general project management app</td><td>An account, a subscription, a browser tab</td><td>The dependency editor is a secondary screen, and dates often derive from assignments rather than from the graph</td></tr>
+<tr><td>A spreadsheet</td><td>Free, and correct for one straight chain</td><td>Recalculation order you did not choose; second successors; calendars and fixed deadlines have nowhere to live</td></tr>
+</tbody></table>
 
-<h2>Doing it by hand, and where it breaks</h2>
-<p>The manual version is two passes over the graph:</p>
+<h2>Doing the two passes by hand</h2>
+<p>Worth knowing even if you never do it by hand, because it tells you what to distrust in any tool's output:</p>
 <ol>
-<li><strong>Forward pass.</strong> For each task in dependency order, earliest start is the latest earliest finish among its predecessors; earliest finish is earliest start plus duration.</li>
-<li><strong>Backward pass.</strong> From the project end backwards, latest finish is the earliest latest start among its successors; latest start is latest finish minus duration.</li>
-<li><strong>Slack.</strong> Latest start minus earliest start. Zero means the task is on the critical path.</li>
+<li><strong>Forward pass.</strong> In dependency order, earliest start is the latest earliest finish among predecessors; earliest finish is earliest start plus duration.</li>
+<li><strong>Backward pass.</strong> From the project end, latest finish is the earliest latest start among successors; latest start is latest finish minus duration.</li>
+<li><strong>Slack.</strong> Latest start minus earliest start. Zero means the task sets the end date.</li>
 </ol>
-<p>This is correct and it is also where most hand calculations go wrong, in three specific ways:</p>
-<ul>
-<li><strong>Order matters and is invisible in a spreadsheet.</strong> A row that reads a value not yet recalculated returns a stale number, quietly. The error shows up as a plausible plan, not as an error.</li>
-<li><strong>A task with two successors needs the minimum, not the first one you look at.</strong> Missing the second successor makes a critical task look slack.</li>
-<li><strong>Constraints are not part of the textbook algorithm.</strong> A fixed delivery date, a task that cannot start before a date, or a calendar with non-working days has to be folded in, and a spreadsheet has no place to put it.</li>
-</ul>
-<p>You can run both passes on your own numbers in the <a href="../tools/critical-path-calculator.html">free online critical path calculator</a> — it shows ES, EF, LS, LF and total float for every task and highlights the zero-slack chain in red on the chart.</p>
+<p>The calculation is four lines. The errors are not in the calculation.</p>
 
-<h2>Running it locally on a Mac</h2>
-<p>KaidoPlan is a macOS app that keeps the WBS, the dependency edges and the dates in one local <code>.kaido</code> file — plain JSON, no database, no account. The schedule engine computes the critical path, total and free slack, and reports violations: date conflicts, dependency cycles and tasks scheduled outside their allowed window.</p>
-<p>The same calculation is available without opening a window:</p>
-<pre><code>kaidoplan schedule path --file plan.kaido</code></pre>
-<p>The CLI and the MCP server are the same engine the app uses, so a command-line answer and the highlighted chain in the Gantt chart cannot disagree. Both are read-only without a licence; writing task status, actual dates or new tasks back into the plan needs Pro.</p>
-
-<h2>Why "on a Mac" changes the answer</h2>
-<p>For a local-first tool the platform question is mostly a data question. Three consequences that do not apply to a web planner:</p>
+<h2>Why a spreadsheet is right until it is silently wrong</h2>
+<p>Take three tasks: <em>Schema</em> (2 days), <em>Migration</em> (3 days, depends on Schema), <em>Backfill</em> (1 day, depends on Migration). Row 2 reads row 1, row 3 reads row 2. Change Schema from 2 to 4 and a spreadsheet either recalculates in the right order or it does not — and if it does not, the cell shows a number that is plausible, not an error.</p>
+<p>Three specific traps, all of which produce a believable plan rather than a broken one:</p>
 <ul>
-<li><strong>The file is yours.</strong> A <code>.kaido</code> plan can be diffed, reviewed in a pull request, or kept next to the code it describes. There is no export step and no vendor copy of the schedule.</li>
-<li><strong>Agents read the same file.</strong> Claude Code, Codex and other MCP clients read the plan through stdio; the plan does not have to be synchronised into a service first.</li>
-<li><strong>No connection, no account.</strong> The 30-day trial requires neither. When it ends the app drops to the free tier — the whole planning workbench, AI read-only, and three delivery-report exports a month — it does not stop.</li>
+<li><strong>Recalculation order is invisible.</strong> A cell that reads a value not yet recomputed returns the old value. There is no warning, because a stale number is a number.</li>
+<li><strong>Two successors need a <code>MIN</code>, not the first one you looked at.</strong> Miss the second successor and a task on the critical path reports positive slack — the most expensive possible mistake, because it is the one that makes a late project look safe.</li>
+<li><strong>Constraints are outside the textbook algorithm.</strong> A fixed demo date, a reviewer who is away until the 12th, a calendar with non-working days: each has to be folded in by hand, and a spreadsheet has no column that means "this edge cannot start before a date".</li>
 </ul>
-<p>The trade-off is stated plainly on the product page: this is a single-user local tool. There is no real-time multi-user editing, no cloud sync, and no Windows or Linux build. Sharing a plan with another person means sending the file.</p>
+<p>If you want to see the two passes run on your own numbers without building the formulas, the <a href="../tools/critical-path-calculator.html">browser calculator</a> shows ES, EF, LS, LF and total float per task and highlights the zero-slack chain. It runs locally; nothing is uploaded.</p>
+
+<h2>What to check before trusting any number</h2>
+<ul>
+<li><strong>Is there an edge list, or only dates?</strong> A plan with dates and no dependencies has no critical path. It has a wish with columns.</li>
+<li><strong>Does the tool recompute, or does it store what you typed?</strong> If a duration change does not move the finish date, you are looking at a table, not a schedule.</li>
+<li><strong>Does it report conflicts?</strong> An optimistic plan can be internally inconsistent: a task finishing after its successor started. A tool that cannot name that will let you present it.</li>
+<li><strong>Can you see slack per task, not just the highlighted chain?</strong> The chain tells you what to protect today. Slack tells you where the next chain will come from.</li>
+</ul>
+
+<h2>On macOS specifically: local-first changes three things</h2>
+<p>KaidoPlan keeps the WBS, the edges and the dates in one local <code>.kaido</code> file — plain JSON, no database, no account. That is a platform decision with consequences that a web planner cannot offer:</p>
+<ul>
+<li><strong>The file is yours.</strong> It can be diffed, reviewed in a pull request, or kept next to the code it describes. There is no export step and no vendor copy of your schedule.</li>
+<li><strong>Agents read the same file.</strong> Claude Code, Cursor, Codex and other MCP clients read the plan over stdio, so the schedule does not have to be synchronised into a service before an agent can see it.</li>
+<li><strong>No connection, no account.</strong> The 30-day trial needs neither. When it ends the app drops to the free tier — the planning workbench, AI read access, and three delivery-report exports a month — rather than locking the file.</li>
+</ul>
+<p>The same computation is available from a terminal, which is what makes it usable inside an agent loop:</p>
+<pre><code>kaidoplan schedule compute --file plan.kaido
+kaidoplan schedule path --limit 2 --file plan.kaido
+kaidoplan violations --file plan.kaido</code></pre>
+<p><code>schedule path</code> returns the tasks whose total slack is within the limit, so <code>--limit 2</code> answers "what has two days or less of room" rather than only naming the zero-slack chain. Reading plans and running the schedule needs no licence; writing status, actual dates or new tasks back needs Pro.</p>
+
+<h2>The limitation, stated plainly</h2>
+<p>This is a single-user local tool. There is no real-time multi-user editing, no cloud sync, and no Windows or Linux build. Sharing a plan with another person means sending the file. If the requirement is four people editing one schedule simultaneously, the right answer is a hosted tool, and the cost you accept is that the schedule lives in someone else's database.</p>
 <h2>Questions this page does not answer</h2>
 <details><summary>Can I calculate a critical path in a spreadsheet on a Mac?</summary><p>Yes, for a small plan and with care. You do a forward pass for earliest start and finish, a backward pass for latest start and finish, then subtract. It breaks down once a task has more than one successor, or when a calendar or a fixed deadline enters the model, because a spreadsheet recalculates rows in an order you did not choose.</p></details>
 <details><summary>Does the calculation need a cloud account on macOS?</summary><p>Not with KaidoPlan. The plan is one local .kaido JSON file and the schedule is computed in the app on the machine. There is no account and nothing is uploaded, so the file can live in a git repository or iCloud Drive without sending the plan to a third party.</p></details>

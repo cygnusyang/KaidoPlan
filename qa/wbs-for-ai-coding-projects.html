@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>How to break an AI coding project into a WBS that survives contact</title>
-<meta name="description" content="A work breakdown structure for an agent-executed project: size tasks by verifiability, separate planning from execution, and keep the estimate human-owned while the agent writes code.">
+<meta name="description" content="Size tasks by what can be verified, not by what feels like a phase: a worked seven-task breakdown with the check for each, why an agent&#x27;s sixty-task list is unusable, and the two fields that make a WBS schedulable.">
 <link rel="canonical" href="https://kaidoplan.cygnusyang.top/qa/wbs-for-ai-coding-projects.html">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="KaidoPlan">
 <meta property="og:title" content="How to break an AI coding project into a WBS that survives contact">
-<meta property="og:description" content="A work breakdown structure for an agent-executed project: size tasks by verifiability, separate planning from execution, and keep the estimate human-owned while the agent writes code.">
+<meta property="og:description" content="Size tasks by what can be verified, not by what feels like a phase: a worked seven-task breakdown with the check for each, why an agent&#x27;s sixty-task list is unusable, and the two fields that make a WBS schedulable.">
 <meta property="og:url" content="https://kaidoplan.cygnusyang.top/qa/wbs-for-ai-coding-projects.html">
 <meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
 <meta property="og:locale" content="en_US">
@@ -23,10 +23,10 @@
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "How do I break an AI coding project into a WBS?",
-  "description": "A work breakdown structure for an agent-executed project: size tasks by verifiability, separate planning from execution, and keep the estimate human-owned while the agent writes code.",
+  "description": "Size tasks by what can be verified, not by what feels like a phase: a worked seven-task breakdown with the check for each, why an agent's sixty-task list is unusable, and the two fields that make a WBS schedulable.",
   "url": "https://kaidoplan.cygnusyang.top/qa/wbs-for-ai-coding-projects.html",
-  "datePublished": "2026-11-16",
-  "dateModified": "2026-11-16",
+  "datePublished": "2026-11-17",
+  "dateModified": "2026-11-17",
   "inLanguage": "en",
   "author": {
     "@type": "Person",
@@ -97,32 +97,62 @@
 <main class="prose" id="main">
 <p class="kicker">Answer</p>
 <h1>How do I break an AI coding project into a WBS?</h1>
-<p class="dek">Break it down by what can be verified independently, not by what feels like a phase. The test of a good task is that someone can say whether it is done without reading the code.</p>
-<p class="meta">Updated 2026-11-16 · by cygnus, the developer of KaidoPlan</p>
-<h2>The unit of breakdown: verification, not activity</h2>
-<p>Most WBS advice divides projects by activity — design, build, test, ship. That is a reporting structure, not a work structure. For a project executed by an agent, the useful unit is the smallest piece of work whose completion can be checked by a fact rather than an opinion: a route that responds, a migration that applies, a report that totals correctly.</p>
-<p>Three rules follow:</p>
-<ul>
-<li><strong>If you cannot describe the check, the task is not small enough.</strong> "Improve the importer" has no check; "import a 1PUX export with attachments and reconcile the item count" does.</li>
-<li><strong>Separate planning from execution in the structure.</strong> The estimate is a human judgement; making the agent produce both the task and its duration is how plans become optimistic.</li>
-<li><strong>Model groups and milestones, not just tasks.</strong> Groups carry the hierarchy reviewers need; milestones are the points where someone other than the author has to agree.</li>
-</ul>
+<p class="dek">Break it down by what can be checked without reading the code. The unit is not a phase and not a file — it is the smallest piece of work whose completion is a fact rather than an opinion.</p>
+<p class="meta">Updated 2026-11-17 · by cygnus, the developer of KaidoPlan</p>
+<h2>The wrong unit, and why it feels right</h2>
+<p>Standard WBS advice divides by activity: design, build, test, ship. For a human team that is a reporting structure — it maps to who reports to whom and what a status meeting can ask about.</p>
+<p>For a project executed by an agent it is close to useless, for one reason: an agent produces no social signal that a phase has ended. There is no "the build phase feels done". There is a diff, a failing test, and a file that either parses or does not. So the unit of breakdown has to be something a machine and a reviewer can both check:</p>
+<blockquote><strong>A task is well-sized when someone can say whether it is done without reading the implementation.</strong></blockquote>
+<p>"Improve the importer" fails that test. "Import a 1PUX export with attachments and reconcile the item count against the file" passes it: the item count either matches or it does not.</p>
 
-<h2>A shape that works</h2>
+<h2>What that looks like in practice</h2>
+<p>A single feature — CSV import — broken down this way. Every row has a check and a duration, which is the whole point; the check is what stops the task drifting, and the duration is what lets the plan compute a date.</p>
+<table>
+<thead><tr><th>Task</th><th>Done when</th><th>Days</th></tr></thead>
+<tbody>
+<tr><td>Document the column contract</td><td>Three fixture files (clean, quoted, malformed) validate against the written spec</td><td>0.5</td></tr>
+<tr><td>Parser plus error cases</td><td>Five fixtures pass; a malformed file returns an error naming the row number</td><td>1</td></tr>
+<tr><td>Migration for the import table</td><td>Applies to a copy of production and rolls back cleanly</td><td>0.5</td></tr>
+<tr><td>Upload endpoint</td><td>A 10k-row file returns a job id, and the stored row count equals the file's</td><td>1.5</td></tr>
+<tr><td>Progress and cancel</td><td>Cancelling mid-import leaves no partial rows behind</td><td>1</td></tr>
+<tr><td>Reconciliation report</td><td>Rows in the database equal file rows minus rejected rows, on all three fixtures</td><td>1</td></tr>
+<tr><td>Integration test and review</td><td>CI green on the fixture set, and a second reader signs the diff off</td><td>0.5</td></tr>
+</tbody></table>
+<p>Six days of work, seven tasks, and each one is a yes-or-no question afterwards. Notice what the breakdown did not do: it did not create a task called "backend" that swallows four of these and reports 80% for a week.</p>
+
+<h2>The shape, in order</h2>
 <ol>
-<li><strong>Acceptance criteria first.</strong> What has to be true on the delivery date, in observable terms.</li>
-<li><strong>Chains that end at a milestone.</strong> Group tasks so each group produces one verifiable milestone, then connect the milestones.</li>
-<li><strong>Integration and review as their own tasks.</strong> They are the ones that get eaten when the plan is compressed, and they are the ones whose loss shows up as a late project.</li>
-<li><strong>Effort estimates in hours or days, per task.</strong> Coarse is fine; absent is not, because without estimates there is no schedule to compute.</li>
+<li><strong>Acceptance criteria first.</strong> What is observably true on the delivery date. Written before the tasks, because it decides what the tasks are.</li>
+<li><strong>Chains that end at a milestone.</strong> Group tasks so each group produces one checkable milestone, then connect the milestones. A milestone is where someone other than the author has to agree — that is what makes it worth having.</li>
+<li><strong>Integration and review as their own tasks.</strong> They are the first things eaten when a plan is compressed, they are routinely estimated at zero because they feel like a formality, and their disappearance is what a late project looks like from a week away.</li>
+<li><strong>A duration on every task.</strong> Coarse is fine — half a day, a day, three days. Absent is not: without durations there is no schedule to compute, only a list with a hopeful date stapled to it.</li>
 </ol>
 
-<h2>Getting it into the tool</h2>
-<p>If the breakdown already exists as a nested outline, import it rather than retyping: <code>wbs_import</code> turns a nested task tree into the plan. Then add the dependencies — that step is where the real design work happens, because a WBS without edges cannot produce a critical path.</p>
-<pre><code>kaidoplan wbs import --file plan.kaido
-kaidoplan schedule compute --file plan.kaido</code></pre>
+<h2>The two fields that make it schedulable</h2>
+<p>A WBS on its own is a tree. A tree has no dates. What turns it into a schedule is <strong>edges</strong> and <strong>durations</strong>, and most of the design work is in the edges, because an edge is a claim about the world:</p>
+<ul>
+<li>Parser cannot start before the contract is written (finish-to-start).</li>
+<li>Upload endpoint cannot start before the migration applies.</li>
+<li>Reconciliation needs both the endpoint and the parser.</li>
+</ul>
+<p>If you cannot state the edge in that form — "X cannot start before Y finishes" — it is probably not an edge. "Related to" is not a dependency, and adding it makes the critical path fiction.</p>
+<p>If the breakdown already exists as a nested outline, import it rather than retyping. The CLI takes a JSON tree of <code>title</code>, optional <code>kind</code> (<code>task</code>, <code>group</code>, <code>milestone</code>), <code>durationDays</code> or <code>effortHours</code>, and <code>children</code>:</p>
+<pre><code>kaidoplan wbs import wbs.json --file plan.kaido
+kaidoplan schedule compute --file plan.kaido
+kaidoplan violations --file plan.kaido</code></pre>
+<p>Import carries structure, kinds and estimates. It does not carry dependencies — there is no edge in the JSON, by design, because an outline does not know them. Adding the edges is <a href="track-dependencies-between-ai-tasks.html">the next step</a> and the one that cannot be automated from a document.</p>
 
 <h2>The failure to avoid</h2>
-<p>An agent generates sixty tasks in a flat list with no dependencies and no estimates. It looks like thorough planning and it is unusable: nothing can be scheduled, nothing can be checked, and the only thing it supports is the illusion that the project is understood.</p>
+<p>An agent asked for a WBS returns sixty tasks in a flat list: no groups, no edges, no durations, phrased as verbs. It reads as thorough work and it is unusable, in a specific way:</p>
+<ul>
+<li><strong>Nothing can be scheduled.</strong> No durations means no forward pass; no edges means no chain; no chain means no date.</li>
+<li><strong>Nothing can be checked.</strong> "Implement authentication" is not done or not done, it is "mostly there".</li>
+<li><strong>The volume creates false confidence.</strong> Sixty items looks like a plan understood in detail. It is a transcript of what the agent would do next, written in the grammar of a plan.</li>
+</ul>
+<p>The correction is not to ask for fewer tasks. It is to ask for the check alongside each one, then delete every task whose check you cannot state. In practice that removes about a third of them and the remaining forty are schedulable.</p>
+
+<h2>How many is too many</h2>
+<p>A practical ceiling for a solo project is the point where you can no longer name the critical path from memory — usually a few dozen tasks. Beyond that, groups should hide the detail: you review the milestone, and open the group only when its date moves. A WBS whose purpose is to be read in full is a document; a WBS whose purpose is to be computed is a schedule. You only get one of those.</p>
 <h2>Questions this page does not answer</h2>
 <details><summary>How many tasks is too many?</summary><p>When you stop being able to name the critical path. For a solo project a few dozen is usually the ceiling; beyond that, groups should hide detail.</p></details>
 <details><summary>Should the agent write the WBS?</summary><p>It can draft one quickly, and that is useful. Review the edges and the estimates before you schedule anything — those two are where the optimism lives.</p></details>

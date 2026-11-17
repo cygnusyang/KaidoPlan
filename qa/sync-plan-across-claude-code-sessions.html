@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>How to keep a project plan in sync across Claude Code sessions</title>
-<meta name="description" content="Chat history is not a plan. The practical pattern is to keep the schedule in one local file that every session reads and writes, and to recompute dates after each write.">
+<meta name="description" content="A session boundary destroys four things a plan needs: which tasks are done, when they completed, what depends on them, and whether the dates still add up. Keep the plan in a file the session cannot summarise away, and recompute after every write.">
 <link rel="canonical" href="https://kaidoplan.cygnusyang.top/qa/sync-plan-across-claude-code-sessions.html">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="KaidoPlan">
 <meta property="og:title" content="How to keep a project plan in sync across Claude Code sessions">
-<meta property="og:description" content="Chat history is not a plan. The practical pattern is to keep the schedule in one local file that every session reads and writes, and to recompute dates after each write.">
+<meta property="og:description" content="A session boundary destroys four things a plan needs: which tasks are done, when they completed, what depends on them, and whether the dates still add up. Keep the plan in a file the session cannot summarise away, and recompute after every write.">
 <meta property="og:url" content="https://kaidoplan.cygnusyang.top/qa/sync-plan-across-claude-code-sessions.html">
 <meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
 <meta property="og:locale" content="en_US">
@@ -23,10 +23,10 @@
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "How do I keep a project plan in sync across Claude Code sessions?",
-  "description": "Chat history is not a plan. The practical pattern is to keep the schedule in one local file that every session reads and writes, and to recompute dates after each write.",
+  "description": "A session boundary destroys four things a plan needs: which tasks are done, when they completed, what depends on them, and whether the dates still add up. Keep the plan in a file the session cannot summarise away, and recompute after every write.",
   "url": "https://kaidoplan.cygnusyang.top/qa/sync-plan-across-claude-code-sessions.html",
-  "datePublished": "2026-11-16",
-  "dateModified": "2026-11-16",
+  "datePublished": "2026-11-17",
+  "dateModified": "2026-11-17",
   "inLanguage": "en",
   "author": {
     "@type": "Person",
@@ -97,32 +97,63 @@
 <main class="prose" id="main">
 <p class="kicker">Answer</p>
 <h1>How do I keep a project plan in sync across Claude Code sessions?</h1>
-<p class="dek">Short answer: stop keeping the plan in the conversation. Put it in a file, give the agent a documented way to read and write it, and recompute the schedule after every write.</p>
-<p class="meta">Updated 2026-11-16 · by cygnus, the developer of KaidoPlan</p>
-<h2>Why sessions drift</h2>
-<p>Each Claude Code session starts with whatever context it was given and ends with a transcript. A plan that lives inside that transcript is lost or partially summarised at the boundary, so the next session rebuilds it from prose — and rebuilds it slightly differently. Two sessions later, two versions of the plan exist and neither is authoritative.</p>
-<p>The fix is not a better summary. It is separating the plan from the conversation:</p>
+<p class="dek">Short answer: stop keeping the plan in the conversation. A project file, a documented read and write path, and a recompute after every write. The hard part is not the pattern, it is that the plan is a single-writer file and two sessions are two writers.</p>
+<p class="meta">Updated 2026-11-17 · by cygnus, the developer of KaidoPlan</p>
+<h2>What a session boundary actually destroys</h2>
+<p>A session does not lose the plan in one event. It loses four specific things, and each one is small enough that its absence looks like normal working state:</p>
+<ul>
+<li><strong>Which tasks are done, by identifier.</strong> The transcript says "the API is basically finished". The plan says tasks <code>4A1C</code> and <code>7D02</code> are <code>done</code> and <code>9B44</code> is <code>in_progress</code> with <code>progress: 0.6</code>. Only the second can be written back.</li>
+<li><strong>When each one completed.</strong> A status flag has no time. Without a completion timestamp, nothing downstream can check whether the client work started before the endpoint existed — the exact conflict a status report cannot see.</li>
+<li><strong>Why the edges exist.</strong> "The client goes after the API" survives a summary. "The acceptance test is blocked on the migration, which is blocked on the schema freeze" usually does not, and that second chain is the one that sets the date.</li>
+<li><strong>Whether the dates still add up.</strong> The plan that was consistent at 14:00 is not necessarily consistent after a session moves two tasks. Nothing in the transcript recomputes.</li>
+</ul>
+<p>So the next session does not resume the plan. It reconstructs one from a lossy projection of it, and two reconstructions of the same prose do not agree. Nothing errors. The project simply acquires a second, slightly different schedule that nobody is maintaining.</p>
+
+<h2>The pattern: make the plan unreachable from the summary</h2>
 <ol>
-<li><strong>A file owns the plan.</strong> Not a chat, not a scratchpad. One file in the repository, with a schema, that outlives every session.</li>
-<li><strong>The agent reads it at the start of a session.</strong> One tool call or one <code>cat</code>, not a hand-written recap.</li>
-<li><strong>The agent writes to it explicitly.</strong> Status, actual dates and new tasks go through defined operations rather than a paragraph asking a human to update a spreadsheet.</li>
-<li><strong>Dates get recomputed after the write.</strong> The reason to do 1–3 at all: a write that changes a date can create a conflict, and only a recomputation will say so.</li>
+<li><strong>A file owns the plan.</strong> One file in the repository, with a schema and a format version. Not a scratchpad, not a per-session markdown table.</li>
+<li><strong>The session reads it first, mechanically.</strong> One command, not a hand-written recap paragraph that the agent may or may not have been given.</li>
+<li><strong>Progress is written through operations, not prose.</strong> Status goes in as data with a completion time, because a paragraph asking a human to update a spreadsheet is not a write path.</li>
+<li><strong>The schedule is recomputed after the write.</strong> This is the step that justifies the first three: a write that changes a date can create a conflict, and only a recomputation will report it.</li>
 </ol>
 
-<h2>What this looks like with KaidoPlan</h2>
-<p>The plan is a single <code>.kaido</code> file — plain JSON, <code>formatVersion</code> 2 — so a session can read it with nothing installed. With the app running, an MCP server exposes 21 tools over the same file: <code>task_list</code> and <code>project_summary</code> to read, <code>status_update</code> and <code>status_batch_update</code> to write back, <code>schedule_compute</code> and <code>violations_list</code> to check the arithmetic afterwards. The CLI covers the same ground when the app is closed.</p>
-<pre><code># start of session
+<h2>The loop, with real commands</h2>
+<p>In KaidoPlan the plan is a single <code>.kaido</code> file — plain JSON, <code>formatVersion</code> 2, keys sorted, one task object per entry. A session can read it with <code>cat</code> and nothing installed.</p>
+<pre><code># 1. start of session: what is the state, what is the date
 kaidoplan project summary --file plan.kaido
-# after the agent reports progress
-kaidoplan status batch --file plan.kaido --json
-kaidoplan violations --file plan.kaido</code></pre>
-<p>Because the file is in the repository, the plan's history is the commit history. A date that moved is a diff you can review, not a claim you have to take on trust.</p>
+kaidoplan task list --file plan.kaido --json
 
-<h2>The parts that are easy to get wrong</h2>
+# 2. after the agent reports progress: write a batch file
+cat &gt; updates.json &lt;&lt;'JSON'
+[{"taskID":"4A1C","status":"done","progress":1},
+ {"taskID":"9B44","status":"in_progress","progress":0.6}]
+JSON
+kaidoplan status batch updates.json --file plan.kaido
+
+# 3. the step everyone skips
+kaidoplan schedule compute --file plan.kaido
+kaidoplan violations --file plan.kaido</code></pre>
+<p>Two details matter more than they look. <code>status batch</code> returns a per-entry result: a bad identifier rejects that line and leaves the rest of the batch applied, so a partial write is visible rather than silent. And task identifiers accept a unique prefix, which is what makes a batch file practical to have an agent produce.</p>
+<p>With the app running, the same three steps are available as <a href="mcp-server-for-project-plan.html">MCP tool calls</a> (<code>project_summary</code>, <code>status_batch_update</code>, <code>schedule_compute</code>, <code>violations_list</code>) over stdio or the loopback endpoint. The CLI and the app are the same engine, so the two surfaces cannot disagree about the date.</p>
+
+<h2>Two sessions at once: the honest limitation</h2>
+<p>The file has no lock. Two sessions writing at the same time is two writers on one document, and the last save wins — including its stale copy of everything it did not touch.</p>
+<p>Git does not save you here either, and it is worth saying why rather than implying version control solves it. The writer normalises the whole document on every save: keys are sorted, empty arrays are still emitted, and the project's <code>updatedAt</code> changes each time. A merge of two branches therefore conflicts on the file as a whole far more often than on the two tasks that actually differ. Stable task UUIDs stop an identity from being duplicated; they do not make the text merge cleanly.</p>
+<p>The rule that works is boring: <strong>one writing session at a time per plan file</strong>. Parallel sessions can read freely — reads are cheap and they are how you avoid guessing — but writes get serialised. If you need isolation for a risky change, copy the file, work on the copy, and diff the two plans before you accept one.</p>
+
+<h2>What the file in the repository buys you</h2>
 <ul>
-<li><strong>Letting the agent invent dates.</strong> An agent that both plans and executes will optimistically compress durations. Keep the estimates human-owned.</li>
-<li><strong>Skipping the recompute.</strong> A status write without a schedule recompute is how a plan accumulates silent contradictions.</li>
-<li><strong>Keeping a second copy in the handoff file.</strong> Two sources of dates diverge; the file that gets opened more wins.</li>
+<li><strong>The plan's history is the commit history.</strong> A date that moved is a diff with a timestamp and a reason, not a claim to take on trust.</li>
+<li><strong>The session's claim becomes checkable.</strong> "Everything is done" is a sentence; <code>git diff</code> over the plan shows which identifiers changed and whether any dependency was added to make the schedule close.</li>
+<li><strong>Handoff stops being a document.</strong> There is no separate HANDOFF.md to keep in step, because the state the next session needs is the file it already opens.</li>
+</ul>
+
+<h2>Failure modes, in the order they appear</h2>
+<ul>
+<li><strong>The agent invents dates.</strong> An agent that both plans and executes compresses durations, because "how long will this take" is answered optimistically by default. Keep estimates human-owned; let the agent own execution and reporting.</li>
+<li><strong>The recompute is skipped when nothing "seems" to have changed.</strong> A status write moves a completion time, which can pull a successor earlier and shorten the critical path. Fifty percent of plan corruption is one skipped recompute a day for a week.</li>
+<li><strong>A second copy lives in the handoff file.</strong> Two sources of dates diverge, and the one that gets opened more often wins — which is not the one that is correct.</li>
+<li><strong>Status is written as one big update at the end of the session.</strong> Batch it per work unit instead: a batch at the end of a long session is a batch written from memory, and memory is the thing you were trying to stop relying on.</li>
 </ul>
 <h2>Questions this page does not answer</h2>
 <details><summary>Does it work without the app running?</summary><p>Yes for reading and writing the file with the CLI, and for any tool that can parse JSON. The MCP server is the app's own surface and needs the app running.</p></details>
