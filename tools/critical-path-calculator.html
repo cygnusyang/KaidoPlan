@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en" data-site="kaidoplan">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Critical Path Calculator — Free Online CPM Tool</title>
+<meta name="description" content="Free online critical path calculator: enter tasks, durations and dependencies, and get ES, EF, LS, LF, total float and the critical path highlighted on a Gantt chart. Runs entirely in your browser, nothing is uploaded.">
+<link rel="canonical" href="https://kaidoplan.cygnusyang.top/tools/critical-path-calculator.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="KaidoPlan">
+<meta property="og:title" content="Critical Path Calculator — Free Online CPM Tool">
+<meta property="og:description" content="Free online critical path calculator: enter tasks, durations and dependencies, and get ES, EF, LS, LF, total float and the critical path highlighted on a Gantt chart. Runs entirely in your browser, nothing is uploaded.">
+<meta property="og:url" content="https://kaidoplan.cygnusyang.top/tools/critical-path-calculator.html">
+<meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#14161c">
+<link rel="stylesheet" href="../site.css"><link rel="stylesheet" href="../learn.css">
+
+<script src="../theme.js"></script>
+<script src="../analytics.js" defer></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Critical Path Calculator",
+  "url": "https://kaidoplan.cygnusyang.top/tools/critical-path-calculator.html",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any, in a web browser",
+  "browserRequirements": "Requires JavaScript",
+  "isAccessibleForFree": true,
+  "description": "Free online critical path calculator: enter tasks, durations and dependencies, and get ES, EF, LS, LF, total float and the critical path highlighted on a Gantt chart. Runs entirely in your browser.",
+  "inLanguage": "en",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "cygnus",
+    "url": "https://github.com/cygnusyang"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "KaidoPlan",
+      "item": "https://kaidoplan.cygnusyang.top/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Guides, answers and comparisons",
+      "item": "https://kaidoplan.cygnusyang.top/guides.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Critical Path Calculator",
+      "item": "https://kaidoplan.cygnusyang.top/tools/critical-path-calculator.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the critical path of a project?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The critical path is the longest chain of dependent tasks in the plan, and its length sets the project finish date. Every task on it has zero total float: if a critical task slips by a day, the delivery date moves by a day. Tasks off the chain have float, so a small delay there does not move the end date."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is float (slack) and how is it calculated?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Total float is the number of days a task can slip without moving the project finish date. It is latest start minus earliest start (or latest finish minus earliest finish, which is the same number). Earliest values come from a forward pass through the dependency graph; latest values come from a backward pass from the project end. Zero float means the task is on the critical path."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this critical path calculator free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. It is free, needs no account and no sign-in, and there is no limit on how many plans you compute. Everything runs in your browser: the tasks you type never leave the page, because the whole calculator is one static HTML file with no server behind it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is this calculator related to KaidoPlan?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "This page is a standalone teaching tool: you type a small graph by hand and watch the forward and backward passes produce the critical path. KaidoPlan is a macOS planning app that does the same computation automatically — it keeps tasks, dependencies and dates in one local .kaido file, recomputes the schedule on every change, highlights the critical path in the Gantt chart, and reports violations such as dependency cycles and date conflicts."
+      }
+    }
+  ]
+}
+</script>
+<style>
+/* 计算器专用样式：沿用 site.css 的配色变量，深浅色都跟随 theme.js。 */
+.cpm{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 18px 22px;margin:0 0 26px}
+.cpm-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 14px}
+.cpm-toolbar button{font:inherit;font-size:14px;font-weight:600;padding:8px 14px;border-radius:9px;border:1px solid var(--line-strong);background:var(--paper);color:var(--ink);cursor:pointer}
+.cpm-toolbar button:hover{border-color:var(--accent-dark);color:var(--accent-dark)}
+.cpm-summary{font-size:14px;color:var(--muted);margin-left:auto}
+.cpm-summary strong{color:var(--ink)}
+.cpm-error{background:var(--card-accent,var(--soft));border:1px solid #e5484d;border-radius:10px;color:#e5484d;font-size:14px;padding:10px 14px;margin:0 0 14px}
+.cpm table{width:100%;border-collapse:collapse;font-size:14px}
+.cpm th,.cpm td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.cpm th{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:650}
+.cpm .num{text-align:right;font-variant-numeric:tabular-nums}
+.cpm input[type="text"],.cpm input[type="number"]{font:inherit;font-size:14px;background:var(--paper);color:var(--ink);border:1px solid var(--line-strong);border-radius:7px;padding:6px 8px;width:100%}
+.cpm td.task-cell{width:30%}
+.cpm td.dur-cell{width:9%}
+.cpm input[type="number"]{width:70px;text-align:right}
+.cpm .deps{display:flex;flex-wrap:wrap;gap:4px 12px}
+.cpm .deps label{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--muted);white-space:nowrap}
+.cpm .rowdel{font:inherit;font-size:13px;border:0;background:none;color:var(--muted);cursor:pointer;padding:4px 6px}
+.cpm .rowdel:hover{color:#e5484d}
+.cpm tr.crit-row td{background:rgba(229,72,77,.08)}
+.cpm .crit-mark{color:#e5484d;font-weight:700}
+.cpm-gantt{margin:18px 0 4px;overflow-x:auto}
+.cpm-gantt svg{display:block;min-width:520px}
+.gbar-c{fill:#e5484d}
+.gbar{fill:var(--accent)}
+.gfloat{fill:var(--accent);opacity:.28}
+.gline{stroke:var(--line);stroke-width:1}
+.gname{fill:var(--ink);font-size:12px}
+.gday{fill:var(--muted);font-size:11px}
+.cpm-legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--muted);margin:10px 0 0}
+.cpm-legend .sw{display:inline-block;width:14px;height:10px;margin-right:6px;vertical-align:baseline}
+.cpm-legend .sw-c{background:#e5484d}
+.cpm-legend .sw-n{background:var(--accent)}
+.cpm-legend .sw-f{background:var(--accent);opacity:.28}
+.cpm-footnote{font-size:13px;color:var(--muted);margin:14px 0 0}
+@media(max-width:640px){.cpm{padding:12px 10px 16px}.cpm th,.cpm td{padding:6px 5px}.cpm-summary{margin-left:0;width:100%}}
+</style>
+</head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="wrap nav"><a class="brand" href="../index.html" aria-label="KaidoPlan home">kaidoplan<span>.</span></a><nav class="navlinks" aria-label="Main navigation"><a href="../guides.html">Guides</a><a href="../index.html#pricing">Pricing</a><a class="pill" href="https://github.com/cygnusyang/KaidoPlan/releases/latest/download/KaidoPlan.dmg" data-track="download_click" data-track-page="tool-cpm">Download for macOS ↗</a></nav></header>
+<main class="prose" id="main">
+<p class="kicker">Free tool</p>
+<h1>Critical Path Calculator</h1>
+<p class="dek">A free online CPM tool: type in tasks, durations and dependencies, and get the earliest and latest start and finish, the total float of every task, and the critical path highlighted in red on a Gantt chart.</p>
+<p class="meta">Updated 2026-11-17 · by cygnus, the developer of KaidoPlan</p>
+<p>This critical path calculator runs the classic two-pass CPM algorithm on whatever graph you give it — in your browser. There is no account, no sign-in and nothing is uploaded: the tasks you type never leave the page. Start from the example below (a seven-task plan with a merge point, so the critical path is not just the longest-looking row), edit it, or add and delete rows to match your own plan.</p>
+
+<div class="cpm" id="cpm-app">
+<div id="cpm-error" class="cpm-error" role="alert" hidden></div>
+<div class="cpm-toolbar">
+<button type="button" id="cpm-add">+ Add task</button>
+<button type="button" id="cpm-reset">Reset to example</button>
+<span class="cpm-summary" id="cpm-summary"></span>
+</div>
+<div id="cpm-editor"></div>
+<h2 style="border:0;padding:0;font-size:18px;margin:22px 0 10px">Schedule</h2>
+<div id="cpm-result"></div>
+<h2 style="border:0;padding:0;font-size:18px;margin:22px 0 4px">Gantt chart</h2>
+<div class="cpm-gantt" id="cpm-gantt"></div>
+<div class="cpm-legend">
+<span><span class="sw sw-c"></span>critical (zero float)</span>
+<span><span class="sw sw-n"></span>has float</span>
+<span><span class="sw sw-f"></span>float extension</span>
+</div>
+<p class="cpm-footnote">Durations are in whole days with a single calendar (no weekends or holidays), and every dependency is finish-to-start. The red chain is the critical path: delay any task on it and the project end date moves by the same amount.</p>
+</div>
+
+<h2>Questions this page answers</h2>
+<details><summary>What is the critical path of a project?</summary><p>The critical path is the longest chain of dependent tasks in the plan, and its length sets the project finish date. Every task on it has zero total float: if a critical task slips by a day, the delivery date moves by a day. Tasks off the chain have float, so a small delay there does not move the end date.</p></details>
+<details><summary>What is float (slack) and how is it calculated?</summary><p>Total float is the number of days a task can slip without moving the project finish date. It is latest start minus earliest start (or latest finish minus earliest finish, which is the same number). Earliest values come from a forward pass through the dependency graph; latest values come from a backward pass from the project end. Zero float means the task is on the critical path.</p></details>
+<details><summary>Is this critical path calculator free?</summary><p>Yes. It is free, needs no account and no sign-in, and there is no limit on how many plans you compute. Everything runs in your browser: the tasks you type never leave the page, because the whole calculator is one static HTML file with no server behind it.</p></details>
+<details><summary>How is this calculator related to KaidoPlan?</summary><p>This page is a standalone teaching tool: you type a small graph by hand and watch the forward and backward passes produce the critical path. KaidoPlan is a macOS planning app that does the same computation automatically — it keeps tasks, dependencies and dates in one local .kaido file, recomputes the schedule on every change, highlights the critical path in the Gantt chart, and reports violations such as dependency cycles and date conflicts.</p></details>
+
+<h2>How the critical path method works</h2>
+<p>The critical path method (CPM) is a scheduling algorithm that turns a list of tasks, durations and dependencies into dates — and, more importantly, into an explanation of which tasks actually decide the finish date. A critical path calculator like this one automates the arithmetic, but the algorithm is small enough to do by hand, and knowing what it does makes the output readable.</p>
+<p>The first step is the <strong>forward pass</strong>. Walking through the tasks in dependency order, each task's earliest start (ES) is the latest earliest finish (EF) among its predecessors — you cannot begin until all of them are done. Its earliest finish is then simply ES plus its duration. Tasks with no dependencies start at day 0. When the forward pass is done, the largest earliest finish in the plan is the earliest possible project finish.</p>
+<p>The second step is the <strong>backward pass</strong>, which runs in the opposite direction. Starting from that project finish, every task's latest finish (LF) is the earliest latest start (LS) among its successors — if a successor must begin by day 10, you must be finished by day 10. Its latest start is LF minus duration. Tasks with no successors get the project finish date as their latest finish.</p>
+<p>With both passes done, the <strong>total float</strong> of each task falls out immediately: LS minus ES. A task with three days of float can slip three days without anyone noticing on the delivery date. A task with zero float cannot move at all without moving the project end — and the chain of zero-float tasks from start to finish is the critical path. This calculator highlights that chain in red on the Gantt chart, which is usually the only part of the plan worth watching in a weekly review.</p>
+<p>Three things the textbook algorithm does <em>not</em> model, and neither does this page: working calendars (a five-day week with weekends off), overlapping dependencies (start-to-start or finish-to-finish links), and resource limits (two people who cannot both do two full-time tasks). Small plans tolerate those simplifications; real ones usually do not, which is why a spreadsheet CPM calculation eventually stops matching reality.</p>
+
+<div class="cta"><strong>KaidoPlan computes this automatically for every plan.</strong><p>The calculator above handles one graph at a time, by hand. KaidoPlan keeps the tasks, dependencies and dates in one local .kaido file, recomputes the forward and backward passes on every change, highlights the critical path in the Gantt chart, and reports dependency cycles and date conflicts as violations.</p><a class="button" href="https://kaidoplan.cygnusyang.top/?ref=tool-cpm" data-track="download_click" data-track-page="tool-cpm-cta">Get KaidoPlan for macOS</a></div>
+<nav class="related" aria-label="Related pages"><h2>Related</h2><ul><li><a href="../qa/critical-path-on-mac.html">How do I calculate a critical path on a Mac?</a><span class="why">Answer</span></li><li><a href="../qa/critical-path-for-ai-projects.html">What is a critical path, and why does an AI project need one?</a><span class="why">Answer</span></li><li><a href="../guides.html">All guides and answers</a><span class="why">Guides</span></li></ul></nav>
+</main>
+<footer class="footer"><div class="wrap footer-inner"><span>© KaidoPlan · Critical path for AI projects</span><span><a href="/guides.html">Guides</a> · <a href="mailto:ruohuyang@163.com">Contact</a> · <a href="/terms.html">Terms of sale</a> · <a href="/refund.html">Refunds</a> · <a href="/privacy.html">Privacy</a> · <a href="/zh.html" lang="zh-Hans">简体中文</a></span></div></footer>
+<script src="/theme.js"></script>
+<script>
+(function () {
+    "use strict";
+
+    var EXAMPLE = [
+        { name: "Collect requirements", dur: 3, deps: [] },
+        { name: "Architecture design", dur: 2, deps: [0] },
+        { name: "UI design", dur: 2, deps: [0] },
+        { name: "Backend API", dur: 5, deps: [1] },
+        { name: "Frontend build", dur: 4, deps: [2] },
+        { name: "Integration & test", dur: 3, deps: [3, 4] },
+        { name: "Release", dur: 1, deps: [5] }
+    ];
+
+    var tasks = EXAMPLE.map(function (t) {
+        return { name: t.name, dur: t.dur, deps: t.deps.slice() };
+    });
+
+    var elError = document.getElementById("cpm-error");
+    var elEditor = document.getElementById("cpm-editor");
+    var elResult = document.getElementById("cpm-result");
+    var elGantt = document.getElementById("cpm-gantt");
+    var elSummary = document.getElementById("cpm-summary");
+    var SVG_NS = "http://www.w3.org/2000/svg";
+
+    function esc(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
+    }
+
+    // ---- CPM：校验 + 拓扑排序 + 前推/回推。返回 {ok, error, rows, total} ----
+    function compute(list) {
+        var n = list.length, i, j;
+        for (i = 0; i < n; i++) {
+            var deps = list[i].deps;
+            for (j = 0; j < deps.length; j++) {
+                if (deps[j] === i) {
+                    return { ok: false, error: "Task " + (i + 1) + " (\"" + list[i].name + "\") depends on itself." };
+                }
+                if (deps[j] < 0 || deps[j] >= n) {
+                    return { ok: false, error: "Task " + (i + 1) + " (\"" + list[i].name + "\") has a dependency that no longer exists." };
+                }
+            }
+        }
+        // Kahn 拓扑排序；排序不完 ⇒ 有环
+        var indeg = new Array(n).fill(0);
+        var succs = [];
+        for (i = 0; i < n; i++) succs.push([]);
+        for (i = 0; i < n; i++) {
+            for (j = 0; j < list[i].deps.length; j++) {
+                succs[list[i].deps[j]].push(i);
+                indeg[i]++;
+            }
+        }
+        var queue = [], order = [];
+        for (i = 0; i < n; i++) if (indeg[i] === 0) queue.push(i);
+        while (queue.length) {
+            var u = queue.shift();
+            order.push(u);
+            for (j = 0; j < succs[u].length; j++) {
+                var v = succs[u][j];
+                if (--indeg[v] === 0) queue.push(v);
+            }
+        }
+        if (order.length < n) {
+            var stuck = [];
+            for (i = 0; i < n; i++) if (indeg[i] > 0) stuck.push("\"" + list[i].name + "\"");
+            return { ok: false, error: "Dependency cycle detected involving: " + stuck.join(", ") + ". A cycle means that piece of work can never start." };
+        }
+        // 前推：ES = max(EF of preds)
+        var es = new Array(n), ef = new Array(n), total = 0;
+        for (i = 0; i < order.length; i++) {
+            var t = order[i], start = 0;
+            for (j = 0; j < list[t].deps.length; j++) {
+                if (ef[list[t].deps[j]] > start) start = ef[list[t].deps[j]];
+            }
+            es[t] = start;
+            ef[t] = start + list[t].dur;
+            if (ef[t] > total) total = ef[t];
+        }
+        // 回推：LF = min(LS of succs)，无后继取 total
+        var ls = new Array(n), lf = new Array(n);
+        for (i = order.length - 1; i >= 0; i--) {
+            var t2 = order[i], end = total;
+            for (j = 0; j < succs[t2].length; j++) {
+                if (ls[succs[t2][j]] < end) end = ls[succs[t2][j]];
+            }
+            lf[t2] = end;
+            ls[t2] = end - list[t2].dur;
+        }
+        var rows = [];
+        for (i = 0; i < n; i++) {
+            rows.push({
+                idx: i, name: list[i].name, dur: list[i].dur,
+                es: es[i], ef: ef[i], ls: ls[i], lf: lf[i],
+                float: ls[i] - es[i], critical: ls[i] - es[i] === 0
+            });
+        }
+        return { ok: true, rows: rows, total: total };
+    }
+
+    function criticalChain(res) {
+        return res.rows.filter(function (r) { return r.critical; })
+            .sort(function (a, b) { return a.es - b.es; })
+            .map(function (r) { return r.name; });
+    }
+
+    // ---- 编辑器：只在结构性变化（增/删/重置）时整体重建，输入时不重建以免丢焦点 ----
+    function renderEditor() {
+        var html = "<table><thead><tr><th>Task</th><th>Duration (days)</th><th>Depends on</th><th></th></tr></thead><tbody>";
+        for (var i = 0; i < tasks.length; i++) {
+            html += "<tr><td class=\"task-cell\"><input type=\"text\" value=\"" + esc(tasks[i].name) + "\" aria-label=\"Task " + (i + 1) + " name\" data-name=\"" + i + "\"></td>" +
+                "<td class=\"dur-cell\"><input type=\"number\" min=\"0\" max=\"365\" step=\"1\" value=\"" + tasks[i].dur + "\" aria-label=\"Task " + (i + 1) + " duration in days\" data-dur=\"" + i + "\"></td>" +
+                "<td><div class=\"deps\">";
+            for (var d = 0; d < tasks.length; d++) {
+                if (d === i) continue;
+                html += "<label><input type=\"checkbox\" data-dep=\"" + i + "\" value=\"" + d + "\"" +
+                    (tasks[i].deps.indexOf(d) >= 0 ? " checked" : "") + "> <span data-deplabel=\"" + d + "\">" + esc(tasks[d].name) + "</span></label>";
+            }
+            html += "</div></td><td><button type=\"button\" class=\"rowdel\" data-del=\"" + i + "\" aria-label=\"Delete task " + (i + 1) + "\">✕</button></td></tr>";
+        }
+        html += "</tbody></table>";
+        elEditor.innerHTML = html;
+    }
+
+    function renderResult(res) {
+        if (tasks.length === 0) {
+            elResult.innerHTML = "<p class=\"cpm-footnote\">Add a task to compute a schedule.</p>";
+            elGantt.innerHTML = "";
+            return;
+        }
+        var html = "<table><thead><tr><th>Task</th><th class=\"num\">Dur</th><th class=\"num\">ES</th><th class=\"num\">EF</th><th class=\"num\">LS</th><th class=\"num\">LF</th><th class=\"num\">Float</th><th>Critical</th></tr></thead><tbody>";
+        for (var i = 0; i < res.rows.length; i++) {
+            var r = res.rows[i];
+            html += "<tr" + (r.critical ? " class=\"crit-row\"" : "") + "><td>" + esc(r.name) + "</td>" +
+                "<td class=\"num\">" + r.dur + "</td><td class=\"num\">" + r.es + "</td><td class=\"num\">" + r.ef + "</td>" +
+                "<td class=\"num\">" + r.ls + "</td><td class=\"num\">" + r.lf + "</td><td class=\"num\">" + r.float + "</td>" +
+                "<td>" + (r.critical ? "<span class=\"crit-mark\">✓</span>" : "") + "</td></tr>";
+        }
+        html += "</tbody></table>";
+        elResult.innerHTML = html;
+    }
+
+    function svgEl(tag, attrs) {
+        var e = document.createElementNS(SVG_NS, tag);
+        for (var k in attrs) e.setAttribute(k, attrs[k]);
+        return e;
+    }
+
+    function renderGantt(res) {
+        elGantt.innerHTML = "";
+        if (tasks.length === 0) return;
+        var DAY_W = 34, ROW_H = 26, GUTTER = 170, TOP = 22, BAR_H = 15;
+        var total = res.total;
+        var W = GUTTER + total * DAY_W + 12, H = TOP + res.rows.length * ROW_H + 10;
+        var svg = svgEl("svg", {
+            viewBox: "0 0 " + W + " " + H, width: "100%",
+            role: "img",
+            "aria-label": "Gantt chart: one bar per task, positioned by earliest start; critical tasks in red"
+        });
+        var tick = total <= 30 ? 1 : 5;
+        var d;
+        for (d = 0; d <= total; d += tick) {
+            var x = GUTTER + d * DAY_W;
+            svg.appendChild(svgEl("line", { "class": "gline", x1: x, y1: TOP - 6, x2: x, y2: H - 6 }));
+            var lbl = svgEl("text", { "class": "gday", x: x, y: TOP - 10, "text-anchor": "middle" });
+            lbl.textContent = d;
+            svg.appendChild(lbl);
+        }
+        var rows = res.rows.slice().sort(function (a, b) { return a.es - b.es || a.idx - b.idx; });
+        for (var i = 0; i < rows.length; i++) {
+            var r = rows[i], y = TOP + i * ROW_H;
+            var name = svgEl("text", { "class": "gname", x: GUTTER - 8, y: y + BAR_H / 2 + 4, "text-anchor": "end" });
+            name.textContent = r.name;
+            svg.appendChild(name);
+            var bw = Math.max(r.dur * DAY_W, 3);
+            var bar = svgEl("rect", {
+                x: GUTTER + r.es * DAY_W, y: y, width: bw, height: BAR_H, rx: 3,
+                "class": r.critical ? "gbar-c" : "gbar"
+            });
+            var title = svgEl("title");
+            title.textContent = r.name + ": day " + r.es + " → " + r.ef +
+                (r.float > 0 ? " (float " + r.float + " d)" : " (critical)");
+            bar.appendChild(title);
+            svg.appendChild(bar);
+            if (r.float > 0) {
+                svg.appendChild(svgEl("rect", {
+                    x: GUTTER + r.ef * DAY_W, y: y + BAR_H / 2 - 2,
+                    width: r.float * DAY_W, height: 4, rx: 2, "class": "gfloat"
+                }));
+            }
+        }
+        elGantt.appendChild(svg);
+    }
+
+    function showError(msg) {
+        elError.hidden = false;
+        elError.textContent = msg;
+        elResult.innerHTML = "";
+        elGantt.innerHTML = "";
+        elSummary.textContent = "";
+    }
+
+    function recalc() {
+        var res = compute(tasks);
+        if (!res.ok) {
+            showError(res.error);
+            return;
+        }
+        elError.hidden = true;
+        renderResult(res);
+        renderGantt(res);
+        var chain = criticalChain(res);
+        elSummary.innerHTML = "Project duration: <strong>" + res.total + " days</strong> · Critical path: <strong>" +
+            (chain.length ? chain.map(esc).join(" → ") : "—") + "</strong>";
+    }
+
+    // ---- 事件 ----
+    document.getElementById("cpm-add").addEventListener("click", function () {
+        tasks.push({ name: "New task", dur: 1, deps: [] });
+        renderEditor();
+        recalc();
+    });
+    document.getElementById("cpm-reset").addEventListener("click", function () {
+        tasks = EXAMPLE.map(function (t) {
+            return { name: t.name, dur: t.dur, deps: t.deps.slice() };
+        });
+        renderEditor();
+        recalc();
+    });
+    elEditor.addEventListener("input", function (ev) {
+        var el = ev.target;
+        var i;
+        if (el.hasAttribute("data-name")) {
+            i = Number(el.getAttribute("data-name"));
+            tasks[i].name = el.value;
+            // 同步依赖复选框上的任务名标签，不重建编辑器
+            var labels = elEditor.querySelectorAll("[data-deplabel=\"" + i + "\"]");
+            for (var k = 0; k < labels.length; k++) labels[k].textContent = el.value;
+            recalc();
+        } else if (el.hasAttribute("data-dur")) {
+            i = Number(el.getAttribute("data-dur"));
+            var v = parseInt(el.value, 10);
+            tasks[i].dur = isNaN(v) ? 0 : Math.max(0, Math.min(365, v));
+            recalc();
+        }
+    });
+    elEditor.addEventListener("change", function (ev) {
+        var el = ev.target;
+        if (!el.hasAttribute("data-dep")) return;
+        var i = Number(el.getAttribute("data-dep")), d = Number(el.value);
+        var at = tasks[i].deps.indexOf(d);
+        if (el.checked && at < 0) tasks[i].deps.push(d);
+        if (!el.checked && at >= 0) tasks[i].deps.splice(at, 1);
+        tasks[i].deps.sort(function (a, b) { return a - b; });
+        recalc();
+    });
+    elEditor.addEventListener("click", function (ev) {
+        var btn = ev.target.closest("[data-del]");
+        if (!btn) return;
+        var i = Number(btn.getAttribute("data-del"));
+        tasks.splice(i, 1);
+        tasks.forEach(function (t) {
+            t.deps = t.deps.filter(function (d) { return d !== i; }).map(function (d) { return d > i ? d - 1 : d; });
+        });
+        renderEditor();
+        recalc();
+    });
+
+    renderEditor();
+    recalc();
+})();
+</script>
+</body></html>

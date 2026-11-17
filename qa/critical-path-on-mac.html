@@ -128,6 +128,7 @@
 <li><strong>A task with two successors needs the minimum, not the first one you look at.</strong> Missing the second successor makes a critical task look slack.</li>
 <li><strong>Constraints are not part of the textbook algorithm.</strong> A fixed delivery date, a task that cannot start before a date, or a calendar with non-working days has to be folded in, and a spreadsheet has no place to put it.</li>
 </ul>
+<p>You can run both passes on your own numbers in the <a href="../tools/critical-path-calculator.html">free online critical path calculator</a> — it shows ES, EF, LS, LF and total float for every task and highlights the zero-slack chain in red on the chart.</p>
 
 <h2>Running it locally on a Mac</h2>
 <p>KaidoPlan is a macOS app that keeps the WBS, the dependency edges and the dates in one local <code>.kaido</code> file — plain JSON, no database, no account. The schedule engine computes the critical path, total and free slack, and reports violations: date conflicts, dependency cycles and tasks scheduled outside their allowed window.</p>
