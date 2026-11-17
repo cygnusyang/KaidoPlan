@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The agent marked every task done and the deadline still slipped</title>
-<meta name="description" content="A completed task list and a valid schedule are different objects. Three structural reasons the date moves anyway, and the check that surfaces each one.">
+<meta name="description" content="A completed task list and a valid schedule are different objects. Why &#x27;done&#x27; as a boolean cannot contradict a date, what a completion timestamp buys you, and the three checks that turn a status report into arithmetic.">
 <link rel="canonical" href="https://kaidoplan.cygnusyang.top/qa/ai-agent-marked-everything-done.html">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="KaidoPlan">
 <meta property="og:title" content="The agent marked every task done and the deadline still slipped">
-<meta property="og:description" content="A completed task list and a valid schedule are different objects. Three structural reasons the date moves anyway, and the check that surfaces each one.">
+<meta property="og:description" content="A completed task list and a valid schedule are different objects. Why &#x27;done&#x27; as a boolean cannot contradict a date, what a completion timestamp buys you, and the three checks that turn a status report into arithmetic.">
 <meta property="og:url" content="https://kaidoplan.cygnusyang.top/qa/ai-agent-marked-everything-done.html">
 <meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
 <meta property="og:locale" content="en_US">
@@ -23,7 +23,7 @@
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "The agent marked every task done — why did the deadline still slip?",
-  "description": "A completed task list and a valid schedule are different objects. Three structural reasons the date moves anyway, and the check that surfaces each one.",
+  "description": "A completed task list and a valid schedule are different objects. Why 'done' as a boolean cannot contradict a date, what a completion timestamp buys you, and the three checks that turn a status report into arithmetic.",
   "url": "https://kaidoplan.cygnusyang.top/qa/ai-agent-marked-everything-done.html",
   "datePublished": "2026-11-16",
   "dateModified": "2026-11-16",
@@ -99,28 +99,42 @@
 <h1>The agent marked every task done — why did the deadline still slip?</h1>
 <p class="dek">Because <em>done</em> is a property of a task, and the delivery date is a property of a graph. Nobody was lying; the two never had to agree.</p>
 <p class="meta">Updated 2026-11-16 · by cygnus, the developer of KaidoPlan</p>
-<h2>Three ways a finished list produces a late project</h2>
-<h3>1. A task finished after the thing that depended on it started</h3>
-<p>Agents execute in the order they are asked, which is not always the order the plan implies. Server work finishes on the 6th, client integration began on the 4th, and both statements are true. Nothing in a task list objects, because a task list does not know that one had to precede the other. A schedule does: it reports the pair as a date conflict.</p>
+<h2>A status report is not a schedule</h2>
+<p>The report answers "what is done". The delivery date is computed from edges and durations. When only the first object is maintained, the second one drifts — silently, because nothing compares them.</p>
+<p>The useful abstraction is that <em>done</em> has two forms: a boolean a burndown chart can consume, and a timestamp a conflict check can consume. AI-assisted projects usually keep only the boolean.</p>
 
-<h3>2. The dependency was never written down</h3>
-<p>Most plans record tasks and dates and stop there. Without an edge between two tasks, the schema has no way to say "the acceptance test cannot start before the API exists" — so the schedule compresses, the finish date looks earlier than reality, and the project appears healthy right up to the week it becomes obvious.</p>
+<h2>Why the boolean is not enough</h2>
+<ul>
+<li><strong>It cannot contradict anything.</strong> "Task 14: done" is compatible with every possible date. A date conflict needs a completion time and a predecessor's end time; a boolean supplies neither.</li>
+<li><strong>It hides the order.</strong> Agents execute in the order they are asked, which is not always the order the graph implies. Server work finishes on the 6th, client integration began on the 4th, and both statements are true. A task list has no concept of one task preceding another, so nothing objects.</li>
+<li><strong>It decays in prose.</strong> When status arrives as a paragraph — "finished the API work, moved on to the client" — the numbers go through a human transcription step, and transcription is where the completion time gets rounded to "yesterday".</li>
+</ul>
 
-<h3>3. The work that slipped is not on the visible path</h3>
-<p>Fifteen tasks are green. The two-day delay is in a task nobody watches because it looks small. It is on the critical path, so it moves the end date one-for-one. Everyone optimises what is visible; the date is set by what is on the zero-slack chain.</p>
-
-<h2>The check that catches all three</h2>
+<h2>The three checks that turn a report into arithmetic</h2>
 <pre><code>kaidoplan schedule compute --file plan.kaido
 kaidoplan schedule path --file plan.kaido
 kaidoplan violations --file plan.kaido</code></pre>
-<p>Computation gives real dates from the graph. The critical path names the chain that decides the end date. Violations list the conflicts, cycles and out-of-window tasks that a status report cannot see. Run them after every write-back and the three failures above stop being surprises.</p>
+<p>The first produces real dates from the graph. The second names the chain that sets the end date. The third lists what the plan admits is broken: date conflicts, dependency cycles, tasks outside the project window, and blocked chains.</p>
+<p>The result you want is boring — no violations, and a critical path you can say out loud. If you cannot name the chain that sets your date, the check has been performed, not done.</p>
 
-<h2>What to change in the process</h2>
+<h2>Recording status instead of reporting it</h2>
+<p>The single change that makes the checks possible: the agent writes status through the tool surface rather than narrating it.</p>
+<pre><code>kaidoplan status batch --file plan.kaido --json</code></pre>
+<p>Two properties matter in that call, and both are easy to get wrong:</p>
 <ul>
-<li>Make "done" mean "done, and the plan recomputed".</li>
-<li>Have the agent write status through the tool surface instead of telling you about it — <code>status_update</code> records the completion time, which is what a conflict check needs.</li>
-<li>Keep a baseline before each delivery push, so "slipped" is measurable against a frozen schedule rather than a memory.</li>
+<li><strong>Per-entry success and failure.</strong> A long batch should return which entries landed and which did not, and it should not abort on the first failure. That is correct behaviour, and it is exactly why you have to read the output: nine of ten entries landing looks like success from a distance.</li>
+<li><strong>A completion time, not just a state.</strong> The timestamp is the input a conflict check needs. "Done" as a boolean is enough for a burndown and useless for a schedule.</li>
 </ul>
+
+<h2>The audit trail you already have</h2>
+<p>If the plan is a file in the repository, the plan's history is the commit history. A date that moved is a diff someone can review, not a claim you have to take on trust. Two habits follow:</p>
+<ol>
+<li>Make <em>done</em> mean <em>done, and the plan recomputed</em> — as a literal gate, not a slogan.</li>
+<li>Take a baseline before each delivery push, so "we slipped" is measured against a frozen schedule instead of a remembered one.</li>
+</ol>
+
+<h2>What this does not do</h2>
+<p>It does not shorten the critical path, and it does not repair a bad estimate — a plan can be internally consistent and still unachievable. It makes the slip visible on the day it happens rather than the week it becomes undeniable, which is the only window in which a deadline can still be protected. The five underlying failure modes are set out in <a href="why-ai-projects-miss-deadlines.html">the longer argument</a>.</p>
 <h2>Questions this page does not answer</h2>
 <details><summary>Does the app edit the plan automatically?</summary><p>Only when an agent or you call a write tool, and only with a Pro licence after the trial. Nothing is rewritten behind your back.</p></details>
 <details><summary>Can I see which task caused the slip?</summary><p>Yes — the critical path plus the violation entry identifies the tasks with zero slack and the pair whose dates disagree. That is the audit trail, and it is why the plan is kept as a file.</p></details>

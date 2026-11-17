@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>What is a critical path, and why does an AI-assisted project need one?</title>
-<meta name="description" content="The critical path is the chain of dependent tasks with zero total slack: it sets the project&#x27;s finish date. In AI-assisted work it is the only defence against an optimistically compressed plan.">
+<meta name="description" content="The critical path is the chain of dependent tasks with zero total slack: its length is the project duration. A worked five-task example, why AI projects hide it, and how to compute it.">
 <link rel="canonical" href="https://kaidoplan.cygnusyang.top/qa/critical-path-for-ai-projects.html">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="KaidoPlan">
 <meta property="og:title" content="What is a critical path, and why does an AI-assisted project need one?">
-<meta property="og:description" content="The critical path is the chain of dependent tasks with zero total slack: it sets the project&#x27;s finish date. In AI-assisted work it is the only defence against an optimistically compressed plan.">
+<meta property="og:description" content="The critical path is the chain of dependent tasks with zero total slack: its length is the project duration. A worked five-task example, why AI projects hide it, and how to compute it.">
 <meta property="og:url" content="https://kaidoplan.cygnusyang.top/qa/critical-path-for-ai-projects.html">
 <meta property="og:image" content="https://kaidoplan.cygnusyang.top/assets/workbench-en.webp">
 <meta property="og:locale" content="en_US">
@@ -23,7 +23,7 @@
   "@context": "https://schema.org",
   "@type": "TechArticle",
   "headline": "What is a critical path, and why does an AI project need one?",
-  "description": "The critical path is the chain of dependent tasks with zero total slack: it sets the project's finish date. In AI-assisted work it is the only defence against an optimistically compressed plan.",
+  "description": "The critical path is the chain of dependent tasks with zero total slack: its length is the project duration. A worked five-task example, why AI projects hide it, and how to compute it.",
   "url": "https://kaidoplan.cygnusyang.top/qa/critical-path-for-ai-projects.html",
   "datePublished": "2026-11-16",
   "dateModified": "2026-11-16",
@@ -103,24 +103,53 @@
 <p>Take the dependency graph. For every task, compute the earliest it can start and finish, then the latest it can start and finish without pushing the project end. The difference between the two is <em>slack</em>. Tasks with zero slack sit on the critical path, and they form one or more chains from the start of the project to its end.</p>
 <p>Two consequences follow, and they are the whole practical value:</p>
 <ul>
-<li>The end date is not the sum of all estimates. It is the length of one chain. Adding people to tasks off the chain buys you nothing.</li>
+<li>The end date is not the sum of all estimates. It is the length of one chain. Adding a person to a task off the chain buys you nothing.</li>
 <li>Any date change on the chain moves the delivery date one-for-one. That is the only set of tasks where "we lost a day" is literally true.</li>
 </ul>
 
+<h2>A five-task example you can check by hand</h2>
+<p>Design first; server and client in parallel after it; integration after both; acceptance last. Durations in working days.</p>
+<table>
+<thead><tr><th>Task</th><th>Duration</th><th>Depends on</th><th>ES</th><th>EF</th><th>LS</th><th>LF</th><th>Slack</th></tr></thead>
+<tbody>
+<tr><td>A Design</td><td>2</td><td>—</td><td>0</td><td>2</td><td>0</td><td>2</td><td><strong>0</strong></td></tr>
+<tr><td>B Server</td><td>5</td><td>A</td><td>2</td><td>7</td><td>2</td><td>7</td><td><strong>0</strong></td></tr>
+<tr><td>C Client</td><td>4</td><td>A</td><td>2</td><td>6</td><td>3</td><td>7</td><td>1</td></tr>
+<tr><td>D Integration</td><td>3</td><td>B, C</td><td>7</td><td>10</td><td>7</td><td>10</td><td><strong>0</strong></td></tr>
+<tr><td>E Acceptance</td><td>1</td><td>D</td><td>10</td><td>11</td><td>10</td><td>11</td><td><strong>0</strong></td></tr>
+</tbody>
+</table>
+<p>Read the two columns that decide everything:</p>
+<ul>
+<li><strong>Project duration is 11</strong>, from chain A → B → D → E. Not 2+5+4+3+1 = 15.</li>
+<li><strong>C has one day of slack.</strong> It can slip a day without moving the end date, and it is the only task where that is true. Everything else in the plan is the date.</li>
+</ul>
+<p>This is the arithmetic that a green task list cannot express. Five tasks done is a count; the number that decides the delivery is the zero-slack chain, and it does not change because the count went up.</p>
+
 <h2>Why AI-assisted projects need it more, not less</h2>
-<p>An agent executes quickly and reports honestly, so the plan fills with completed work — and the natural conclusion is that the project is going well. But agents also compress durations when asked to estimate, and they execute in the order requested rather than the order the graph requires. Both inflate the apparent progress while the chain that sets the date is unchanged.</p>
-<p>A checklist cannot see this, because the checklist has no edges. The number that matters is not "how many tasks are done" but "how many days of zero-slack work remain".</p>
+<p>An agent executes quickly and reports honestly, so the plan fills with completed work — and the natural conclusion is that the project is going well. Two mechanisms inflate that impression while the chain is unchanged:</p>
+<ul>
+<li><strong>Compressed estimates.</strong> An agent asked how long a task will take answers with an average case and no memory of the last time this class of task went wrong. Across forty tasks the optimism does not average out, because every task inherits the same missing memory.</li>
+<li><strong>Execution order instead of graph order.</strong> Work starts when it is asked for, not when its predecessor finishes. Every individual status stays true; the dates stop agreeing.</li>
+</ul>
+<p>A checklist cannot see either one, because a checklist has no edges. The number that matters is not "how many tasks are done" but "how many days of zero-slack work remain".</p>
 
 <h2>Computing it</h2>
-<pre><code>kaidoplan schedule path --file plan.kaido</code></pre>
-<p>Returns the tasks whose total slack is within the requested limit, together with the schedule. In the app the same chain is highlighted in the Gantt chart. Both read the same dependency graph, so they cannot disagree.</p>
+<pre><code>kaidoplan schedule compute --file plan.kaido
+kaidoplan schedule path --file plan.kaido</code></pre>
+<p>The first runs the forward and backward passes and writes the dates. The second returns the tasks whose total slack is within the requested limit, together with the schedule. In the app the same chain is highlighted in the Gantt chart. All three read the same dependency graph, so they cannot disagree.</p>
+<p>If you want to do the arithmetic yourself before trusting a tool, the <a href="../tools/critical-path-calculator.html">free browser calculator</a> takes tasks, durations and dependencies and shows ES, EF, LS, LF and total float with the zero-slack chain highlighted.</p>
 
-<h2>Three practical rules</h2>
+<h2>Four practical rules</h2>
 <ol>
-<li><strong>Review the critical path, not the task list.</strong> If a standup asks everyone for status, it optimises the wrong set. Ask what moved on the chain.</li>
+<li><strong>Review the critical path, not the task list.</strong> A standup that asks everyone for status optimises the wrong set. Ask what moved on the chain.</li>
 <li><strong>Keep the chain short on purpose.</strong> Parallelising off-chain work is cheap; serialising on-chain work is what makes a plan fragile.</li>
-<li><strong>Recompute after every change.</strong> The critical path moves. A chain that was slack last week can become the constraint this week, silently.</li>
+<li><strong>Recompute after every change.</strong> The chain moves. Work that had slack last week can become the constraint this week, silently.</li>
+<li><strong>Guard the edges, not just the numbers.</strong> A missing dependency compresses the schedule and looks healthy. If you cannot express "B cannot start until A finishes" such that a machine complains, the critical path you compute is a guess.</li>
 </ol>
+
+<h2>What a critical path does not tell you</h2>
+<p>It does not tell you whether the plan is achievable — a chain can be internally consistent and still too short. It does not shorten itself; it tells you which chain to cut, parallelise, or renegotiate, and the decision stays with you. And it does not replace a conversation with a client. It makes the slip visible on the day it happens instead of the week it becomes undeniable.</p>
 <h2>Questions this page does not answer</h2>
 <details><summary>Do I need to understand the algorithm to use it?</summary><p>No. You need to trust the graph, which means every dependency you assert has to be real. A wrong edge produces a confidently wrong critical path.</p></details>
 <details><summary>What is the difference between the critical path and the finish date?</summary><p>The finish date is the output. The critical path is the explanation: which tasks, in which order, produce that date.</p></details>

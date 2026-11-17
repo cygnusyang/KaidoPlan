@@ -482,9 +482,9 @@ The specific things people search for before they try a planning tool.
 
 - How do I keep a project plan in sync across Claude Code sessions?Short answer: stop keeping the plan in the conversation.
 
-- The agent marked every task done — why did the deadline still slip?Because <em>done</em> is a property of a task, and the delivery date is a property of a graph.
+- The agent marked every task done — why did the deadline still slip?A boolean status cannot contradict a date — and that is the whole problem.
 
-- What is a critical path, and why does an AI project need one?The critical path is the longest chain of dependent work in the plan.
+- What is a critical path, and why does an AI project need one?The chain that sets the date, and why a green task list hides it.
 
 - How do I calculate a critical path on a Mac?Three options on macOS, and where each one breaks.
 
@@ -1496,35 +1496,53 @@ Because done is a property of a task, and the delivery date is a property of a g
 
 Updated 2026-11-16 · by cygnus, the developer of KaidoPlan
 
-## Three ways a finished list produces a late project
+## A status report is not a schedule
 
-### 1. A task finished after the thing that depended on it started
+The report answers "what is done". The delivery date is computed from edges and durations. When only the first object is maintained, the second one drifts — silently, because nothing compares them.
 
-Agents execute in the order they are asked, which is not always the order the plan implies. Server work finishes on the 6th, client integration began on the 4th, and both statements are true. Nothing in a task list objects, because a task list does not know that one had to precede the other. A schedule does: it reports the pair as a date conflict.
+The useful abstraction is that done has two forms: a boolean a burndown chart can consume, and a timestamp a conflict check can consume. AI-assisted projects usually keep only the boolean.
 
-### 2. The dependency was never written down
+## Why the boolean is not enough
 
-Most plans record tasks and dates and stop there. Without an edge between two tasks, the schema has no way to say "the acceptance test cannot start before the API exists" — so the schedule compresses, the finish date looks earlier than reality, and the project appears healthy right up to the week it becomes obvious.
+- It cannot contradict anything. "Task 14: done" is compatible with every possible date. A date conflict needs a completion time and a predecessor's end time; a boolean supplies neither.
 
-### 3. The work that slipped is not on the visible path
+- It hides the order. Agents execute in the order they are asked, which is not always the order the graph implies. Server work finishes on the 6th, client integration began on the 4th, and both statements are true. A task list has no concept of one task preceding another, so nothing objects.
 
-Fifteen tasks are green. The two-day delay is in a task nobody watches because it looks small. It is on the critical path, so it moves the end date one-for-one. Everyone optimises what is visible; the date is set by what is on the zero-slack chain.
+- It decays in prose. When status arrives as a paragraph — "finished the API work, moved on to the client" — the numbers go through a human transcription step, and transcription is where the completion time gets rounded to "yesterday".
 
-## The check that catches all three
+## The three checks that turn a report into arithmetic
 
 `kaidoplan schedule compute --file plan.kaido
 kaidoplan schedule path --file plan.kaido
 kaidoplan violations --file plan.kaido`
 
-Computation gives real dates from the graph. The critical path names the chain that decides the end date. Violations list the conflicts, cycles and out-of-window tasks that a status report cannot see. Run them after every write-back and the three failures above stop being surprises.
+The first produces real dates from the graph. The second names the chain that sets the end date. The third lists what the plan admits is broken: date conflicts, dependency cycles, tasks outside the project window, and blocked chains.
 
-## What to change in the process
+The result you want is boring — no violations, and a critical path you can say out loud. If you cannot name the chain that sets your date, the check has been performed, not done.
 
-- Make "done" mean "done, and the plan recomputed".
+## Recording status instead of reporting it
 
-- Have the agent write status through the tool surface instead of telling you about it — `status_update` records the completion time, which is what a conflict check needs.
+The single change that makes the checks possible: the agent writes status through the tool surface rather than narrating it.
 
-- Keep a baseline before each delivery push, so "slipped" is measurable against a frozen schedule rather than a memory.
+`kaidoplan status batch --file plan.kaido --json`
+
+Two properties matter in that call, and both are easy to get wrong:
+
+- Per-entry success and failure. A long batch should return which entries landed and which did not, and it should not abort on the first failure. That is correct behaviour, and it is exactly why you have to read the output: nine of ten entries landing looks like success from a distance.
+
+- A completion time, not just a state. The timestamp is the input a conflict check needs. "Done" as a boolean is enough for a burndown and useless for a schedule.
+
+## The audit trail you already have
+
+If the plan is a file in the repository, the plan's history is the commit history. A date that moved is a diff someone can review, not a claim you have to take on trust. Two habits follow:
+
+- Make done mean done, and the plan recomputed — as a literal gate, not a slogan.
+
+- Take a baseline before each delivery push, so "we slipped" is measured against a frozen schedule instead of a remembered one.
+
+## What this does not do
+
+It does not shorten the critical path, and it does not repair a bad estimate — a plan can be internally consistent and still unachievable. It makes the slip visible on the day it happens rather than the week it becomes undeniable, which is the only window in which a deadline can still be protected. The five underlying failure modes are set out in the longer argument.
 
 ## Questions this page does not answer
 
@@ -1568,29 +1586,150 @@ Take the dependency graph. For every task, compute the earliest it can start and
 
 Two consequences follow, and they are the whole practical value:
 
-- The end date is not the sum of all estimates. It is the length of one chain. Adding people to tasks off the chain buys you nothing.
+- The end date is not the sum of all estimates. It is the length of one chain. Adding a person to a task off the chain buys you nothing.
 
 - Any date change on the chain moves the delivery date one-for-one. That is the only set of tasks where "we lost a day" is literally true.
 
+## A five-task example you can check by hand
+
+Design first; server and client in parallel after it; integration after both; acceptance last. Durations in working days.
+
+Task
+
+Duration
+
+Depends on
+
+ES
+
+EF
+
+LS
+
+LF
+
+Slack
+
+A Design
+
+2
+
+—
+
+0
+
+2
+
+0
+
+2
+
+0
+
+B Server
+
+5
+
+A
+
+2
+
+7
+
+2
+
+7
+
+0
+
+C Client
+
+4
+
+A
+
+2
+
+6
+
+3
+
+7
+
+1
+
+D Integration
+
+3
+
+B, C
+
+7
+
+10
+
+7
+
+10
+
+0
+
+E Acceptance
+
+1
+
+D
+
+10
+
+11
+
+10
+
+11
+
+0
+
+Read the two columns that decide everything:
+
+- Project duration is 11, from chain A → B → D → E. Not 2+5+4+3+1 = 15.
+
+- C has one day of slack. It can slip a day without moving the end date, and it is the only task where that is true. Everything else in the plan is the date.
+
+This is the arithmetic that a green task list cannot express. Five tasks done is a count; the number that decides the delivery is the zero-slack chain, and it does not change because the count went up.
+
 ## Why AI-assisted projects need it more, not less
 
-An agent executes quickly and reports honestly, so the plan fills with completed work — and the natural conclusion is that the project is going well. But agents also compress durations when asked to estimate, and they execute in the order requested rather than the order the graph requires. Both inflate the apparent progress while the chain that sets the date is unchanged.
+An agent executes quickly and reports honestly, so the plan fills with completed work — and the natural conclusion is that the project is going well. Two mechanisms inflate that impression while the chain is unchanged:
 
-A checklist cannot see this, because the checklist has no edges. The number that matters is not "how many tasks are done" but "how many days of zero-slack work remain".
+- Compressed estimates. An agent asked how long a task will take answers with an average case and no memory of the last time this class of task went wrong. Across forty tasks the optimism does not average out, because every task inherits the same missing memory.
+
+- Execution order instead of graph order. Work starts when it is asked for, not when its predecessor finishes. Every individual status stays true; the dates stop agreeing.
+
+A checklist cannot see either one, because a checklist has no edges. The number that matters is not "how many tasks are done" but "how many days of zero-slack work remain".
 
 ## Computing it
 
-`kaidoplan schedule path --file plan.kaido`
+`kaidoplan schedule compute --file plan.kaido
+kaidoplan schedule path --file plan.kaido`
 
-Returns the tasks whose total slack is within the requested limit, together with the schedule. In the app the same chain is highlighted in the Gantt chart. Both read the same dependency graph, so they cannot disagree.
+The first runs the forward and backward passes and writes the dates. The second returns the tasks whose total slack is within the requested limit, together with the schedule. In the app the same chain is highlighted in the Gantt chart. All three read the same dependency graph, so they cannot disagree.
 
-## Three practical rules
+If you want to do the arithmetic yourself before trusting a tool, the free browser calculator takes tasks, durations and dependencies and shows ES, EF, LS, LF and total float with the zero-slack chain highlighted.
 
-- Review the critical path, not the task list. If a standup asks everyone for status, it optimises the wrong set. Ask what moved on the chain.
+## Four practical rules
+
+- Review the critical path, not the task list. A standup that asks everyone for status optimises the wrong set. Ask what moved on the chain.
 
 - Keep the chain short on purpose. Parallelising off-chain work is cheap; serialising on-chain work is what makes a plan fragile.
 
-- Recompute after every change. The critical path moves. A chain that was slack last week can become the constraint this week, silently.
+- Recompute after every change. The chain moves. Work that had slack last week can become the constraint this week, silently.
+
+- Guard the edges, not just the numbers. A missing dependency compresses the schedule and looks healthy. If you cannot express "B cannot start until A finishes" such that a machine complains, the critical path you compute is a guess.
+
+## What a critical path does not tell you
+
+It does not tell you whether the plan is achievable — a chain can be internally consistent and still too short. It does not shorten itself; it tells you which chain to cut, parallelise, or renegotiate, and the decision stays with you. And it does not replace a conversation with a client. It makes the slip visible on the day it happens instead of the week it becomes undeniable.
 
 ## Questions this page does not answer
 
