@@ -138,6 +138,8 @@ Knowing what still lands is not.
 
 Every AI project management tool already gives you somewhere to keep tasks. What none of them compute is which dependency chain sets your end date — or that a two-day slip upstream just ate your review window. KaidoPlan does the arithmetic a checklist does not.
 
+Why AI projects still miss deadlines — the five failure modes and the four checks that catch them →
+
 01 / DECOMPOSE
 
 ### Break the work into a WBS
@@ -492,7 +494,7 @@ The specific things people search for before they try a planning tool.
 
 - Is there an MCP server for a project plan?Yes — KaidoPlan has one built in.
 
-- Why do AI-assisted projects still miss deadlines?Because writing code faster does not shorten the chain that decides the end date — and it makes the plan look healthy while that chain stays exactly as long as it was.
+- AI-assisted projects miss deadlines — and the arithmetic that catches itThe five failure modes and the four CLI checks that catch them.
 
 - How do I export a delivery report for a client?A delivery report is not a screenshot of a task list.
 
@@ -1975,41 +1977,165 @@ Download KaidoPlanPricing
 
 ## https://kaidoplan.cygnusyang.top/qa/why-ai-projects-miss-deadlines.html
 
-Answer
+QA
 
-# Why do AI-assisted projects still miss deadlines?
+# AI-assisted projects miss deadlines — and the arithmetic that catches it
 
-Because writing code faster does not shorten the chain that decides the end date — and it makes the plan look healthy while that chain stays exactly as long as it was.
+Every task says done. The agent's summary says done. The pull requests are merged. And the delivery date has moved anyway.
 
-Updated 2026-11-16 · by cygnus, the developer of KaidoPlan
+Updated 2026-11-09 · by cygnus, the developer of KaidoPlan
 
-## 1. The estimate was the agent's
+## "Done" is a property of a task. The delivery date is a property of a graph.
 
-An agent asked how long a task will take answers with an average case and no memory of the last time this class of task went wrong. Multiply that optimism across forty tasks and the plan is short before any work starts. Speed does not fix an estimate, it just makes the resulting slip more surprising.
+This is the most common failure in AI-assisted projects, and it is almost never a coding failure. Nobody lied, nobody slacked off, and no story was misreported. The status report and the schedule are describing two different objects, and they were never required to agree.
 
-## 2. Dependencies lived in prompts
+A task can be genuinely, verifiably complete and still ruin the date, because the date is produced by a chain of predecessors — and a chain does not care how green its individual nodes are.
 
-If the order was communicated in a message instead of recorded in a graph, nothing enforces it. Work starts early, finishes after the thing that needed it, and every individual status is true.
+### Failure 1: the finished task that finished too late
 
-## 3. Integration was treated as a task at the end
+Agents execute in the order they are asked, which is not always the order the plan implies.
 
-Integration, review and acceptance are where compression goes to hide. They are also the tasks most likely to be estimated at zero because they feel like a formality. A plan without them looks a week shorter and is a week wrong.
+Suppose server work finishes on the 6th, and client integration began on the 4th. Both statements can be true. Nothing in a task list objects, because a task list has no concept of one task having to precede another. A schedule does: it reports the pair as a date conflict, and it does so on the 4th, not on the 20th when someone asks for a date.
 
-## 4. The wrong tasks were being watched
+This is the single most valuable property of putting dates and edges in the same object. The contradiction becomes an error message instead of a surprise in a client call.
 
-A daily report over forty green tasks trains everyone to look at volume. The delivery date is set by the zero-slack chain, which is usually two or three tasks and rarely the ones discussed in standup. Optimising the visible set feels productive and moves nothing.
+### Failure 2: the dependency was never written down
 
-## What actually helps
+Most plans record tasks and dates and stop there. Without an edge between two tasks, the data model has no way to express "the acceptance test cannot start before the API exists."
 
-- Human-owned estimates, agent-owned execution. The agent writes code; the person who has shipped before sets the duration.
+So the schedule compresses. The computed finish date comes out earlier than reality, the plan looks healthy, and it keeps looking healthy right up to the week the gap becomes undeniable. The information was never missing from the project — it was missing from the artifact.
 
-- A dependency graph with real edges, so the schedule can be computed rather than asserted.
+A useful test for any tracker: can you express "B cannot start until A finishes" such that a machine will complain when that is violated? If the answer is "we agreed on that in Slack," you have a plan that cannot be checked.
 
-- The four checks after every change: compute, critical path, violations, and confirmation that write-back landed.
+### Failure 3: the estimate was never yours
 
-- Baselines, so "we slipped" is measured against a frozen schedule rather than a remembered one.
+Ask an agent how long a task will take and you get an average case, with no memory of the last time this class of task went wrong. The agent is not being optimistic on purpose; it has no prior to be pessimistic with.
 
-None of this makes the project faster. It makes the slip visible on the day it happens instead of the week it becomes undeniable — which is the only window in which a deadline can still be protected.
+Across a plan of forty tasks, that bias does not average out. It compounds, because every task inherits the same missing memory. Speed then makes the outcome worse, not better: the work arrives faster, the slip arrives just as fast, and it is more surprising because everything felt productive.
+
+The division of labour that survives contact with reality is boring: the agent writes the code, the person who has shipped before sets the duration. Not because humans estimate well, but because a human estimate carries the memory of previous failures and can be argued with in review.
+
+### Failure 4: integration, review and acceptance get estimated at zero
+
+They are where schedule compression goes to hide. They also feel like formalities, so they get zero days — or they get dropped entirely because "the tasks are the work."
+
+A plan without them looks a week shorter and is a week wrong. If your plan has no explicit task for review and acceptance, you have not omitted overhead; you have moved it into the part of the timeline nobody is measuring.
+
+### Failure 5: you are watching the wrong tasks
+
+A daily report over forty green tasks trains everyone to look at volume. But the delivery date is set by the zero-slack chain — usually two or three tasks, and rarely the ones discussed in standup.
+
+This is why status meetings feel productive and move nothing. Optimising the visible set is satisfying; only the critical path changes the date. If you cannot name the chain that sets your end date, you are managing a list, not a schedule.
+
+## A worked example
+
+Four tasks, dates included, small enough to check by hand:
+
+Task
+
+Dates
+
+Status
+
+API design
+
+ends Nov 1
+
+done
+
+Server implementation
+
+ends Nov 6
+
+done
+
+Client integration
+
+starts Nov 4; predecessor ends Nov 7
+
+date conflict
+
+Joint acceptance
+
+critical path, 0 days slack
+
+blocks the end date
+
+Three of four tasks are green. Two problems are visible in the table and invisible in a status report:
+
+- Client integration starts on Nov 4 against a predecessor that ends Nov 7 — three days of work running before the thing it depends on exists.
+
+- Joint acceptance sits on the zero-slack chain. Any day it moves, the delivery date moves one-for-one.
+
+Neither is a coding error. Both are arithmetic errors in the plan, and both are cheap to fix on Nov 4 and expensive to explain on Nov 20.
+
+## The check that catches all five
+
+You do not need a methodology. You need four operations run against the plan data after every change that touches dates:
+
+`# 1. Does the schedule compute at all? Early/late dates per task.
+kaidoplan schedule compute --file plan.kaido
+
+# 2. Which chain sets the end date? Critical path and slack.
+kaidoplan schedule path --file plan.kaido
+
+# 3. What does the plan admit is broken?
+kaidoplan violations --file plan.kaido
+
+# 4. Did the agent's status write-back actually land?
+kaidoplan status batch --file plan.kaido --json`
+
+Step 3 returns four classes of problem, and each has exactly one honest response:
+
+Violation
+
+What it means
+
+What to do
+
+Dependency cycle
+
+A waits for B and B waits for A
+
+Break the cycle. Nothing downstream is real.
+
+Deadline conflict
+
+A task finishes after a constraint or the project end
+
+Move the date, cut scope, or move the constraint — decide deliberately
+
+Task outside the project window
+
+Starts before the project starts or ends after it ends
+
+Either the window is wrong or the task belongs elsewhere
+
+Blocked chain
+
+Work that cannot proceed because an upstream item is stuck
+
+Escalate this chain today, not the loudest task in the list
+
+The result you are looking for is boring: no violations, and a critical path you can name out loud. If you cannot say which chain sets your date, the check has not been done — it has been performed.
+
+One detail worth internalising: bulk status writes should return per-entry success and failure, and they should not abort on the first failure. That is correct behaviour for a long list, and it is exactly why you have to read the output. Nine of ten entries landing looks like success from a distance.
+
+## Make it a failing test, not a ritual
+
+A schedule check that lives in a weekly meeting decays into ritual within a month. A schedule check that lives in CI does not.
+
+If the plan is a file in the repository, the check can be part of the pull request you were going to open anyway: run `violations`, paste the output, and if it is non-empty the change is not ready. No dashboard, no webhook, no account. When it passes it costs nothing, and when it fails you learn about a dependency cycle at commit time instead of at delivery time.
+
+The same reasoning applies to the "done" definition. Make done mean done, and the plan recomputed — not as a slogan, but as the literal gate. Writing status through the tool surface rather than in prose matters here, because the completion time is what a conflict check needs; "done" as a boolean is enough for a burndown and useless for a schedule.
+
+## What none of this fixes
+
+This check does not shorten your critical path. It tells you which chain sets the date so you can decide what to cut, parallelise, or renegotiate. The decision stays with you.
+
+It does not fix a bad estimate either — a plan can be internally consistent and still unachievable. Consistency is the cheap half: it is the only half you can compute.
+
+And it does not replace a project manager, a standup, or a conversation with a client. It makes the slip visible on the day it happens instead of the week it becomes undeniable, which is the only window in which a deadline can still be protected.
 
 ## Questions this page does not answer
 
