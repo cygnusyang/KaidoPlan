@@ -103,7 +103,7 @@ Tool reference (21 MCP tools, grouped):
 
 ## Contact
 
-- Email: ruohuyang@163.com
+- Email: support@cygnusyang.top
 - Sibling product (local-first password manager): https://ai.cygnusyang.top/bitcoffer/
 
 ## How to cite

@@ -18,6 +18,10 @@
   hr { border: 0; border-top: 1px solid rgba(127,127,127,.3); margin: 48px 0; }
   a { color: #4a56d6; }
   .langswitch { text-align: right; font-size: 14px; margin-bottom: 24px; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { text-align: left; vertical-align: top; padding: 8px; font-size: 15px;
+           border-bottom: 1px solid rgba(127,127,127,.3); }
+  th { font-weight: 600; }
 </style>
 <script src="theme.js"></script>
 </head>
@@ -25,26 +29,16 @@
 <p class="langswitch"><a href="privacy.html" lang="en" hreflang="en">English</a></p>
 
 <h1>KaidoPlan 隐私政策</h1>
-<p class="meta">最后更新：2026-11-15</p>
+<p class="meta">最后更新：2026-11-18</p>
 
-<p>KaidoPlan（下称「本应用」）不收集你的个人数据，不在后台向任何地方发送信息。唯一的对外传输
-   是你主动提交的反馈：只有你在「帮助 ▸ 反馈问题…」里写下内容并点击提交时，你选定的内容才会被
-   发送，并在公开仓库的 issue 中公开可见。</p>
+<p>KaidoPlan（下称「本应用」）把你的项目数据留在你的机器上：<code>.kaido</code> 文件的<strong>内容永不上传</strong>，
+   不装授权、不登录也能打开、编辑、保存全部本地功能。本应用对外的通信只有四类，下面逐条写清：
+   你主动提交的反馈、直装版的更新检查、直装版读取一份静态吊销列表、直装版在「激活 Pro」或
+   登录<strong>可选账号</strong>时与授权服务的来往。</p>
 
+<h2>留在本机的东西</h2>
 <ul>
-  <li><strong>不收集数据</strong>：本应用不含账号系统、行为分析、后台崩溃上报、广告或第三方 SDK，
-      也不会在后台自动上传任何内容。</li>
-  <li><strong>你主动提交的反馈（唯一的对外传输）</strong>：只有你在「帮助 ▸ 反馈问题…」面板里
-      点击提交才会发送，不点提交则内容留在本机。发送内容为你填写的描述、机器信息（版本号、构建号、
-      分发渠道、macOS 版本、机型标识、界面语言、许可证类型），以及<strong>仅在你显式勾选时</strong>
-      才打包的日志与崩溃报告（日志在打包前会脱敏，路径只保留末两级）。反馈会发布到本项目的
-      <a href="https://github.com/cygnusyang/KaidoPlan/issues">公开 issue 列表</a>，任何人可见、
-      可搜索，并可能被搜索引擎及第三方归档；以你自己的 GitHub 账号提交时 issue 显示该账号名，
-      由维护者账号（GitHub <code>cygnusyang</code>）代为提交时，不显示你的账号信息（正文与你自己
-      提交完全相同）。<strong>提交后你无法自行删除</strong>——如需删除，请在原 issue 下留言。
-      <strong>不会上传</strong>：<code>.kaido</code> 项目文件的内容、项目文件路径、最近项目书签、
-      许可证文件内容、你的邮箱。</li>
-  <li><strong>项目数据留在本地</strong>：你打开和保存的 <code>.kaido</code> 文件只存在你选择的位置。
+  <li><strong>项目数据</strong>：你打开和保存的 <code>.kaido</code> 文件只存在你选择的位置。
       本应用不上传、不备份、不同步任何项目内容。</li>
   <li><strong>最近项目</strong>：为了在启动时重新打开上次的项目，本应用在你明确选择文件或文件夹后，
       会为该文件生成一个仅限本应用使用的 security-scoped bookmark，保存在本机偏好设置里。
@@ -57,9 +51,101 @@
         <li>只有你在该面板中授权的文件夹可被访问，越界请求会被拒绝；</li>
         <li>随时关闭开关或重置令牌即可立即中断访问。</li>
       </ul></li>
-  <li><strong>无第三方共享</strong>：除你主动提交的反馈由 GitHub 以公开 issue 形式承载外，
-      本应用不与任何第三方共享数据，因为不存在其它可共享的数据。</li>
 </ul>
+
+<h2>授权与可选账号（仅直装版）</h2>
+<ul>
+  <li><strong>什么时候联网</strong>：只有你装入 <code>license.json</code> 之后，本应用才向「授权服务」
+      发出第一份激活请求；之后每 12 小时检查一次，凭据剩余不足 7 天时才续验。
+      <strong>没有授权、没有登录 = 一次也不连授权服务</strong>（更新检查与吊销列表是另外两件事，
+      见下文，它们不带任何标识）。</li>
+  <li><strong>账号是可选的</strong>：激活本身不需要账号；建账号的唯一用处是在浏览器里查看自己的授权、
+      管理（解绑）设备、注销账号。不建账号，激活与其他功能照常。</li>
+</ul>
+
+<table>
+  <tr><th>数据</th><th>为什么需要</th><th>以什么形式存放 / 存多久</th></tr>
+  <tr><td>邮箱</td><td>登录时收一次性验证码；把授权文件寄给你</td>
+      <td>授权服务的数据库。注销满 30 天后由每日清理替换为占位值</td></tr>
+  <tr><td>授权 ID（<code>licenseId</code>）</td><td>认定这份授权是哪一单、还能绑几台设备</td>
+      <td>与订单记录一同存放，见「保留期」</td></tr>
+  <tr><td>设备哈希</td><td>数席位、避免一份授权装到更多机器上</td>
+      <td>服务端用独立盐值再做一次 SHA-256，<strong>无法还原为设备标识</strong>。解绑后不再占席位，行仍保留</td></tr>
+  <tr><td>设备名（可选，默认空）</td><td>在账号管理页里认出哪台是哪台</td>
+      <td>同上。由你自己填写，不探测机型</td></tr>
+  <tr><td>验证码、会话</td><td>证明这个浏览器属于这个邮箱</td>
+      <td>验证码 10 分钟自动过期；会话 30 天，服务端只存令牌的哈希</td></tr>
+</table>
+
+<ul>
+  <li><strong>设备哈希怎么来的</strong>：客户端上报一个本机标识（系统 UUID；取不到时用随机生成、
+      存在钥匙串里的值），服务端用独立盐值再做一次 SHA-256 后入库。库里没有能直接对上某台机器的值，
+      <strong>无法还原为设备标识</strong>。</li>
+  <li><strong>明确不收</strong>：手机号、实名信息、设备指纹原文、IP 明文、页面内容、使用行为、
+      <code>.kaido</code> 文件的内容与路径。</li>
+  <li><strong>IP 地址</strong>：只以「按天轮换的哈希」形式用于限流，最长 48 小时内随限流记录删除，
+      跨天无法把同一个地址串起来。</li>
+</ul>
+
+<h2>怎么删、删除之后还剩什么</h2>
+<ul>
+  <li><strong>注销账号</strong>：在账号管理页（由授权服务提供，用浏览器打开）点「注销账号」，点下即生效——
+      该账号的全部会话立刻失效，旧登录状态不能再用于任何接口；注销满 30 天后，每日清理把邮箱替换为
+      占位值（留这 30 天是为了误删后还能找客服恢复）。</li>
+  <li><strong>解绑设备</strong>：同一页面里可逐台解绑，席位立即释放。被解绑的那台机器上的凭据
+      最长还能再用 30 天（这 30 天为断网可用而留），到期后需要重新激活。</li>
+  <li><strong>退出登录</strong>：只结束这一次登录，不删数据。</li>
+  <li><strong>保留期</strong>：订单与授权记录在注销后<strong>保留 10 年</strong>，理由是税务与退款争议
+      需要核对原始交易；这条期限<strong>不随注销缩短</strong>。其余数据按到期自动删除：
+      会话到期即删（≤30 天）、验证码 10 分钟、限流记录 48 小时、落地页计数 90 天、
+      操作审计日志 400 天。</li>
+</ul>
+
+<h2>MAS 版没有账号与激活</h2>
+<p>从 Mac App Store 安装的版本不包含账号、激活与吊销列表相关的任何代码（编译期裁剪），权益由
+   App Store 的交易决定。它<strong>不连授权服务</strong>，也没有自我更新检查（更新交给 App Store）。</p>
+
+<h2>你主动提交的反馈</h2>
+<ul>
+  <li><strong>触发条件</strong>：只有你在「帮助 ▸ 反馈问题…」面板里点击提交才会发送，不点提交则内容
+      留在本机。发送内容为你填写的描述、机器信息（版本号、构建号、分发渠道、macOS 版本、机型标识、
+      界面语言、许可证类型），以及<strong>仅在你显式勾选时</strong>才打包的日志与崩溃报告
+      （日志在打包前会脱敏，路径只保留末两级）。反馈会发布到本项目的
+      <a href="https://github.com/cygnusyang/KaidoPlan/issues">公开 issue 列表</a>，任何人可见、
+      可搜索，并可能被搜索引擎及第三方归档；以你自己的 GitHub 账号提交时 issue 显示该账号名，
+      由维护者账号（GitHub <code>cygnusyang</code>）代为提交时，不显示你的账号信息（正文与你自己
+      提交完全相同）。<strong>提交后你无法自行删除</strong>——如需删除，请在原 issue 下留言。</li>
+  <li><strong>反馈不会上传的内容</strong>：<code>.kaido</code> 项目文件的内容、项目文件路径、
+      最近项目书签、许可证文件内容、你的邮箱（日志打包前已脱敏）。</li>
+</ul>
+
+<h2>更新检查与吊销列表（仅直装版）</h2>
+<ul>
+  <li>启动几秒后自动向 GitHub Releases 取一份 <code>update-manifest.json</code> 判断有没有新版本
+      （之后每 4 小时一次）。这是一次普通的静态文件下载，不带账号、授权 ID 或设备标识。</li>
+  <li>每 7 天取一次静态吊销列表 <code>revoked.json</code>，用于确认某份授权是否已被退款吊销。</li>
+  <li>两者都由 GitHub 提供。和任何 HTTP 请求一样，托管方会看到你的 IP，这部分适用 GitHub 自身的隐私政策。</li>
+</ul>
+
+<h2>本页所在的网站</h2>
+<ul>
+  <li>落地页没有 Cookie，没有第三方广告或追踪 SDK，也不做跨会话的用户识别。</li>
+  <li>计数只记事件名（浏览、下载点击、购买点击）、来源、页面路径、语言、国家与时间，保留 90 天；
+      限流用「按天轮换的 IP 哈希」，保留 48 小时。</li>
+  <li>订阅表单在你主动提交时收邮箱与可选的工具选项，用来发更新通知。要把它从名单里移除，
+      来信说明即可（人工处理，没有自助入口）。</li>
+</ul>
+
+<h2>谁在处理这些数据</h2>
+<table>
+  <tr><th>处理者</th><th>承担什么</th></tr>
+  <tr><td>GitHub</td><td>反馈 issue 的公开托管；更新包与吊销列表的分发</td></tr>
+  <tr><td>Cloudflare</td><td>授权服务的托管（接口、数据库、验证码存储）</td></tr>
+  <tr><td>Resend</td><td>把验证码与授权文件送达你的邮箱</td></tr>
+  <tr><td>Paddle</td><td>销售与收款（订单、发票、退款）</td></tr>
+</table>
+
+<p>除上表与被你主动提交的内容外，本应用不向其它第三方提供数据。</p>
 
 <p>如对本政策有疑问，请通过项目主页
    <a href="https://github.com/cygnusyang/KaidoPlan">github.com/cygnusyang/KaidoPlan</a> 的 Issues 联系。</p>

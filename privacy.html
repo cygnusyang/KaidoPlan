@@ -18,6 +18,10 @@
   hr { border: 0; border-top: 1px solid rgba(127,127,127,.3); margin: 48px 0; }
   a { color: #4a56d6; }
   .langswitch { text-align: right; font-size: 14px; margin-bottom: 24px; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { text-align: left; vertical-align: top; padding: 8px; font-size: 15px;
+           border-bottom: 1px solid rgba(127,127,127,.3); }
+  th { font-weight: 600; }
 </style>
 <script src="theme.js"></script>
 </head>
@@ -25,32 +29,19 @@
 <p class="langswitch"><a href="privacy-zh.html" lang="zh-Hans" hreflang="zh-Hans">简体中文</a></p>
 
 <h1>KaidoPlan Privacy Policy</h1>
-<p class="meta">Last updated: 15 November 2026</p>
+<p class="meta">Last updated: 18 November 2026</p>
 
-<p>KaidoPlan ("the app") does not collect your personal data and does not send anything anywhere
-   in the background. The only outbound transfer is feedback you submit yourself: nothing is sent
-   until you write something under Help ▸ Report a Problem… and press Submit, and what you chose to
-   send becomes publicly visible in an issue in the public repository.</p>
+<p>KaidoPlan ("the app") keeps your project data on your own machine: the <strong>contents of your
+   <code>.kaido</code> files are never uploaded</strong>, and every local feature opens, edits and
+   saves without a licence or an account. The app talks to the outside world in exactly four ways,
+   each spelled out below: feedback you submit yourself, the update check in the direct download, a
+   static revocation list the direct download reads, and the licence service that the direct
+   download contacts when you activate Pro or sign in to the <strong>optional account</strong>.</p>
 
+<h2>What stays on your Mac</h2>
 <ul>
-  <li><strong>No data collection</strong>: no accounts, no analytics, no background crash reporting,
-      no advertising, no third-party SDKs. The app never uploads anything on its own.</li>
-  <li><strong>Feedback you submit (the only outbound transfer)</strong>: sent only when you press
-      Submit in the Help ▸ Report a Problem… panel; until then what you typed stays on your Mac.
-      What is sent: your description, machine details (version, build number, distribution channel,
-      macOS version, Mac model identifier, UI language, license type), and — <strong>only if you
-      tick the box for them</strong> — logs and crash reports, redacted before packaging (paths keep
-      only their last two components). The feedback is posted to this project's
-      <a href="https://github.com/cygnusyang/KaidoPlan/issues">public issue tracker</a>, where anyone
-      can read and search it and where it may be indexed by search engines and third-party archives;
-      submitting with your own GitHub account shows that account name, while having the maintainer's
-      account (GitHub <code>cygnusyang</code>) post it for you does not show your account details
-      (the body is exactly what you wrote). <strong>You cannot delete it yourself</strong> — to have
-      it removed, leave a comment on the original issue. <strong>Never uploaded</strong>: the
-      contents of your <code>.kaido</code> project files, project file paths, recent project
-      bookmarks, the contents of your license file, and your email address.</li>
-  <li><strong>Project data stays local</strong>: the <code>.kaido</code> files you open and save
-      live only where you put them. The app never uploads, backs up or syncs project content.</li>
+  <li><strong>Project data</strong>: the <code>.kaido</code> files you open and save live only where
+      you put them. The app never uploads, backs up or syncs project content.</li>
   <li><strong>Recent projects</strong>: to reopen your last project on launch, the app creates a
       security-scoped bookmark for files or folders you explicitly chose, and keeps it in local
       preferences. Clearing "Recent projects" or removing an authorized folder deletes it.</li>
@@ -63,10 +54,126 @@
         <li>only folders you authorized in that panel are reachable; anything else is refused;</li>
         <li>turning the switch off or resetting the token cuts access immediately.</li>
       </ul></li>
-  <li><strong>No third-party sharing</strong>: apart from feedback you submit yourself, which GitHub
-      hosts as a public issue, the app shares nothing with any third party — there is no other data
-      to share.</li>
 </ul>
+
+<h2>Licence and optional account (direct download only)</h2>
+<ul>
+  <li><strong>When it connects</strong>: only after you install <code>license.json</code> does the app
+      send its first activation request to the licence service. After that it checks every 12 hours
+      and only renews when the credential has less than 7 days left. <strong>No licence and no
+      sign-in means the licence service is never contacted</strong> (the update check and the
+      revocation list are two other things, see below, and neither carries any identifier).</li>
+  <li><strong>The account is optional</strong>: activation itself does not need an account. The only
+      thing an account gives you is a page in the browser where you can see your licences, manage
+      (unbind) devices and delete the account.</li>
+</ul>
+
+<table>
+  <tr><th>Data</th><th>Why it is needed</th><th>How it is stored / for how long</th></tr>
+  <tr><td>Email address</td><td>To send the one-time code when you sign in, and to deliver your licence file</td>
+      <td>The licence service database. Replaced with a placeholder by the daily cleanup once the account has been deleted for 30 days</td></tr>
+  <tr><td>Licence ID (<code>licenseId</code>)</td><td>To tell which order this licence is and how many seats it has left</td>
+      <td>Stored with the order record; see "Retention"</td></tr>
+  <tr><td>Device hash</td><td>To count seats and keep one licence from covering more machines</td>
+      <td>The server hashes it a second time with its own salt with SHA-256, so it <strong>cannot be turned back into a device identifier</strong>. Unbinding stops it counting a seat; the row stays</td></tr>
+  <tr><td>Device name (optional, empty by default)</td><td>To tell your machines apart in the account page</td>
+      <td>Same as above. You type it yourself; no model probing</td></tr>
+  <tr><td>Sign-in code and session</td><td>To prove this browser belongs to that email address</td>
+      <td>The code expires in 10 minutes; the session lasts 30 days and only a hash of the token is stored</td></tr>
+</table>
+
+<ul>
+  <li><strong>How the device hash is made</strong>: the app reports a local machine identifier (the
+      system UUID, or a random value kept in the keychain when that is unavailable), and the server
+      hashes it once more with its own salt before storing. Nothing in the database lines up directly
+      with a machine, and it <strong>cannot be turned back into a device identifier</strong>.</li>
+  <li><strong>Not collected</strong>: phone numbers, real-name verification, raw device fingerprints,
+      plaintext IP addresses, page content, usage behaviour, and the contents or paths of
+      <code>.kaido</code> files.</li>
+  <li><strong>IP addresses</strong>: used only as a hash that rotates daily for rate limiting,
+      deleted with the rate-limit record within 48 hours; the same address cannot be followed across
+      days.</li>
+</ul>
+
+<h2>Deleting things, and what stays</h2>
+<ul>
+  <li><strong>Deleting the account</strong>: press "Delete account" on the account page (served by
+      the licence service, opened in a browser). It takes effect immediately — every session for that
+      account stops working and the old sign-in state cannot be used on any endpoint; once the
+      account has been deleted for 30 days, the daily cleanup replaces the email address with a
+      placeholder (those 30 days exist so a mistaken deletion can still be recovered through
+      support).</li>
+  <li><strong>Unbinding a device</strong>: the same page unbinds devices one at a time and frees the
+      seat at once. The credential on the unbound machine keeps working for at most 30 days (that
+      window is there so you can work offline), after which the machine has to activate again.</li>
+  <li><strong>Signing out</strong>: ends this one session only, deletes nothing.</li>
+  <li><strong>Retention</strong>: order and licence records are <strong>kept for 10 years</strong>
+      after the account is deleted, because tax and refund disputes need the original transaction;
+      <strong>deleting the account does not shorten that</strong>. Everything else expires on
+      schedule: sessions when they expire (≤30 days), sign-in codes after 10 minutes, rate-limit
+      records after 48 hours, landing-page counters after 90 days, and the operational audit log
+      after 400 days.</li>
+</ul>
+
+<h2>The Mac App Store build has no account and no activation</h2>
+<p>The build installed from the Mac App Store contains no code for accounts, activation or the
+   revocation list (removed at compile time); entitlement comes from the App Store transaction. It
+   <strong>does not contact the licence service</strong> and has no self-update check (updates go
+   through the App Store).</p>
+
+<h2>Feedback you submit</h2>
+<ul>
+  <li><strong>Trigger</strong>: only when you press Submit in the Help ▸ Report a Problem… panel;
+      until then what you typed stays on your Mac. What is sent: your description, machine details
+      (version, build number, distribution channel, macOS version, Mac model identifier, UI language,
+      licence type), and — <strong>only if you tick the box for them</strong> — logs and crash
+      reports, redacted before packaging (paths keep only their last two components). The feedback is
+      posted to this project's
+      <a href="https://github.com/cygnusyang/KaidoPlan/issues">public issue tracker</a>, where anyone
+      can read and search it and where it may be indexed by search engines and third-party archives;
+      submitting with your own GitHub account shows that account name, while having the maintainer's
+      account (GitHub <code>cygnusyang</code>) post it for you does not show your account details
+      (the body is exactly what you wrote). <strong>You cannot delete it yourself</strong> — to have
+      it removed, leave a comment on the original issue.</li>
+  <li><strong>What feedback never contains</strong>: the contents of your <code>.kaido</code> project
+      files, project file paths, recent project bookmarks, the contents of your licence file, and
+      your email address (redacted from logs before packaging).</li>
+</ul>
+
+<h2>Update check and revocation list (direct download only)</h2>
+<ul>
+  <li>A few seconds after launch the app fetches <code>update-manifest.json</code> from GitHub
+      Releases to see whether a newer version exists (and every 4 hours after that). That is an
+      ordinary static download carrying no account, licence ID or device identifier.</li>
+  <li>Every 7 days it fetches the static <code>revoked.json</code> list to check whether a licence was
+      revoked after a refund.</li>
+  <li>Both are served by GitHub. As with any HTTP request, the host sees your IP address; that part is
+      governed by GitHub's own privacy policy.</li>
+</ul>
+
+<h2>This website</h2>
+<ul>
+  <li>The landing pages set no cookies, carry no third-party advertising or tracking SDKs, and do no
+      cross-session user identification.</li>
+  <li>Counters record only the event name (view, download click, buy click), referrer, page path,
+      language, country and time, kept for 90 days; rate limiting uses a hash of your IP address that
+      rotates daily, kept for 48 hours.</li>
+  <li>The subscribe form takes your email address and an optional tool choice when you submit it, and
+      uses them for release announcements. To be removed from that list, email and ask — there is no
+      self-service switch.</li>
+</ul>
+
+<h2>Who processes this data</h2>
+<table>
+  <tr><th>Processor</th><th>What it does</th></tr>
+  <tr><td>GitHub</td><td>Hosts feedback issues publicly; serves update packages and the revocation list</td></tr>
+  <tr><td>Cloudflare</td><td>Hosts the licence service (API, database, one-time code storage)</td></tr>
+  <tr><td>Resend</td><td>Delivers sign-in codes and licence files to your mailbox</td></tr>
+  <tr><td>Paddle</td><td>Sells and collects payment (orders, invoices, refunds)</td></tr>
+</table>
+
+<p>Apart from the processors above and what you submit yourself, the app shares nothing with any
+   third party.</p>
 
 <p>Questions: open an issue at
    <a href="https://github.com/cygnusyang/KaidoPlan">github.com/cygnusyang/KaidoPlan</a>.</p>

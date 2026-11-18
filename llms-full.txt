@@ -103,7 +103,7 @@ Tool reference (21 MCP tools, grouped):
 
 ## Contact
 
-- Email: ruohuyang@163.com
+- Email: support@cygnusyang.top
 - Sibling product (local-first password manager): https://ai.cygnusyang.top/bitcoffer/
 
 ## How to cite
@@ -127,7 +127,7 @@ Claude Code, Codex and other agents work task by task. KaidoPlan is a macOS app 
 
 Download KaidoPlan for macOSSee a plan check
 
-macOS 14+ · 30-day full-feature trial, no account · Local .kaido files
+macOS 14+ · 30-day full-feature trial, account optional · Local .kaido files
 
 The macOS plan workbench
 Critical path · The chain that sets your end dateViolations · Conflicting dates, cycles, out-of-range tasksLocal first · Project data stays on your device
@@ -212,7 +212,7 @@ Already bought? Resend your license
 
 How does the free trial work?
 
-The direct download starts a 30-day trial on first launch with no account or payment card required. Eligible Mac App Store users can start a one-month trial through the in-app subscription.
+The direct download starts a 30-day trial on first launch with no account or payment card required. An account stays optional afterwards and is only used to manage your licence and devices online. Eligible Mac App Store users can start a one-month trial through the in-app subscription.
 
 What happens after the trial?
 
@@ -254,7 +254,7 @@ Claude Code、Codex 以及其它智能体一项一项往下干。KaidoPlan 是�
 
 下载 KaidoPlan for macOS看一次计划校验
 
-macOS 14+ · 30 天全功能试用，不需要账号 · 本地 .kaido 文件
+macOS 14+ · 30 天全功能试用，账号可选 · 本地 .kaido 文件
 
 macOS 计划工作台
 关键路径 · 决定交付日期的那条链计划校验 · 日期冲突、循环依赖、超期任务本地优先 · 不上传项目数据
@@ -337,7 +337,7 @@ $9.99 / 年，自动续费
 
 如何开始免费试用？
 
-直装版首次启动即开始 30 天试用，无需注册或绑卡。符合资格的 Mac App Store 用户可在 App 内通过订阅开启一个月试用。
+直装版首次启动即开始 30 天试用，无需注册或绑卡；之后账号仍是可选的，只用来在线管理授权与设备。符合资格的 Mac App Store 用户可在 App 内通过订阅开启一个月试用。
 
 试用到期后会怎样？
 
@@ -686,33 +686,19 @@ Download KaidoPlanPricing
 
 # KaidoPlan Privacy Policy
 
-Last updated: 15 November 2026
+Last updated: 18 November 2026
 
-KaidoPlan ("the app") does not collect your personal data and does not send anything anywhere
-in the background. The only outbound transfer is feedback you submit yourself: nothing is sent
-until you write something under Help ▸ Report a Problem… and press Submit, and what you chose to
-send becomes publicly visible in an issue in the public repository.
+KaidoPlan ("the app") keeps your project data on your own machine: the contents of your
+`.kaido` files are never uploaded, and every local feature opens, edits and
+saves without a licence or an account. The app talks to the outside world in exactly four ways,
+each spelled out below: feedback you submit yourself, the update check in the direct download, a
+static revocation list the direct download reads, and the licence service that the direct
+download contacts when you activate Pro or sign in to the optional account.
 
-- No data collection: no accounts, no analytics, no background crash reporting,
-no advertising, no third-party SDKs. The app never uploads anything on its own.
+## What stays on your Mac
 
-- Feedback you submit (the only outbound transfer): sent only when you press
-Submit in the Help ▸ Report a Problem… panel; until then what you typed stays on your Mac.
-What is sent: your description, machine details (version, build number, distribution channel,
-macOS version, Mac model identifier, UI language, license type), and — only if you
-tick the box for them — logs and crash reports, redacted before packaging (paths keep
-only their last two components). The feedback is posted to this project's
-public issue tracker, where anyone
-can read and search it and where it may be indexed by search engines and third-party archives;
-submitting with your own GitHub account shows that account name, while having the maintainer's
-account (GitHub `cygnusyang`) post it for you does not show your account details
-(the body is exactly what you wrote). You cannot delete it yourself — to have
-it removed, leave a comment on the original issue. Never uploaded: the
-contents of your `.kaido` project files, project file paths, recent project
-bookmarks, the contents of your license file, and your email address.
-
-- Project data stays local: the `.kaido` files you open and save
-live only where you put them. The app never uploads, backs up or syncs project content.
+- Project data: the `.kaido` files you open and save live only where
+you put them. The app never uploads, backs up or syncs project content.
 
 - Recent projects: to reopen your last project on launch, the app creates a
 security-scoped bookmark for files or folders you explicitly chose, and keeps it in local
@@ -730,9 +716,164 @@ the same plan.
 
 - turning the switch off or resetting the token cuts access immediately.
 
-- No third-party sharing: apart from feedback you submit yourself, which GitHub
-hosts as a public issue, the app shares nothing with any third party — there is no other data
-to share.
+## Licence and optional account (direct download only)
+
+- When it connects: only after you install `license.json` does the app
+send its first activation request to the licence service. After that it checks every 12 hours
+and only renews when the credential has less than 7 days left. No licence and no
+sign-in means the licence service is never contacted (the update check and the
+revocation list are two other things, see below, and neither carries any identifier).
+
+- The account is optional: activation itself does not need an account. The only
+thing an account gives you is a page in the browser where you can see your licences, manage
+(unbind) devices and delete the account.
+
+Data
+
+Why it is needed
+
+How it is stored / for how long
+
+Email address
+
+To send the one-time code when you sign in, and to deliver your licence file
+
+The licence service database. Replaced with a placeholder by the daily cleanup once the account has been deleted for 30 days
+
+Licence ID (`licenseId`)
+
+To tell which order this licence is and how many seats it has left
+
+Stored with the order record; see "Retention"
+
+Device hash
+
+To count seats and keep one licence from covering more machines
+
+The server hashes it a second time with its own salt with SHA-256, so it cannot be turned back into a device identifier. Unbinding stops it counting a seat; the row stays
+
+Device name (optional, empty by default)
+
+To tell your machines apart in the account page
+
+Same as above. You type it yourself; no model probing
+
+Sign-in code and session
+
+To prove this browser belongs to that email address
+
+The code expires in 10 minutes; the session lasts 30 days and only a hash of the token is stored
+
+- How the device hash is made: the app reports a local machine identifier (the
+system UUID, or a random value kept in the keychain when that is unavailable), and the server
+hashes it once more with its own salt before storing. Nothing in the database lines up directly
+with a machine, and it cannot be turned back into a device identifier.
+
+- Not collected: phone numbers, real-name verification, raw device fingerprints,
+plaintext IP addresses, page content, usage behaviour, and the contents or paths of
+`.kaido` files.
+
+- IP addresses: used only as a hash that rotates daily for rate limiting,
+deleted with the rate-limit record within 48 hours; the same address cannot be followed across
+days.
+
+## Deleting things, and what stays
+
+- Deleting the account: press "Delete account" on the account page (served by
+the licence service, opened in a browser). It takes effect immediately — every session for that
+account stops working and the old sign-in state cannot be used on any endpoint; once the
+account has been deleted for 30 days, the daily cleanup replaces the email address with a
+placeholder (those 30 days exist so a mistaken deletion can still be recovered through
+support).
+
+- Unbinding a device: the same page unbinds devices one at a time and frees the
+seat at once. The credential on the unbound machine keeps working for at most 30 days (that
+window is there so you can work offline), after which the machine has to activate again.
+
+- Signing out: ends this one session only, deletes nothing.
+
+- Retention: order and licence records are kept for 10 years
+after the account is deleted, because tax and refund disputes need the original transaction;
+deleting the account does not shorten that. Everything else expires on
+schedule: sessions when they expire (≤30 days), sign-in codes after 10 minutes, rate-limit
+records after 48 hours, landing-page counters after 90 days, and the operational audit log
+after 400 days.
+
+## The Mac App Store build has no account and no activation
+
+The build installed from the Mac App Store contains no code for accounts, activation or the
+revocation list (removed at compile time); entitlement comes from the App Store transaction. It
+does not contact the licence service and has no self-update check (updates go
+through the App Store).
+
+## Feedback you submit
+
+- Trigger: only when you press Submit in the Help ▸ Report a Problem… panel;
+until then what you typed stays on your Mac. What is sent: your description, machine details
+(version, build number, distribution channel, macOS version, Mac model identifier, UI language,
+licence type), and — only if you tick the box for them — logs and crash
+reports, redacted before packaging (paths keep only their last two components). The feedback is
+posted to this project's
+public issue tracker, where anyone
+can read and search it and where it may be indexed by search engines and third-party archives;
+submitting with your own GitHub account shows that account name, while having the maintainer's
+account (GitHub `cygnusyang`) post it for you does not show your account details
+(the body is exactly what you wrote). You cannot delete it yourself — to have
+it removed, leave a comment on the original issue.
+
+- What feedback never contains: the contents of your `.kaido` project
+files, project file paths, recent project bookmarks, the contents of your licence file, and
+your email address (redacted from logs before packaging).
+
+## Update check and revocation list (direct download only)
+
+- A few seconds after launch the app fetches `update-manifest.json` from GitHub
+Releases to see whether a newer version exists (and every 4 hours after that). That is an
+ordinary static download carrying no account, licence ID or device identifier.
+
+- Every 7 days it fetches the static `revoked.json` list to check whether a licence was
+revoked after a refund.
+
+- Both are served by GitHub. As with any HTTP request, the host sees your IP address; that part is
+governed by GitHub's own privacy policy.
+
+## This website
+
+- The landing pages set no cookies, carry no third-party advertising or tracking SDKs, and do no
+cross-session user identification.
+
+- Counters record only the event name (view, download click, buy click), referrer, page path,
+language, country and time, kept for 90 days; rate limiting uses a hash of your IP address that
+rotates daily, kept for 48 hours.
+
+- The subscribe form takes your email address and an optional tool choice when you submit it, and
+uses them for release announcements. To be removed from that list, email and ask — there is no
+self-service switch.
+
+## Who processes this data
+
+Processor
+
+What it does
+
+GitHub
+
+Hosts feedback issues publicly; serves update packages and the revocation list
+
+Cloudflare
+
+Hosts the licence service (API, database, one-time code storage)
+
+Resend
+
+Delivers sign-in codes and licence files to your mailbox
+
+Paddle
+
+Sells and collects payment (orders, invoices, refunds)
+
+Apart from the processors above and what you submit yourself, the app shares nothing with any
+third party.
 
 Questions: open an issue at
 github.com/cygnusyang/KaidoPlan.
@@ -791,7 +932,7 @@ We may update these terms. Material changes to price or licence scope apply only
 
 ## 8. Contact
 
-Sales and licensing: ruohuyang@163.com
+Sales and licensing: support@cygnusyang.top
 
 Product issues: github.com/cygnusyang/KaidoPlan/issues
 
@@ -823,7 +964,7 @@ Apple, under its own policy
 
 ## 2. How to request
 
-- Email ruohuyang@163.com with your order ID or the email used at purchase;
+- Email support@cygnusyang.top with your order ID or the email used at purchase;
 
 - Or contact Paddle buyer support directly with your order ID;
 
@@ -841,7 +982,7 @@ The refunded licence is revoked — its `license.json` stops working. Your proje
 
 Annual subscriptions do not renew-refund automatically. If you request a refund within 14 days of a renewal charge, this policy applies. If you no longer use the app, cancel before the renewal date to avoid the next charge.
 
-For subscriptions bought on this website, open the Manage subscription link in your Paddle receipt, or open the KaidoPlan Paddle customer portal using your purchase email. For Mac App Store purchases, use Apple subscription settings. If you need help, email ruohuyang@163.com.
+For subscriptions bought on this website, open the Manage subscription link in your Paddle receipt, or open the KaidoPlan Paddle customer portal using your purchase email. For Mac App Store purchases, use Apple subscription settings. If you need help, email support@cygnusyang.top.
 
 ## 6. Abuse review
 
