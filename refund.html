@@ -20,6 +20,24 @@
   hr { border: 0; border-top: 1px solid rgba(127,127,127,.3); margin: 48px 0; }
   a { color: #4a56d6; }
   .langswitch { text-align: right; font-size: 14px; margin-bottom: 24px; }
+  /* License resend form — same markup/logic as the landing page (resend.js). */
+  .resend { margin-top: 20px; border-top: 1px solid rgba(127,127,127,.3); padding-top: 14px; }
+  .resend summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 6px; }
+  .resend summary::-webkit-details-marker { display: none; }
+  .resend summary::before { content: "↺"; }
+  .resend label { position: absolute; left: -9999px; }
+  .resend form { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .resend input { flex: 1 1 11rem; min-width: 0; padding: 8px 12px;
+                  border: 1px solid rgba(127,127,127,.4); border-radius: 9px;
+                  font: inherit; font-size: 14px; color: inherit; }
+  .resend button { padding: 8px 16px; border: 1px solid #4a56d6; border-radius: 9px;
+                   font: inherit; font-size: 14px; background: transparent;
+                   color: #4a56d6; cursor: pointer; }
+  .resend button:disabled { opacity: .6; cursor: default; }
+  .resend-status { font-size: 14px; margin: 10px 0 0; }
+  .resend-status:empty { display: none; }
+  .resend-status.is-ok { color: #2e7d32; }
+  .resend-status.is-error { color: #c62828; }
 </style>
 <script src="theme.js"></script>
 </head>
@@ -54,8 +72,10 @@
 <h2 id="manage-subscription">5. Manage your subscription</h2>
 <p>Annual subscriptions do not renew-refund automatically. If you request a refund within 14 days of a renewal charge, this policy applies. If you no longer use the app, cancel before the renewal date to avoid the next charge.</p>
 <p>For subscriptions bought on this website, open the Manage subscription link in your Paddle receipt, or <a href="https://customer-portal.paddle.com/cpl_01m6h88nnr6z2eq3gky16bjw2f">open the KaidoPlan Paddle customer portal</a> using your purchase email. For Mac App Store purchases, use <a href="https://apps.apple.com/account/subscriptions">Apple subscription settings</a>. If you need help, email <a href="mailto:support@cygnusyang.top">support@cygnusyang.top</a>.</p>
+<details class="resend"><summary>Already bought? Resend your license</summary><form data-resend-form novalidate><label for="resend-email">Email used at checkout</label><input id="resend-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required><button type="submit">Resend</button></form><p class="resend-status" role="status" aria-live="polite"></p></details>
 
 <h2>6. Abuse review</h2>
 <p>The 14-day policy still applies to repeated buy-refund-buy cycles and to licences leaked publicly. We refund first, then revoke the licence.</p>
+<script src="resend.js" defer></script>
 </body>
 </html>

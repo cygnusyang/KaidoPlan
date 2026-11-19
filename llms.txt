@@ -2,7 +2,7 @@
 
 > KaidoPlan is a desktop app that keeps the WBS, dependencies and dates of an AI-assisted project in one local `.kaido` plan file, computes the critical path, and flags scheduling violations before they cost a delivery date. This file records only facts that can be checked in the app, its public repository and the pages linked below. Independent software by cygnus, not a company.
 
-Last updated 2026-11-17. Current public release: v3.12.9 (2026-11-17). No claims are made for features that have not shipped.
+Last updated 2026-11-19. Current public release: v4.0.4 (2026-11-19). No claims are made for features that have not shipped.
 
 ## What it is
 
@@ -92,7 +92,7 @@ Tool reference (21 MCP tools, grouped):
 |---|---|
 | Developer | cygnus — independent developer, https://github.com/cygnusyang |
 | Platform | macOS 14 or later |
-| Current public release | v3.12.9, published 2026-11-17 |
+| Current public release | v4.0.4, published 2026-11-19 |
 | Plan file | `.kaido`, plain JSON, `formatVersion` 2 |
 | MCP tools | 21, stdio JSON-RPC |
 | Trial | 30 days, all features, no account required for the direct download |
